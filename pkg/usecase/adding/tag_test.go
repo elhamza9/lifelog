@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 func TestNewTag(t *testing.T) {
 	// Init Repo with a tag to test duplicate case
 	repo.Tags = &map[domain.TagID]domain.Tag{
-		100000: domain.Tag{Name: "duplicate-tag"},
+		100000: {Name: "duplicate-tag"},
 	}
 
 	// Sub-tests
