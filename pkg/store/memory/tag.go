@@ -30,3 +30,12 @@ func (repo Repository) AddTag(t domain.Tag) (domain.Tag, error) {
 	(*repo.Tags)[t.ID] = t
 	return t, nil
 }
+
+// ListAllTags returns all stored tags in memory
+func (repo Repository) ListAllTags() (*[]domain.Tag, error) {
+	tags := []domain.Tag{}
+	for _, t := range *(repo.Tags) {
+		tags = append(tags, t)
+	}
+	return &tags, nil
+}
