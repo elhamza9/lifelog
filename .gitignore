@@ -1,0 +1,8 @@
+# Vim swap Files
+*.swp
+
+# Sqlite test databases
+*.db
+
+# Todo file
+todo.txt
