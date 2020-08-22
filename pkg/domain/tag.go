@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// TagID is a value object representing Id of a Tag.
+// TagID is a value-object representing Id of a Tag.
 type TagID uint
 
 // Tag Entity
@@ -14,7 +14,7 @@ type Tag struct {
 	Name string
 }
 
-// Constants
+// Constants for tag name conditions
 const (
 	TagNameMinLength       int    = 3
 	TagNameMaxLength       int    = 20
@@ -26,4 +26,5 @@ var (
 	ErrTagNameTooShort          = fmt.Errorf("Tag name must be at least %d long", TagNameMinLength)
 	ErrTagNameTooLong           = fmt.Errorf("Tag name must be at most %d long", TagNameMinLength)
 	ErrTagNameInvalidCharacters = errors.New("Tag name can only contain alphanumeric characters and dashes")
+	ErrTagNameDuplicate         = errors.New("Tag name duplicate")
 )
