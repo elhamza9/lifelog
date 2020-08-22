@@ -15,12 +15,9 @@ import (
 func (srv Service) NewTag(name string) (domain.Tag, error) {
 	// Check tag name is valid
 	nameTooShort := len(name) < domain.TagNameMinLength
-	if nameTooShort {
-		return domain.Tag{}, domain.ErrTagNameTooShort
-	}
 	nameTooLong := len(name) > domain.TagNameMaxLength
-	if nameTooLong {
-		return domain.Tag{}, domain.ErrTagNameTooLong
+	if nameTooShort || nameTooLong {
+		return domain.Tag{}, domain.ErrTagNameLen
 	}
 	if match, _ := regexp.Match(domain.TagNameValidCharacters, []byte(name)); !match {
 		return domain.Tag{}, domain.ErrTagNameInvalidCharacters

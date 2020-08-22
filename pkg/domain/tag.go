@@ -23,8 +23,7 @@ const (
 
 // Errors
 var (
-	ErrTagNameTooShort          = fmt.Errorf("Tag name must be at least %d long", TagNameMinLength)
-	ErrTagNameTooLong           = fmt.Errorf("Tag name must be at most %d long", TagNameMinLength)
+	ErrTagNameLen               = fmt.Errorf("Tag name must be at %d ~ %d long", TagNameMinLength, TagNameMaxLength)
 	ErrTagNameInvalidCharacters = errors.New("Tag name can only contain alphanumeric characters and dashes")
 	ErrTagNameDuplicate         = errors.New("Tag name duplicate")
 )

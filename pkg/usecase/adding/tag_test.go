@@ -36,8 +36,8 @@ func TestNewTag(t *testing.T) {
 		"Special Char &": {"my-tag&", domain.ErrTagNameInvalidCharacters},
 		"Special Char %": {"my-tag%", domain.ErrTagNameInvalidCharacters},
 		"Special Char *": {"my-tag*", domain.ErrTagNameInvalidCharacters},
-		"Too Short":      {"my", domain.ErrTagNameTooShort},
-		"Too Long":       {"myveryveryveryveryveryverylongtag", domain.ErrTagNameTooLong},
+		"Too Short":      {"my", domain.ErrTagNameLen},
+		"Too Long":       {"myveryveryveryveryveryverylongtag", domain.ErrTagNameLen},
 	}
 
 	for name, test := range tests {
