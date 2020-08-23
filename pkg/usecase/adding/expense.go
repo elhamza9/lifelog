@@ -24,6 +24,10 @@ func (srv Service) NewExpense(label string, t time.Time, value float32, unit str
 	if t.After(time.Now()) {
 		return domain.Expense{}, domain.ErrExpenseTimeFuture
 	}
+	// Check value
+	if value <= 0 {
+		return domain.Expense{}, domain.ErrExpenseValue
+	}
 	// Check Unit and transform it to lowercase
 	if len(unit) < domain.ExpenseUnitMinLen || len(unit) > domain.ExpenseUnitMaxLen {
 		return domain.Expense{}, domain.ErrExpenseUnitLength

@@ -36,6 +36,15 @@ func TestNewExpense(t *testing.T) {
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: nil,
 		},
+		"Zero value": {
+			label:       "my expense",
+			time:        time.Now().AddDate(0, 0, -1),
+			val:         0,
+			unit:        "Dh",
+			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			expectedErr: domain.ErrExpenseValue,
+		},
+
 		"Time Future": {
 			label:       "my expense",
 			time:        time.Now().AddDate(0, 0, 1),

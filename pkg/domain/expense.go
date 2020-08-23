@@ -30,7 +30,7 @@ const (
 // Errors
 var (
 	ErrExpenseLabelLength = fmt.Errorf("Expense Label must be %d ~ %d characters long", ExpenseLabelMinLen, ExpenseLabelMaxLen)
-	ErrExpenseValueErr    = errors.New("Expense Value must be strictly positive")
+	ErrExpenseValue       = errors.New("Expense Value must be strictly positive")
 	ErrExpenseUnitLength  = fmt.Errorf("Expense Unit must %d ~ %d long", ExpenseUnitMinLen, ExpenseUnitMaxLen)
 	ErrExpenseTimeFuture  = errors.New("Expense Time can not be future")
 )
