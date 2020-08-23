@@ -30,7 +30,7 @@ func TestNewExpense(t *testing.T) {
 			label:       "my expense",
 			val:         15.5,
 			unit:        "Dh",
-			tags:        &[]domain.Tag{},
+			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: nil,
 		},
 		"Short Label": {
@@ -85,9 +85,15 @@ func TestNewExpense(t *testing.T) {
 			if testFailed {
 				t.Fatalf("\nExpecting: %s\nBut Got: %s", expectedErrStr, errStr)
 			}
-			if err == nil && resExp.Unit != strings.ToLower(test.unit) {
-				t.Fatalf("Expense Unit should be transformed to Lower case.\nGot: %s", resExp.Unit)
+			if err == nil {
+				if resExp.Unit != strings.ToLower(test.unit) {
+					t.Fatalf("Expense Unit should be transformed to Lower case.\nGot: %s", resExp.Unit)
+				}
+				if len(resExp.Tags) != len((*test.tags)) {
+					t.Fatalf("Created expense has number of tags different from number of tags given")
+				}
 			}
+
 		})
 	}
 }

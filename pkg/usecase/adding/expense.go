@@ -23,7 +23,7 @@ func (srv Service) NewExpense(label string, value float32, unit string, tags *[]
 		return domain.Expense{}, domain.ErrExpenseUnitLength
 	}
 	unit = strings.ToLower(unit)
-	// Check Tags
+	// Check & Fetch Tags
 	fetchedTags := []domain.Tag{}
 	for _, t := range *tags {
 		fetched, err := srv.repo.FindTagByID(t.ID)
