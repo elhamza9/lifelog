@@ -1,6 +1,10 @@
 package listing
 
-import "github.com/elhamza90/lifelog/pkg/domain"
+import (
+	"time"
+
+	"github.com/elhamza90/lifelog/pkg/domain"
+)
 
 // Service provides methods that list entities
 type Service struct {
@@ -15,4 +19,5 @@ func NewService(r Repository) Service {
 // Repository defines methods that must be implemented to list entities
 type Repository interface {
 	ListAllTags() (*[]domain.Tag, error)
+	FindExpensesByTime(time.Time) (*[]domain.Expense, error)
 }

@@ -19,3 +19,13 @@ func (repo Repository) AddExpense(exp domain.Expense) (domain.Expense, error) {
 	(*repo.Expenses)[exp.ID] = exp
 	return exp, nil
 }
+
+func (repo Repository) FindExpensesByTime(t time.Time) (*[]domain.Expense, error) {
+	res := []domain.Expense{}
+	for _, exp := range *repo.Expenses {
+		if !exp.Time.Before(t) {
+			res = append(res, exp)
+		}
+	}
+	return &res, nil
+}
