@@ -20,6 +20,8 @@ func (repo Repository) AddExpense(exp domain.Expense) (domain.Expense, error) {
 	return exp, nil
 }
 
+// FindExpensesByTime returns expenses with Time
+// field greater than or equal to provided tim
 func (repo Repository) FindExpensesByTime(t time.Time) (*[]domain.Expense, error) {
 	res := []domain.Expense{}
 	for _, exp := range *repo.Expenses {
