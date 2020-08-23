@@ -26,4 +26,6 @@ var (
 	ErrTagNameLen               = fmt.Errorf("Tag name must be %d ~ %d characters long", TagNameMinLength, TagNameMaxLength)
 	ErrTagNameInvalidCharacters = errors.New("Tag name can only contain alphanumeric characters and dashes")
 	ErrTagNameDuplicate         = errors.New("Tag name duplicate")
+
+	ErrTagNotFound = errors.New("Tag with provided ID not found")
 )

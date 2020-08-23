@@ -19,10 +19,10 @@ type Expense struct {
 
 // Constants
 const (
-	ExpenseLabelMinLen uint = 3
-	ExpenseLabelMaxLen uint = 50
-	ExpenseUnitMinLen  uint = 3
-	ExpenseUnitMaxLen  uint = 10
+	ExpenseLabelMinLen int = 3
+	ExpenseLabelMaxLen int = 50
+	ExpenseUnitMinLen  int = 2
+	ExpenseUnitMaxLen  int = 10
 )
 
 // Errors

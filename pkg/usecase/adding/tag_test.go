@@ -1,23 +1,11 @@
 package adding_test
 
 import (
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
-	"github.com/elhamza90/lifelog/pkg/store/memory"
-	"github.com/elhamza90/lifelog/pkg/usecase/adding"
 )
-
-var service adding.Service
-var repo memory.Repository
-
-func TestMain(m *testing.M) {
-	repo = memory.NewRepository()      // Work with In-Memory DB
-	service = adding.NewService(&repo) // Passing by reference to change db when testing
-	os.Exit(m.Run())
-}
 
 func TestNewTag(t *testing.T) {
 	// Init Repo with a tag to test duplicate case

@@ -17,4 +17,6 @@ func NewService(r Repository) Service {
 type Repository interface {
 	AddTag(domain.Tag) (domain.Tag, error)
 	FindTagByName(string) (domain.Tag, error)
+	AddExpense(domain.Expense) (domain.Expense, error)
+	FindTagByID(domain.TagID) (domain.Tag, error)
 }

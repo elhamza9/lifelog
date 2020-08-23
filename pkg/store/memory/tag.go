@@ -13,6 +13,17 @@ func generateRandomTagID() domain.TagID {
 	return domain.TagID(res)
 }
 
+// FindTagByID searches for a tag with the given ID and returns it.
+// It returns ErrTagNotFound if no tag was found.
+func (repo Repository) FindTagByID(id domain.TagID) (domain.Tag, error) {
+	for _, t := range *(repo.Tags) {
+		if t.ID == id {
+			return t, nil
+		}
+	}
+	return domain.Tag{}, domain.ErrTagNotFound
+}
+
 // FindTagByName searches for a tag with the given name and returns it.
 // It returns an Empty Tag if not found.
 func (repo Repository) FindTagByName(n string) (domain.Tag, error) {
