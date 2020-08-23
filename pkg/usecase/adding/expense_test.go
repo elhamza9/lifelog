@@ -3,6 +3,7 @@ package adding_test
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
@@ -21,6 +22,7 @@ func TestNewExpense(t *testing.T) {
 	// Sub-tests
 	tests := map[string]struct {
 		label       string
+		time        time.Time
 		val         float32
 		unit        string
 		tags        *[]domain.Tag
@@ -28,13 +30,24 @@ func TestNewExpense(t *testing.T) {
 	}{
 		"Correct": {
 			label:       "my expense",
+			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: nil,
 		},
+		"Time Future": {
+			label:       "my expense",
+			time:        time.Now().AddDate(0, 0, 1),
+			val:         15.5,
+			unit:        "Dh",
+			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			expectedErr: domain.ErrExpenseTimeFuture,
+		},
+
 		"Short Label": {
 			label:       "my",
+			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			tags:        &[]domain.Tag{},
@@ -42,6 +55,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Long Label": {
 			label:       "my ver ver ver very very ver very very very very very very very very very long label",
+			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			tags:        &[]domain.Tag{},
@@ -49,6 +63,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Long Unit": {
 			label:       "my expense",
+			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "LongLongUnit",
 			tags:        &[]domain.Tag{},
@@ -56,6 +71,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Short Unit": {
 			label:       "my expense",
+			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "D",
 			tags:        &[]domain.Tag{},
@@ -63,6 +79,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Non-Existing Tag": {
 			label:       "my expense",
+			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			tags:        &[]domain.Tag{{ID: 200000}},
@@ -72,7 +89,7 @@ func TestNewExpense(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			resExp, err := service.NewExpense(test.label, test.val, test.unit, test.tags)
+			resExp, err := service.NewExpense(test.label, test.time, test.val, test.unit, test.tags)
 			testFailed := err != test.expectedErr
 			var expectedErrStr string = "No Error"
 			if test.expectedErr != nil {
