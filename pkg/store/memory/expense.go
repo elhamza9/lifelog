@@ -43,6 +43,19 @@ func (repo Repository) FindExpensesByTime(t time.Time) (*[]domain.Expense, error
 	return &res, nil
 }
 
+// FindExpensesByTag returns expenses that have the provided tag in their Tags field
+func (repo Repository) FindExpensesByTag(tid domain.TagID) (*[]domain.Expense, error) {
+	res := []domain.Expense{}
+	for _, exp := range *repo.Expenses {
+		for _, tag := range exp.Tags {
+			if tag.ID == tid {
+				res = append(res, exp)
+			}
+		}
+	}
+	return &res, nil
+}
+
 // DeleteExpense deletes expense from memory
 func (repo Repository) DeleteExpense(id domain.ExpenseID) error {
 	if _, ok := (*repo.Expenses)[id]; !ok {

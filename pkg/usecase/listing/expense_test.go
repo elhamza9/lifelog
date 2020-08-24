@@ -61,3 +61,78 @@ func TestFindExpensesByTime(t *testing.T) {
 		})
 	}
 }
+
+func TestFindExpensesByTag(t *testing.T) {
+	now := time.Now()
+	repo.Tags = &map[domain.TagID]domain.Tag{
+		1: {ID: 1, Name: "tag-1"},
+		2: {ID: 2, Name: "tag-2"},
+		3: {ID: 3, Name: "tag-3"},
+	}
+	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+		1: {
+			ID:    1,
+			Label: "6 months ago / tag-1 & tag-3",
+			Time:  now.AddDate(0, -6, 0),
+			Tags: []domain.Tag{
+				{ID: 1, Name: "tag-1"},
+				{ID: 3, Name: "tag-3"},
+			},
+		},
+		2: {
+			ID:    2,
+			Label: "7 days ago / tag-2",
+			Time:  now.AddDate(0, 0, -7),
+			Tags: []domain.Tag{
+				{ID: 2, Name: "tag-2"},
+			},
+		},
+		3: {
+			ID:    3,
+			Label: "2 months ago / tag-3",
+			Time:  now.AddDate(0, -2, 0),
+			Tags: []domain.Tag{
+				{ID: 3, Name: "tag-3"},
+			},
+		},
+		4: {
+			ID:    4,
+			Label: "4 months ago / tag-2 & tag-3",
+			Time:  now.AddDate(0, -4, 0),
+			Tags: []domain.Tag{
+				{ID: 2, Name: "tag-2"},
+				{ID: 3, Name: "tag-3"},
+			},
+		},
+	}
+
+	// Test Subcase: Non-Existing Tag
+	t.Run("Non-Existing Tag", func(t *testing.T) {
+		const nonExistingID domain.TagID = 988998
+		_, err := service.FindExpensesByTag(nonExistingID)
+		expectedErr := domain.ErrTagNotFound
+		failed := err != expectedErr
+		if failed {
+			t.Fatalf("Expected error: %v\nReturned Error: %v", expectedErr, err)
+		}
+	})
+
+	// Test Subcase: Existing Tag
+	t.Run("Existing Tag", func(t *testing.T) {
+		const testID domain.TagID = 3
+		res, err := service.FindExpensesByTag(testID)
+		if err != nil {
+			t.Fatalf("Unexpected Error: %v", err)
+		}
+		expectedIDs := []domain.ExpenseID{3, 4, 1}
+		errMsg := fmt.Sprintf("Expected: %v\nReturned: %v", expectedIDs, res)
+		if len(res) != len(expectedIDs) {
+			t.Fatal(errMsg)
+		}
+		for i, exp := range res {
+			if exp.ID != expectedIDs[i] {
+				t.Fatal(errMsg)
+			}
+		}
+	})
+}

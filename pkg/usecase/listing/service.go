@@ -18,7 +18,9 @@ func NewService(r Repository) Service {
 
 // Repository defines methods that must be implemented to list entities
 type Repository interface {
+	FindTagByID(domain.TagID) (domain.Tag, error)
 	ListAllTags() (*[]domain.Tag, error)
 	FindExpensesByTime(time.Time) (*[]domain.Expense, error)
+	FindExpensesByTag(domain.TagID) (*[]domain.Expense, error)
 	FindActivitiesByTime(time.Time) (*[]domain.Activity, error)
 }
