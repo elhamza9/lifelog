@@ -9,13 +9,14 @@ import (
 
 // NewExpense creates the new expense and calls the service repository to store it.
 // It does the following checks:
+//	- Checks ActivityID exists (foreign key)
 //	- Checks Label length
 //	- Checks Time is not future
 //	- Checks Value is strictly positive
 //	- Checks Unit length
 //	- Transform Unit to lowercase
 //	- Checks Tags exist in Repo
-func (srv Service) NewExpense(label string, t time.Time, value float32, unit string, tags *[]domain.Tag) (domain.Expense, error) {
+func (srv Service) NewExpense(label string, t time.Time, value float32, unit string, activityID domain.ActivityID, tags *[]domain.Tag) (domain.Expense, error) {
 	// Check Label
 	if len(label) < domain.ExpenseLabelMinLen || len(label) > domain.ExpenseLabelMaxLen {
 		return domain.Expense{}, domain.ErrExpenseLabelLength
@@ -33,6 +34,14 @@ func (srv Service) NewExpense(label string, t time.Time, value float32, unit str
 		return domain.Expense{}, domain.ErrExpenseUnitLength
 	}
 	unit = strings.ToLower(unit)
+
+	// Check Activity exists
+	if activityID > 0 {
+		if _, err := srv.repo.FindActivityByID(activityID); err != nil {
+			return domain.Expense{}, err
+		}
+	}
+
 	// Check & Fetch Tags
 	fetchedTags := []domain.Tag{}
 	for _, t := range *tags {

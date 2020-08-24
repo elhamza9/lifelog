@@ -9,6 +9,10 @@ import (
 )
 
 func TestNewExpense(t *testing.T) {
+	// Init Repo with some activities to test checking if activity exist
+	repo.Activities = &map[domain.ActivityID]domain.Activity{
+		100000: {ID: 100000, Label: "Test Activity", Time: time.Now().AddDate(0, 0, -1), Duration: time.Duration(time.Hour)},
+	}
 	// Init Repo with some tags to test checking if tags exist
 	repo.Tags = &map[domain.TagID]domain.Tag{
 		100000: {ID: 100000, Name: "tag-100000"},
@@ -26,21 +30,43 @@ func TestNewExpense(t *testing.T) {
 		val         float32
 		unit        string
 		tags        *[]domain.Tag
+		activityID  domain.ActivityID
 		expectedErr error
 	}{
-		"Correct": {
+		"Correct-with-activity": {
 			label:       "my expense",
 			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			activityID:  100000,
 			expectedErr: nil,
 		},
+		"Correct-without-activity": {
+			label:       "my expense",
+			time:        time.Now().AddDate(0, 0, -1),
+			val:         15.5,
+			unit:        "Dh",
+			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			activityID:  0,
+			expectedErr: nil,
+		},
+		"Non-existing-Activity": {
+			label:       "my expense",
+			time:        time.Now().AddDate(0, 0, -1),
+			val:         15.5,
+			unit:        "Dh",
+			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			activityID:  98899889,
+			expectedErr: domain.ErrActivityNotFound,
+		},
+
 		"Zero value": {
 			label:       "my expense",
 			time:        time.Now().AddDate(0, 0, -1),
 			val:         0,
 			unit:        "Dh",
+			activityID:  100000,
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: domain.ErrExpenseValue,
 		},
@@ -50,6 +76,7 @@ func TestNewExpense(t *testing.T) {
 			time:        time.Now().AddDate(0, 0, 1),
 			val:         15.5,
 			unit:        "Dh",
+			activityID:  100000,
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: domain.ErrExpenseTimeFuture,
 		},
@@ -59,6 +86,7 @@ func TestNewExpense(t *testing.T) {
 			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
+			activityID:  100000,
 			tags:        &[]domain.Tag{},
 			expectedErr: domain.ErrExpenseLabelLength,
 		},
@@ -67,6 +95,7 @@ func TestNewExpense(t *testing.T) {
 			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
+			activityID:  100000,
 			tags:        &[]domain.Tag{},
 			expectedErr: domain.ErrExpenseLabelLength,
 		},
@@ -75,6 +104,7 @@ func TestNewExpense(t *testing.T) {
 			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "LongLongUnit",
+			activityID:  100000,
 			tags:        &[]domain.Tag{},
 			expectedErr: domain.ErrExpenseUnitLength,
 		},
@@ -83,6 +113,7 @@ func TestNewExpense(t *testing.T) {
 			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "D",
+			activityID:  100000,
 			tags:        &[]domain.Tag{},
 			expectedErr: domain.ErrExpenseUnitLength,
 		},
@@ -91,6 +122,7 @@ func TestNewExpense(t *testing.T) {
 			time:        time.Now().AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
+			activityID:  100000,
 			tags:        &[]domain.Tag{{ID: 200000}},
 			expectedErr: domain.ErrTagNotFound,
 		},
@@ -98,7 +130,7 @@ func TestNewExpense(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			resExp, err := service.NewExpense(test.label, test.time, test.val, test.unit, test.tags)
+			resExp, err := service.NewExpense(test.label, test.time, test.val, test.unit, test.activityID, test.tags)
 			testFailed := err != test.expectedErr
 			var expectedErrStr string = "No Error"
 			if test.expectedErr != nil {

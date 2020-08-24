@@ -11,12 +11,13 @@ type ExpenseID uint
 
 // Expense entity
 type Expense struct {
-	ID    ExpenseID
-	Label string
-	Time  time.Time
-	Value float32
-	Unit  string
-	Tags  []Tag
+	ID         ExpenseID
+	Label      string
+	Time       time.Time
+	Value      float32
+	Unit       string
+	ActivityID ActivityID // Foreign Key
+	Tags       []Tag
 }
 
 // Constants

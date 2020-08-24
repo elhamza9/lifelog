@@ -19,4 +19,5 @@ type Repository interface {
 	FindTagByName(string) (domain.Tag, error)
 	AddExpense(domain.Expense) (domain.Expense, error)
 	FindTagByID(domain.TagID) (domain.Tag, error)
+	FindActivityByID(domain.ActivityID) (domain.Activity, error)
 }

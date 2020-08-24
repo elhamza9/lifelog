@@ -13,6 +13,17 @@ func generateRandomActivityID() domain.ActivityID {
 	return domain.ActivityID(res)
 }
 
+// FindActivityByID returns activity with given ID.
+// If none is found, returns error
+func (repo Repository) FindActivityByID(id domain.ActivityID) (domain.Activity, error) {
+	for _, act := range *repo.Activities {
+		if act.ID == id {
+			return act, nil
+		}
+	}
+	return domain.Activity{}, domain.ErrActivityNotFound
+}
+
 // AddActivity stores the given activity in memory and returns created activity
 func (repo Repository) AddActivity(act domain.Activity) (domain.Activity, error) {
 	act.ID = generateRandomActivityID()

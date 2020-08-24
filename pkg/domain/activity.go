@@ -34,4 +34,5 @@ var (
 	ErrActivityPlaceLength error = fmt.Errorf("Activity Place must be maximum %d long", ActivityPlaceMaxLen)
 	ErrActivityDescLength  error = fmt.Errorf("Activity Description must be maximum %d long", ActivityDescMaxLen)
 	ErrActivityTimeFuture  error = errors.New("Activity Time + Duration can not result in future date")
+	ErrActivityNotFound    error = errors.New("Activity Not Found")
 )
