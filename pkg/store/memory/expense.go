@@ -13,6 +13,17 @@ func generateRandomExpenseID() domain.ExpenseID {
 	return domain.ExpenseID(res)
 }
 
+// FindExpenseByID returns expense with given ID
+// It returns an error if expense not found
+func (repo Repository) FindExpenseByID(id domain.ExpenseID) (domain.Expense, error) {
+	for _, exp := range *repo.Expenses {
+		if exp.ID == id {
+			return exp, nil
+		}
+	}
+	return domain.Expense{}, domain.ErrExpenseNotFound
+}
+
 // AddExpense stores the given Expense in memory  and returns created expense
 func (repo Repository) AddExpense(exp domain.Expense) (domain.Expense, error) {
 	exp.ID = generateRandomExpenseID()
@@ -30,4 +41,13 @@ func (repo Repository) FindExpensesByTime(t time.Time) (*[]domain.Expense, error
 		}
 	}
 	return &res, nil
+}
+
+// DeleteExpense deletes expense from memory
+func (repo Repository) DeleteExpense(id domain.ExpenseID) error {
+	if _, ok := (*repo.Expenses)[id]; !ok {
+		return domain.ErrExpenseNotFound
+	}
+	delete(*repo.Expenses, id)
+	return nil
 }

@@ -34,4 +34,5 @@ var (
 	ErrExpenseValue       = errors.New("Expense Value must be strictly positive")
 	ErrExpenseUnitLength  = fmt.Errorf("Expense Unit must %d ~ %d long", ExpenseUnitMinLen, ExpenseUnitMaxLen)
 	ErrExpenseTimeFuture  = errors.New("Expense Time can not be future")
+	ErrExpenseNotFound    = errors.New("Expense Not Found")
 )
