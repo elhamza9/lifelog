@@ -19,3 +19,15 @@ func (repo Repository) AddActivity(act domain.Activity) (domain.Activity, error)
 	(*repo.Activities)[act.ID] = act
 	return act, nil
 }
+
+// FindActivitiesByTime returns activities
+// with Time field greater than or equal to the given time
+func (repo Repository) FindActivitiesByTime(t time.Time) (*[]domain.Activity, error) {
+	res := []domain.Activity{}
+	for _, act := range *repo.Activities {
+		if !act.Time.Before(t) {
+			res = append(res, act)
+		}
+	}
+	return &res, nil
+}

@@ -20,4 +20,5 @@ func NewService(r Repository) Service {
 type Repository interface {
 	ListAllTags() (*[]domain.Tag, error)
 	FindExpensesByTime(time.Time) (*[]domain.Expense, error)
+	FindActivitiesByTime(time.Time) (*[]domain.Activity, error)
 }
