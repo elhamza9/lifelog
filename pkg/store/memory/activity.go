@@ -55,3 +55,9 @@ func (repo Repository) FindActivitiesByTag(tid domain.TagID) (*[]domain.Activity
 	}
 	return &res, nil
 }
+
+// DeleteActivity removes activity with provided ID from memory
+func (repo Repository) DeleteActivity(id domain.ActivityID) error {
+	delete((*repo.Activities), id)
+	return nil
+}

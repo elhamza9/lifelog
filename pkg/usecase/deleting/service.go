@@ -16,6 +16,8 @@ func NewService(r Repository) Service {
 type Repository interface {
 	DeleteExpense(id domain.ExpenseID) error
 	DeleteExpensesByActivity(domain.ActivityID) error
+	DeleteActivity(domain.ActivityID) error
 	FindExpenseByID(id domain.ExpenseID) (domain.Expense, error)
+	FindExpensesByActivity(domain.ActivityID) (*[]domain.Expense, error)
 	FindActivityByID(domain.ActivityID) (domain.Activity, error)
 }
