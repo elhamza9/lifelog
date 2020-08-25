@@ -12,3 +12,13 @@ func (srv Service) Expense(id domain.ExpenseID) error {
 
 	return srv.repo.DeleteExpense(id)
 }
+
+// ActivityExpenses calls repo to delete all expenses belonging to
+// provided activity
+func (srv Service) ActivityExpenses(aid domain.ActivityID) error {
+	// Check if activity with provided ID exists
+	if _, err := srv.repo.FindActivityByID(aid); err != nil {
+		return err
+	}
+	return srv.repo.DeleteExpensesByActivity(aid)
+}

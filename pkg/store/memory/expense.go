@@ -75,3 +75,17 @@ func (repo Repository) DeleteExpense(id domain.ExpenseID) error {
 	delete(*repo.Expenses, id)
 	return nil
 }
+
+// DeleteExpensesByActivity deletes all expenses with given ActivityID
+func (repo Repository) DeleteExpensesByActivity(aid domain.ActivityID) error {
+	ids := []domain.ExpenseID{}
+	for id, exp := range *repo.Expenses {
+		if exp.ActivityID == aid {
+			ids = append(ids, id)
+		}
+	}
+	for _, id := range ids {
+		delete(*repo.Expenses, id)
+	}
+	return nil
+}
