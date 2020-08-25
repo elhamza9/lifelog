@@ -42,3 +42,16 @@ func (repo Repository) FindActivitiesByTime(t time.Time) (*[]domain.Activity, er
 	}
 	return &res, nil
 }
+
+// FindActivitiesByTag returns expenses that have the provided tag in their Tags field
+func (repo Repository) FindActivitiesByTag(tid domain.TagID) (*[]domain.Activity, error) {
+	res := []domain.Activity{}
+	for _, exp := range *repo.Activities {
+		for _, tag := range exp.Tags {
+			if tag.ID == tid {
+				res = append(res, exp)
+			}
+		}
+	}
+	return &res, nil
+}

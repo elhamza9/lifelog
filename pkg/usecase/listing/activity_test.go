@@ -66,3 +66,51 @@ func TestFindActivitiesByTime(t *testing.T) {
 	}
 
 }
+
+func TestFindActivitiesByTag(t *testing.T) {
+	now := time.Now()
+	d := time.Duration(time.Minute * 45)
+	repo.Tags = &map[domain.TagID]domain.Tag{
+		1: {ID: 1, Name: "tag-1"},
+		2: {ID: 2, Name: "tag-2"},
+		3: {ID: 3, Name: "tag-3"},
+	}
+
+	repo.Activities = &map[domain.ActivityID]domain.Activity{
+		1: {ID: 1, Label: "Act tag-1", Time: now.AddDate(0, 0, -3), Duration: d, Tags: []domain.Tag{{ID: 1}}},
+		2: {ID: 2, Label: "Act tag-1/3", Time: now.AddDate(0, 0, -1), Duration: d, Tags: []domain.Tag{{ID: 3}, {ID: 1}}},
+		3: {ID: 3, Label: "Act tag-2", Time: now.AddDate(0, 0, -1), Duration: d, Tags: []domain.Tag{{ID: 2}}},
+		4: {ID: 4, Label: "Act tag-1/2", Time: now.AddDate(0, 0, -2), Duration: d, Tags: []domain.Tag{{ID: 2}, {ID: 1}}},
+	}
+
+	// Test Subcase: Non-Existing Tag
+	t.Run("Non-Existing Tag", func(t *testing.T) {
+		const nonExistingID domain.TagID = 988998
+		_, err := service.FindActivitiesByTag(nonExistingID)
+		expectedErr := domain.ErrTagNotFound
+		failed := err != expectedErr
+		if failed {
+			t.Fatalf("Expected error: %v\nReturned Error: %v", expectedErr, err)
+		}
+	})
+
+	// Test Subcase: Existing Tag
+	t.Run("Existing Tag", func(t *testing.T) {
+		const testID domain.TagID = 1
+		res, err := service.FindActivitiesByTag(testID)
+		if err != nil {
+			t.Fatalf("Unexpected Error: %v", err)
+		}
+		expectedIDs := []domain.ActivityID{2, 4, 1}
+		errMsg := fmt.Sprintf("Expected: %v\nReturned: %v", expectedIDs, res)
+		if len(res) != len(expectedIDs) {
+			t.Fatal(errMsg)
+		}
+		for i, act := range res {
+			if act.ID != expectedIDs[i] {
+				t.Fatal(errMsg)
+			}
+		}
+	})
+
+}
