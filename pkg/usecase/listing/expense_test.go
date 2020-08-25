@@ -136,3 +136,76 @@ func TestFindExpensesByTag(t *testing.T) {
 		}
 	})
 }
+
+func TestFindExpensesByActivity(t *testing.T) {
+
+	act := domain.Activity{ID: 88}
+	repo.Activities = &map[domain.ActivityID]domain.Activity{
+		act.ID: act,
+	}
+	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+		1: {
+			ID:         1,
+			Label:      "Test Exp",
+			Value:      10,
+			Unit:       "Dh",
+			ActivityID: 0,
+		},
+		2: {
+			ID:         2,
+			Label:      "Test Exp",
+			Value:      10,
+			Unit:       "Dh",
+			ActivityID: act.ID,
+		},
+		3: {
+			ID:         3,
+			Label:      "Test Exp",
+			Value:      10,
+			Unit:       "Dh",
+			ActivityID: act.ID,
+		},
+		4: {
+			ID:         4,
+			Label:      "Test Exp",
+			Value:      10,
+			Unit:       "Dh",
+			ActivityID: 0,
+		},
+	}
+	// Test Subcase: Non existing Activity
+	t.Run("Non-Existing Activity", func(t *testing.T) {
+		nonExistantID := domain.ActivityID(989)
+		_, err := service.FindExpensesByActivity(nonExistantID)
+		expectdErr := domain.ErrActivityNotFound
+		if err != expectdErr {
+			t.Fatalf("Expected Err: %v\nReturned Err: %v", domain.ErrActivityNotFound, err)
+		}
+	})
+
+	// Test Subcase existing Activity
+	t.Run("Existing Activity", func(t *testing.T) {
+		res, err := service.FindExpensesByActivity(act.ID)
+		if err != nil {
+			t.Fatalf("Unexpected Error: %v", err)
+		}
+		expectedIDs := []domain.ExpenseID{2, 3}
+		errMsg := fmt.Sprintf("Expected: %v\nReturned: %v", expectedIDs, res)
+		if len(res) != len(expectedIDs) {
+			t.Fatal(errMsg)
+		}
+		var found bool
+		for _, exp := range res {
+			found = false
+			for _, id := range expectedIDs {
+				if exp.ID == id {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Fatal(errMsg)
+			}
+		}
+	})
+}

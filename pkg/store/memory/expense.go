@@ -56,6 +56,17 @@ func (repo Repository) FindExpensesByTag(tid domain.TagID) (*[]domain.Expense, e
 	return &res, nil
 }
 
+// FindExpensesByActivity returns expenses with ActivityID matching given id
+func (repo Repository) FindExpensesByActivity(aid domain.ActivityID) (*[]domain.Expense, error) {
+	res := []domain.Expense{}
+	for _, exp := range *repo.Expenses {
+		if exp.ActivityID == aid {
+			res = append(res, exp)
+		}
+	}
+	return &res, nil
+}
+
 // DeleteExpense deletes expense from memory
 func (repo Repository) DeleteExpense(id domain.ExpenseID) error {
 	if _, ok := (*repo.Expenses)[id]; !ok {
