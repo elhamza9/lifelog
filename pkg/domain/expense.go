@@ -36,3 +36,8 @@ var (
 	ErrExpenseTimeFuture  = errors.New("Expense Time can not be future")
 	ErrExpenseNotFound    = errors.New("Expense Not Found")
 )
+
+// String returns a one-line representation of an expense
+func (exp Expense) String() string {
+	return fmt.Sprintf("[%d | %s (%2.f %s) | %s]", exp.ID, exp.Label, exp.Value, exp.Unit, exp.Time.Format("2006-01-02"))
+}

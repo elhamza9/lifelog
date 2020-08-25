@@ -29,3 +29,8 @@ var (
 
 	ErrTagNotFound = errors.New("Tag with provided ID not found")
 )
+
+// String returns a one-line representation of an tag
+func (t Tag) String() string {
+	return fmt.Sprintf("[%d | %s ]", t.ID, t.Name)
+}
