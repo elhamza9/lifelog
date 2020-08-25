@@ -1,7 +1,7 @@
 package adding_test
 
 import (
-	"log"
+	"strings"
 	"testing"
 	"time"
 
@@ -9,7 +9,6 @@ import (
 )
 
 func TestNewActivity(t *testing.T) {
-	t.Fatal("Not yet implemented")
 	// Init Repo with some tags to test checking if tags exist
 	repo.Tags = &map[domain.TagID]domain.Tag{
 		100000: {ID: 100000, Name: "tag-100000"},
@@ -30,24 +29,60 @@ func TestNewActivity(t *testing.T) {
 		tags        []domain.Tag
 		expectedErr error
 	}{
-		/*
-			"Correct": {
-					label: "New Activity",
-					place: "Beach",
-					desc:  "Play Soccer",
-					time:  time.Now().AddDate(0, 0, -1),
-					dur:   time.Duration(time.Hour),
-					tags:  &[]domain.Tag{{ID: 100002}, {ID: 100005}},
-				},
-				"Short Label": {
-					label: "",
-					place: "Beach",
-					desc:  "Play Soccer",
-					time:  time.Now().AddDate(0, 0, -1),
-					dur:   time.Duration(time.Hour),
-					tags:  &[]domain.Tag{{ID: 100002}, {ID: 100005}},
-				},
-		*/
+		"Correct": {
+			label:       "New Activity",
+			place:       "Beach",
+			desc:        "Play Soccer",
+			time:        time.Now().AddDate(0, 0, -1),
+			dur:         time.Duration(time.Hour),
+			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
+			expectedErr: nil,
+		},
+		"Short Label": {
+			label:       "",
+			place:       "Beach",
+			desc:        "Play Soccer",
+			time:        time.Now().AddDate(0, 0, -1),
+			dur:         time.Duration(time.Hour),
+			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
+			expectedErr: domain.ErrActivityLabelLength,
+		},
+		"Long Label": {
+			label:       "My very very very very very very very very very very very very very very very Long Label",
+			place:       "Beach",
+			desc:        "Play Soccer",
+			time:        time.Now().AddDate(0, 0, -1),
+			dur:         time.Duration(time.Hour),
+			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
+			expectedErr: domain.ErrActivityLabelLength,
+		},
+		"Long Place": {
+			label:       "New Activity",
+			place:       "My  very very very very very very very very very very very Long Place",
+			desc:        "Play Soccer",
+			time:        time.Now().AddDate(0, 0, -1),
+			dur:         time.Duration(time.Hour),
+			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
+			expectedErr: domain.ErrActivityPlaceLength,
+		},
+		"Time + Dur Future": {
+			label:       "New Activity",
+			place:       "Beach",
+			desc:        "Play Soccer",
+			time:        time.Now(),
+			dur:         time.Duration(time.Hour),
+			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
+			expectedErr: domain.ErrActivityTimeFuture,
+		},
+		"Non Existing Tag": {
+			label:       "New Activity",
+			place:       "Beach",
+			desc:        "Play Soccer",
+			time:        time.Now().AddDate(0, 0, -1),
+			dur:         time.Duration(time.Hour),
+			tags:        []domain.Tag{{ID: 100002}, {ID: 100010}},
+			expectedErr: domain.ErrTagNotFound,
+		},
 	}
 
 	for name, test := range tests {
@@ -55,11 +90,14 @@ func TestNewActivity(t *testing.T) {
 			resAct, err := adder.NewActivity(test.label, test.place, test.desc, test.time, test.dur, &test.tags)
 			testFailed := err != test.expectedErr
 			if testFailed {
-				t.Fatalf("\nExpecting: %v\nBut Got: %v", test.expectedErr, err)
+				t.Fatalf("\nExpected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
 			if err == nil {
 				// Tests after creation successful
-				log.Println(resAct)
+				expectedPlace := strings.ToLower(test.place)
+				if resAct.Place != expectedPlace {
+					t.Fatalf("Expected Place: %s\nReturned Place: %s", expectedPlace, resAct.Place)
+				}
 			}
 
 		})
