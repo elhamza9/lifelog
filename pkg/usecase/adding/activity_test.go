@@ -52,7 +52,7 @@ func TestNewActivity(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			resAct, err := service.NewActivity(test.label, test.place, test.desc, test.time, test.dur, &test.tags)
+			resAct, err := adder.NewActivity(test.label, test.place, test.desc, test.time, test.dur, &test.tags)
 			testFailed := err != test.expectedErr
 			if testFailed {
 				t.Fatalf("\nExpecting: %v\nBut Got: %v", test.expectedErr, err)

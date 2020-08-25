@@ -30,7 +30,7 @@ func TestNewTag(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			resTag, err := service.NewTag(test.name)
+			resTag, err := adder.NewTag(test.name)
 			testFailed := err != test.expectedErr
 			if testFailed {
 				var expectedErrStr string = "No Error"

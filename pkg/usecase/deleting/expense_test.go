@@ -28,7 +28,7 @@ func TestDeleteExpense(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			err := service.DeleteExpense(test.ID)
+			err := deleter.Expense(test.ID)
 			failed := err != test.expectedErr
 			if failed {
 				t.Fatalf("Expecting Error: %v\nReturned Error; %v", err, test.expectedErr)

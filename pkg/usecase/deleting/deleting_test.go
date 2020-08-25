@@ -9,12 +9,12 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 )
 
-var service deleting.Service
+var deleter deleting.Service
 var repo memory.Repository
 
 func TestMain(m *testing.M) {
 	log.Println("Setting up tests")
 	repo = memory.NewRepository()        // Work with In-Memory DB
-	service = deleting.NewService(&repo) // Passing by reference to change db when testing
+	deleter = deleting.NewService(&repo) // Passing by reference to change db when testing
 	os.Exit(m.Run())
 }

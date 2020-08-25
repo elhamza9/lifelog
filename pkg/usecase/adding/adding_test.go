@@ -9,12 +9,12 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase/adding"
 )
 
-var service adding.Service
+var adder adding.Service
 var repo memory.Repository
 
 func TestMain(m *testing.M) {
 	log.Println("Setting up tests")
 	repo = memory.NewRepository()      // Work with In-Memory DB
-	service = adding.NewService(&repo) // Passing by reference to change db when testing
+	adder = adding.NewService(&repo) // Passing by reference to change db when testing
 	os.Exit(m.Run())
 }

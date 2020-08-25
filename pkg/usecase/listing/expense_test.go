@@ -8,7 +8,7 @@ import (
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
 
-func TestFindExpensesByTime(t *testing.T) {
+func TestExpensesByTime(t *testing.T) {
 	now := time.Now()
 	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
 		1: {ID: 1, Label: "exp a day ago", Time: now.AddDate(0, 0, -1), Value: 10, Unit: "Eu"},
@@ -42,7 +42,7 @@ func TestFindExpensesByTime(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			res, err := service.FindExpensesByTime(test.minTime)
+			res, err := lister.ExpensesByTime(test.minTime)
 			// Check returned error
 			if err != test.expectedErr {
 				t.Fatalf("Unexpected error: %v\nExpecting: %v", err, test.expectedErr)
@@ -62,7 +62,7 @@ func TestFindExpensesByTime(t *testing.T) {
 	}
 }
 
-func TestFindExpensesByTag(t *testing.T) {
+func TestExpensesByTag(t *testing.T) {
 	now := time.Now()
 	repo.Tags = &map[domain.TagID]domain.Tag{
 		1: {ID: 1, Name: "tag-1"},
@@ -109,7 +109,7 @@ func TestFindExpensesByTag(t *testing.T) {
 	// Test Subcase: Non-Existing Tag
 	t.Run("Non-Existing Tag", func(t *testing.T) {
 		const nonExistingID domain.TagID = 988998
-		_, err := service.FindExpensesByTag(nonExistingID)
+		_, err := lister.ExpensesByTag(nonExistingID)
 		expectedErr := domain.ErrTagNotFound
 		failed := err != expectedErr
 		if failed {
@@ -120,7 +120,7 @@ func TestFindExpensesByTag(t *testing.T) {
 	// Test Subcase: Existing Tag
 	t.Run("Existing Tag", func(t *testing.T) {
 		const testID domain.TagID = 3
-		res, err := service.FindExpensesByTag(testID)
+		res, err := lister.ExpensesByTag(testID)
 		if err != nil {
 			t.Fatalf("Unexpected Error: %v", err)
 		}
@@ -137,7 +137,7 @@ func TestFindExpensesByTag(t *testing.T) {
 	})
 }
 
-func TestFindExpensesByActivity(t *testing.T) {
+func TestExpensesByActivity(t *testing.T) {
 
 	act := domain.Activity{ID: 88}
 	repo.Activities = &map[domain.ActivityID]domain.Activity{
@@ -176,7 +176,7 @@ func TestFindExpensesByActivity(t *testing.T) {
 	// Test Subcase: Non existing Activity
 	t.Run("Non-Existing Activity", func(t *testing.T) {
 		nonExistantID := domain.ActivityID(989)
-		_, err := service.FindExpensesByActivity(nonExistantID)
+		_, err := lister.ExpensesByActivity(nonExistantID)
 		expectdErr := domain.ErrActivityNotFound
 		if err != expectdErr {
 			t.Fatalf("Expected Err: %v\nReturned Err: %v", domain.ErrActivityNotFound, err)
@@ -185,7 +185,7 @@ func TestFindExpensesByActivity(t *testing.T) {
 
 	// Test Subcase existing Activity
 	t.Run("Existing Activity", func(t *testing.T) {
-		res, err := service.FindExpensesByActivity(act.ID)
+		res, err := lister.ExpensesByActivity(act.ID)
 		if err != nil {
 			t.Fatalf("Unexpected Error: %v", err)
 		}

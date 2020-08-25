@@ -16,7 +16,7 @@ func TestAllTags(t *testing.T) {
 		100004: {ID: 100004, Name: "tag-100004"},
 		100005: {ID: 100005, Name: "tag-100005"},
 	}
-	resTags, _ := service.AllTags()
+	resTags, _ := lister.AllTags()
 	if len(*resTags) != len(*repo.Tags) {
 		t.Fatalf("\nExpecting tags: %v\nBut Got: %v", repo.Tags, resTags)
 	}

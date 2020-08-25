@@ -8,11 +8,11 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase/listing"
 )
 
-var service listing.Service
+var lister listing.Service
 var repo memory.Repository
 
 func TestMain(m *testing.M) {
-	repo = memory.NewRepository()       // Work with In-Memory DB
-	service = listing.NewService(&repo) // Passing by reference to change db when testing
+	repo = memory.NewRepository()      // Work with In-Memory DB
+	lister = listing.NewService(&repo) // Passing by reference to change db when testing
 	os.Exit(m.Run())
 }

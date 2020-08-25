@@ -7,10 +7,10 @@ import (
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
 
-// FindActivitiesByTime returns activities with Time field greater than or equal to the given time.
+// ActivitiesByTime returns activities with Time field greater than or equal to the given time.
 // The returned activities are ordered from most recent to oldest
 // It returns ErrActivityTimeFuture when given time is future
-func (srv Service) FindActivitiesByTime(t time.Time) ([]domain.Activity, error) {
+func (srv Service) ActivitiesByTime(t time.Time) ([]domain.Activity, error) {
 	if t.After(time.Now()) {
 		return []domain.Activity{}, domain.ErrActivityTimeFuture
 	}
@@ -25,11 +25,11 @@ func (srv Service) FindActivitiesByTime(t time.Time) ([]domain.Activity, error) 
 	return *res, nil
 }
 
-// FindActivitiesByTag returns expenses that have the tag with given ID
+// ActivitiesByTag returns expenses that have the tag with given ID
 // in their Tags field
 // The returned expenses are ordered from most recent to oldest
 // It returns an error if tag with given ID is not found
-func (srv Service) FindActivitiesByTag(tid domain.TagID) ([]domain.Activity, error) {
+func (srv Service) ActivitiesByTag(tid domain.TagID) ([]domain.Activity, error) {
 	// Check if Tag exists
 	if _, err := srv.repo.FindTagByID(tid); err != nil {
 		return []domain.Activity{}, err

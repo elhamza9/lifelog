@@ -130,7 +130,7 @@ func TestNewExpense(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			resExp, err := service.NewExpense(test.label, test.time, test.val, test.unit, test.activityID, test.tags)
+			resExp, err := adder.NewExpense(test.label, test.time, test.val, test.unit, test.activityID, test.tags)
 			testFailed := err != test.expectedErr
 			var expectedErrStr string = "No Error"
 			if test.expectedErr != nil {

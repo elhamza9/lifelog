@@ -8,7 +8,7 @@ import (
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
 
-func TestFindActivitiesByTime(t *testing.T) {
+func TestActivitiesByTime(t *testing.T) {
 	now := time.Now()
 	repo.Activities = &map[domain.ActivityID]domain.Activity{
 		1: {
@@ -47,7 +47,7 @@ func TestFindActivitiesByTime(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			res, err := service.FindActivitiesByTime(test.minTime)
+			res, err := lister.ActivitiesByTime(test.minTime)
 			// Test Error
 			if err != test.expectedErr {
 				t.Fatalf("Expecting Error: %v\nReturned: %v", test.expectedErr, err)
@@ -67,7 +67,7 @@ func TestFindActivitiesByTime(t *testing.T) {
 
 }
 
-func TestFindActivitiesByTag(t *testing.T) {
+func TestActivitiesByTag(t *testing.T) {
 	now := time.Now()
 	d := time.Duration(time.Minute * 45)
 	repo.Tags = &map[domain.TagID]domain.Tag{
@@ -86,7 +86,7 @@ func TestFindActivitiesByTag(t *testing.T) {
 	// Test Subcase: Non-Existing Tag
 	t.Run("Non-Existing Tag", func(t *testing.T) {
 		const nonExistingID domain.TagID = 988998
-		_, err := service.FindActivitiesByTag(nonExistingID)
+		_, err := lister.ActivitiesByTag(nonExistingID)
 		expectedErr := domain.ErrTagNotFound
 		failed := err != expectedErr
 		if failed {
@@ -97,7 +97,7 @@ func TestFindActivitiesByTag(t *testing.T) {
 	// Test Subcase: Existing Tag
 	t.Run("Existing Tag", func(t *testing.T) {
 		const testID domain.TagID = 1
-		res, err := service.FindActivitiesByTag(testID)
+		res, err := lister.ActivitiesByTag(testID)
 		if err != nil {
 			t.Fatalf("Unexpected Error: %v", err)
 		}
