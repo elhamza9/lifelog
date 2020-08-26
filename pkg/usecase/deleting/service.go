@@ -17,7 +17,11 @@ type Repository interface {
 	DeleteExpense(id domain.ExpenseID) error
 	DeleteExpensesByActivity(domain.ActivityID) error
 	DeleteActivity(domain.ActivityID) error
+	DeleteTag(domain.TagID) error
 	FindExpenseByID(id domain.ExpenseID) (domain.Expense, error)
 	FindExpensesByActivity(domain.ActivityID) (*[]domain.Expense, error)
 	FindActivityByID(domain.ActivityID) (domain.Activity, error)
+	FindTagByID(domain.TagID) (domain.Tag, error)
+	FindExpensesByTag(domain.TagID) (*[]domain.Expense, error)
+	FindActivitiesByTag(domain.TagID) (*[]domain.Activity, error)
 }

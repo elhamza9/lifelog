@@ -50,3 +50,12 @@ func (repo Repository) ListAllTags() (*[]domain.Tag, error) {
 	}
 	return &tags, nil
 }
+
+// DeleteTag deletes tag from memory
+func (repo Repository) DeleteTag(id domain.TagID) error {
+	if _, ok := (*repo.Tags)[id]; !ok {
+		return domain.ErrTagNotFound
+	}
+	delete(*repo.Tags, id)
+	return nil
+}
