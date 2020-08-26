@@ -44,13 +44,13 @@ func (repo Repository) FindActivitiesByTime(t time.Time) (*[]domain.Activity, er
 	return &res, nil
 }
 
-// FindActivitiesByTag returns expenses that have the provided tag in their Tags field
+// FindActivitiesByTag returns actenses that have the provided tag in their Tags field
 func (repo Repository) FindActivitiesByTag(tid domain.TagID) (*[]domain.Activity, error) {
 	res := []domain.Activity{}
-	for _, exp := range *repo.Activities {
-		for _, tag := range exp.Tags {
+	for _, act := range *repo.Activities {
+		for _, tag := range act.Tags {
 			if tag.ID == tid {
-				res = append(res, exp)
+				res = append(res, act)
 			}
 		}
 	}
@@ -61,4 +61,11 @@ func (repo Repository) FindActivitiesByTag(tid domain.TagID) (*[]domain.Activity
 func (repo Repository) DeleteActivity(id domain.ActivityID) error {
 	delete((*repo.Activities), id)
 	return nil
+}
+
+// EditActivity edits given activity in memory
+func (repo Repository) EditActivity(act domain.Activity) (domain.Activity, error) {
+
+	(*repo.Activities)[act.ID] = act
+	return (*repo.Activities)[act.ID], nil
 }
