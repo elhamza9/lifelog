@@ -6,11 +6,13 @@ import (
 
 	"github.com/elhamza90/lifelog/pkg/domain"
 	"github.com/elhamza90/lifelog/pkg/store"
+	"github.com/elhamza90/lifelog/pkg/usecase"
 )
 
 func TestEditTag(t *testing.T) {
 	repo.Tags = &map[domain.TagID]domain.Tag{
 		1: {ID: 1, Name: "tag-1"},
+		2: {ID: 2, Name: "duplicate"},
 	}
 
 	tests := map[string]struct {
@@ -20,6 +22,10 @@ func TestEditTag(t *testing.T) {
 		"Non-Existing Tag": {
 			tag:         domain.Tag{ID: 22, Name: "non-existing"},
 			expectedErr: store.ErrTagNotFound,
+		},
+		"Duplicate Tag": {
+			tag:         domain.Tag{ID: 1, Name: "Duplicate"},
+			expectedErr: usecase.ErrTagNameDuplicate,
 		},
 		"Existing Tag": {
 			tag:         domain.Tag{ID: 1, Name: "Edited-tag-1"},

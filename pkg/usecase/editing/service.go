@@ -19,6 +19,7 @@ func NewService(r Repository) Service {
 // Repository defines methods that must be implemented to edit entities
 type Repository interface {
 	FindTagByID(domain.TagID) (domain.Tag, error)
+	FindTagByName(string) (domain.Tag, error)
 	EditTag(domain.Tag) (domain.Tag, error)
 }
 
