@@ -1,8 +1,6 @@
 package adding
 
 import (
-	"errors"
-
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
 
@@ -26,6 +24,3 @@ type Repository interface {
 	FindTagByID(domain.TagID) (domain.Tag, error)
 	FindActivityByID(domain.ActivityID) (domain.Activity, error)
 }
-
-// ErrTagNameDuplicate is returned when trying to add a tag with a name that already exists in store
-var ErrTagNameDuplicate error = errors.New("Tag name duplicate")
