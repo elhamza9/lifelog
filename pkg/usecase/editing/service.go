@@ -21,6 +21,8 @@ type Repository interface {
 	FindTagByID(domain.TagID) (domain.Tag, error)
 	FindTagByName(string) (domain.Tag, error)
 	EditTag(domain.Tag) (domain.Tag, error)
+	EditExpense(domain.Expense) (domain.Expense, error)
+	FindActivityByID(domain.ActivityID) (domain.Activity, error)
 }
 
 // ErrTagNameDuplicate is returned when trying to edit a tag with a name that already exists in store
