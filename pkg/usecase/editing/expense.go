@@ -7,17 +7,17 @@ import (
 )
 
 // Expense calls repo to update given expense
-func (srv Service) Expense(exp domain.Expense) (domain.Expense, error) {
+func (srv Service) Expense(exp domain.Expense) error {
 	// Transform unit to lowecase
 	exp.Unit = strings.ToLower(exp.Unit)
 	if err := exp.Valid(); err != nil {
-		return domain.Expense{}, err
+		return err
 	}
 
 	// Check Activity exists
 	if exp.ActivityID > 0 {
 		if _, err := srv.repo.FindActivityByID(exp.ActivityID); err != nil {
-			return domain.Expense{}, err
+			return err
 		}
 	}
 
@@ -26,7 +26,7 @@ func (srv Service) Expense(exp domain.Expense) (domain.Expense, error) {
 	for _, t := range exp.Tags {
 		fetched, err := srv.repo.FindTagByID(t.ID)
 		if err != nil {
-			return domain.Expense{}, err
+			return err
 		}
 		fetchedTags = append(fetchedTags, fetched)
 	}

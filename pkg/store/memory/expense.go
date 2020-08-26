@@ -92,8 +92,8 @@ func (repo Repository) DeleteExpensesByActivity(aid domain.ActivityID) error {
 }
 
 // EditExpense edits given expense in memory
-func (repo Repository) EditExpense(exp domain.Expense) (domain.Expense, error) {
+func (repo Repository) EditExpense(exp domain.Expense) error {
 
 	(*repo.Expenses)[exp.ID] = exp
-	return (*repo.Expenses)[exp.ID], nil
+	return nil
 }

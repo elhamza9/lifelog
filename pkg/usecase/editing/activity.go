@@ -7,17 +7,17 @@ import (
 )
 
 // Activity calls repo to update given activity
-func (srv Service) Activity(act domain.Activity) (domain.Activity, error) {
+func (srv Service) Activity(act domain.Activity) error {
 
 	// Check Activity Exists
 	if _, err := srv.repo.FindActivityByID(act.ID); err != nil {
-		return domain.Activity{}, err
+		return err
 	}
 
 	// Transform unit to lowecase
 	act.Place = strings.ToLower(act.Place)
 	if err := act.Valid(); err != nil {
-		return domain.Activity{}, err
+		return err
 	}
 
 	// Check & Fetch Tags
@@ -25,7 +25,7 @@ func (srv Service) Activity(act domain.Activity) (domain.Activity, error) {
 	for _, t := range act.Tags {
 		fetched, err := srv.repo.FindTagByID(t.ID)
 		if err != nil {
-			return domain.Activity{}, err
+			return err
 		}
 		fetchedTags = append(fetchedTags, fetched)
 	}

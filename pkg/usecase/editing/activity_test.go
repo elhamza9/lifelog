@@ -71,10 +71,12 @@ func TestEditActivity(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			edited, err := editter.Activity(test.act)
+			err := editter.Activity(test.act)
 			if err != test.expectedErr {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
+
+			edited := (*repo.Activities)[test.act.ID]
 			expectedPlace := strings.ToLower(test.act.Place)
 			if err == nil && edited.Place != expectedPlace {
 				t.Fatalf("Expected: %v\nReturned: %v", expectedPlace, edited.Place)

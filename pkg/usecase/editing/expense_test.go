@@ -89,10 +89,11 @@ func TestEditExpense(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			edited, err := editter.Expense(test.exp)
+			err := editter.Expense(test.exp)
 			if err != test.expectedErr {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
+			edited := (*repo.Expenses)[test.exp.ID]
 			if err == nil && (edited.Unit != strings.ToLower(test.exp.Unit) || edited.Label != test.exp.Label || edited.Value != test.exp.Value || edited.ActivityID != test.exp.ActivityID || len(edited.Tags) != len(test.exp.Tags)) {
 				t.Fatalf("Expected: %v\nReturned: %v", test.exp, edited)
 			}

@@ -36,11 +36,12 @@ func TestEditTag(t *testing.T) {
 	// Test Subcase: Non-existing Tag
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			edited, err := editter.Tag(test.tag)
+			err := editter.Tag(test.tag)
 			if err != test.expectedErr {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
 			expectedName := strings.ToLower(test.tag.Name)
+			edited := (*repo.Tags)[test.tag.ID]
 			if err == nil && edited.Name != expectedName {
 				t.Fatalf("Expected name: %s\nReturned name: %s", expectedName, edited.Name)
 			}

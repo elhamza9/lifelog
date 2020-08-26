@@ -62,7 +62,7 @@ func (repo Repository) DeleteTag(id domain.TagID) error {
 }
 
 // EditTag edits given tag in memory
-func (repo Repository) EditTag(t domain.Tag) (domain.Tag, error) {
+func (repo Repository) EditTag(t domain.Tag) error {
 	(*repo.Tags)[t.ID] = t
-	return (*repo.Tags)[t.ID], nil
+	return nil
 }

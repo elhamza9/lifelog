@@ -64,8 +64,7 @@ func (repo Repository) DeleteActivity(id domain.ActivityID) error {
 }
 
 // EditActivity edits given activity in memory
-func (repo Repository) EditActivity(act domain.Activity) (domain.Activity, error) {
-
+func (repo Repository) EditActivity(act domain.Activity) error {
 	(*repo.Activities)[act.ID] = act
-	return (*repo.Activities)[act.ID], nil
+	return nil
 }
