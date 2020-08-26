@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 )
 
 func TestDeleteExpense(t *testing.T) {
@@ -24,7 +25,7 @@ func TestDeleteExpense(t *testing.T) {
 		expectedErr error
 	}{
 		"Existing Expense":     {ID: 9, expectedErr: nil},
-		"Non-Existing Expense": {ID: 988998, expectedErr: domain.ErrExpenseNotFound},
+		"Non-Existing Expense": {ID: 988998, expectedErr: store.ErrExpenseNotFound},
 	}
 
 	for name, test := range tests {
@@ -52,11 +53,11 @@ func TestDeleteActivityExpenses(t *testing.T) {
 	}{
 		"Non-Existing Activity": {
 			actID:       domain.ActivityID(98988),
-			expectedErr: domain.ErrActivityNotFound,
+			expectedErr: store.ErrActivityNotFound,
 		},
 		"Zero Activity ID": {
 			actID:       domain.ActivityID(0),
-			expectedErr: domain.ErrActivityNotFound,
+			expectedErr: store.ErrActivityNotFound,
 		},
 		"Existing ID": {
 			actID:       testActID,

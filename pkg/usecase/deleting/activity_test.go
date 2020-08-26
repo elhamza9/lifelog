@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 )
 
@@ -39,7 +40,7 @@ func TestDeleteActivity(t *testing.T) {
 		expectedErr error
 	}{
 		"Existing Activity":     {ID: 9, expectedErr: nil},
-		"Non-Existing Activity": {ID: 988998, expectedErr: domain.ErrActivityNotFound},
+		"Non-Existing Activity": {ID: 988998, expectedErr: store.ErrActivityNotFound},
 		"Activity with Expense": {ID: 10, expectedErr: deleting.ErrActivityHasExpenses},
 	}
 

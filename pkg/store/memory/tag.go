@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 )
 
 func generateRandomTagID() domain.TagID {
@@ -21,7 +22,7 @@ func (repo Repository) FindTagByID(id domain.TagID) (domain.Tag, error) {
 			return t, nil
 		}
 	}
-	return domain.Tag{}, domain.ErrTagNotFound
+	return domain.Tag{}, store.ErrTagNotFound
 }
 
 // FindTagByName searches for a tag with the given name and returns it.
@@ -54,7 +55,7 @@ func (repo Repository) ListAllTags() (*[]domain.Tag, error) {
 // DeleteTag deletes tag from memory
 func (repo Repository) DeleteTag(id domain.TagID) error {
 	if _, ok := (*repo.Tags)[id]; !ok {
-		return domain.ErrTagNotFound
+		return store.ErrTagNotFound
 	}
 	delete(*repo.Tags, id)
 	return nil

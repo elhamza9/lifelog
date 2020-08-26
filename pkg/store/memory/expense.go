@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 )
 
 func generateRandomExpenseID() domain.ExpenseID {
@@ -21,7 +22,7 @@ func (repo Repository) FindExpenseByID(id domain.ExpenseID) (domain.Expense, err
 			return exp, nil
 		}
 	}
-	return domain.Expense{}, domain.ErrExpenseNotFound
+	return domain.Expense{}, store.ErrExpenseNotFound
 }
 
 // AddExpense stores the given Expense in memory  and returns created expense
@@ -70,7 +71,7 @@ func (repo Repository) FindExpensesByActivity(aid domain.ActivityID) (*[]domain.
 // DeleteExpense deletes expense from memory
 func (repo Repository) DeleteExpense(id domain.ExpenseID) error {
 	if _, ok := (*repo.Expenses)[id]; !ok {
-		return domain.ErrExpenseNotFound
+		return store.ErrExpenseNotFound
 	}
 	delete(*repo.Expenses, id)
 	return nil

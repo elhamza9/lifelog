@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 )
 
 func TestActivitiesByTime(t *testing.T) {
@@ -87,7 +88,7 @@ func TestActivitiesByTag(t *testing.T) {
 	t.Run("Non-Existing Tag", func(t *testing.T) {
 		const nonExistingID domain.TagID = 988998
 		_, err := lister.ActivitiesByTag(nonExistingID)
-		expectedErr := domain.ErrTagNotFound
+		expectedErr := store.ErrTagNotFound
 		failed := err != expectedErr
 		if failed {
 			t.Fatalf("Expected error: %v\nReturned Error: %v", expectedErr, err)

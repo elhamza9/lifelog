@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"regexp"
 )
 
 // TagID is a value-object representing Id of a Tag.
@@ -25,12 +26,26 @@ const (
 var (
 	ErrTagNameLen               = fmt.Errorf("Tag name must be %d ~ %d characters long", TagNameMinLength, TagNameMaxLength)
 	ErrTagNameInvalidCharacters = errors.New("Tag name can only contain alphanumeric characters and dashes")
-	ErrTagNameDuplicate         = errors.New("Tag name duplicate")
-
-	ErrTagNotFound = errors.New("Tag with provided ID not found")
 )
 
 // String returns a one-line representation of an tag
 func (t Tag) String() string {
 	return fmt.Sprintf("[%d | %s ]", t.ID, t.Name)
+}
+
+// Valid returns an error if the tag fields are invalid
+func (t Tag) Valid() error {
+	// Check tag name length
+	nameTooShort := len(t.Name) < TagNameMinLength
+	nameTooLong := len(t.Name) > TagNameMaxLength
+	if nameTooShort || nameTooLong {
+		return ErrTagNameLen
+	}
+	// Check Tag name characters
+	if match, _ := regexp.Match(TagNameValidCharacters, []byte(t.Name)); !match {
+		return ErrTagNameInvalidCharacters
+	}
+	// Everything is good
+	return nil
+
 }

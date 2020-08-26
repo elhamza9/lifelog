@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 )
 
 func generateRandomActivityID() domain.ActivityID {
@@ -21,7 +22,7 @@ func (repo Repository) FindActivityByID(id domain.ActivityID) (domain.Activity, 
 			return act, nil
 		}
 	}
-	return domain.Activity{}, domain.ErrActivityNotFound
+	return domain.Activity{}, store.ErrActivityNotFound
 }
 
 // AddActivity stores the given activity in memory and returns created activity

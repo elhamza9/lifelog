@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 )
 
 func TestNewExpense(t *testing.T) {
@@ -58,7 +59,7 @@ func TestNewExpense(t *testing.T) {
 			unit:        "Dh",
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			activityID:  98899889,
-			expectedErr: domain.ErrActivityNotFound,
+			expectedErr: store.ErrActivityNotFound,
 		},
 
 		"Zero value": {
@@ -124,7 +125,7 @@ func TestNewExpense(t *testing.T) {
 			unit:        "Dh",
 			activityID:  100000,
 			tags:        &[]domain.Tag{{ID: 200000}},
-			expectedErr: domain.ErrTagNotFound,
+			expectedErr: store.ErrTagNotFound,
 		},
 	}
 

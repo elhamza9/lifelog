@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 )
 
 func TestNewActivity(t *testing.T) {
@@ -81,7 +82,7 @@ func TestNewActivity(t *testing.T) {
 			time:        time.Now().AddDate(0, 0, -1),
 			dur:         time.Duration(time.Hour),
 			tags:        []domain.Tag{{ID: 100002}, {ID: 100010}},
-			expectedErr: domain.ErrTagNotFound,
+			expectedErr: store.ErrTagNotFound,
 		},
 	}
 
@@ -99,7 +100,6 @@ func TestNewActivity(t *testing.T) {
 					t.Fatalf("Expected Place: %s\nReturned Place: %s", expectedPlace, resAct.Place)
 				}
 			}
-
 		})
 	}
 

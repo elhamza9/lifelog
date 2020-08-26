@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 )
 
 func TestExpensesByTime(t *testing.T) {
@@ -110,7 +111,7 @@ func TestExpensesByTag(t *testing.T) {
 	t.Run("Non-Existing Tag", func(t *testing.T) {
 		const nonExistingID domain.TagID = 988998
 		_, err := lister.ExpensesByTag(nonExistingID)
-		expectedErr := domain.ErrTagNotFound
+		expectedErr := store.ErrTagNotFound
 		failed := err != expectedErr
 		if failed {
 			t.Fatalf("Expected error: %v\nReturned Error: %v", expectedErr, err)
@@ -177,9 +178,9 @@ func TestExpensesByActivity(t *testing.T) {
 	t.Run("Non-Existing Activity", func(t *testing.T) {
 		nonExistantID := domain.ActivityID(989)
 		_, err := lister.ExpensesByActivity(nonExistantID)
-		expectdErr := domain.ErrActivityNotFound
+		expectdErr := store.ErrActivityNotFound
 		if err != expectdErr {
-			t.Fatalf("Expected Err: %v\nReturned Err: %v", domain.ErrActivityNotFound, err)
+			t.Fatalf("Expected Err: %v\nReturned Err: %v", store.ErrActivityNotFound, err)
 		}
 	})
 

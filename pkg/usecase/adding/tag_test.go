@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/usecase/adding"
 )
 
 func TestNewTag(t *testing.T) {
@@ -19,7 +20,7 @@ func TestNewTag(t *testing.T) {
 		expectedErr error
 	}{
 		"Correct":        {"my-TAG_1", nil},
-		"Duplicate":      {"duplicate-tag", domain.ErrTagNameDuplicate},
+		"Duplicate":      {"duplicate-tag", adding.ErrTagNameDuplicate},
 		"Spaces":         {"my tag", domain.ErrTagNameInvalidCharacters},
 		"Special Char &": {"my-tag&", domain.ErrTagNameInvalidCharacters},
 		"Special Char %": {"my-tag%", domain.ErrTagNameInvalidCharacters},
