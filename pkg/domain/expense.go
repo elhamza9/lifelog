@@ -40,3 +40,25 @@ var (
 func (exp Expense) String() string {
 	return fmt.Sprintf("[%d | %s (%2.f %s) | %s]", exp.ID, exp.Label, exp.Value, exp.Unit, exp.Time.Format("2006-01-02"))
 }
+
+// Valid checks if expense fields are valid
+func (exp Expense) Valid() error {
+	now := time.Now()
+	// Check Label
+	if len(exp.Label) < ExpenseLabelMinLen || len(exp.Label) > ExpenseLabelMaxLen {
+		return ErrExpenseLabelLength
+	}
+	// Check Time is not future
+	if exp.Time.After(now) {
+		return ErrExpenseTimeFuture
+	}
+	// Check value
+	if exp.Value <= 0 {
+		return ErrExpenseValue
+	}
+	// Check Unit and transform it to lowercase
+	if len(exp.Unit) < ExpenseUnitMinLen || len(exp.Unit) > ExpenseUnitMaxLen {
+		return ErrExpenseUnitLength
+	}
+	return nil
+}

@@ -11,10 +11,11 @@ import (
 //   - checks repo for tag with same name ( duplicate tags are not allowed )
 func (srv Service) NewTag(name string) (domain.Tag, error) {
 	t := domain.Tag{Name: name}
+	// Transform name to lowercase
+	t.Name = strings.ToLower(t.Name)
 	if err := t.Valid(); err != nil {
 		return domain.Tag{}, err
 	}
-	t.Name = strings.ToLower(t.Name)
 	// Check tag name is not duplicate
 	if t, err := srv.repo.FindTagByName(t.Name); err != nil {
 		return domain.Tag{}, err

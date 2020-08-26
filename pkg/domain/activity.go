@@ -40,3 +40,26 @@ var (
 func (act Activity) String() string {
 	return fmt.Sprintf("[%d | %s | %s ]", act.ID, act.Label, act.Time.Format("2006-01-02 15:04"))
 }
+
+// Valid checks fields for validity
+func (act Activity) Valid() error {
+	now := time.Now()
+	// Check Label Length
+	if len(act.Label) < ActivityLabelMinLen || len(act.Label) > ActivityLabelMaxLen {
+		return ErrActivityLabelLength
+	}
+	// Check Place Length
+	if len(act.Place) > ActivityPlaceMaxLen {
+		return ErrActivityPlaceLength
+	}
+	// Transform Place to Lowercase
+	// Check Desc Length
+	if len(act.Desc) > ActivityDescMaxLen {
+		return ErrActivityDescLength
+	}
+	// Check TimeEnd not future
+	if timeEnd := act.Time.Add(act.Duration); timeEnd.After(now) {
+		return ErrActivityTimeFuture
+	}
+	return nil
+}

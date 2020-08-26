@@ -15,25 +15,18 @@ import (
 //	- Check Time + Duration not future
 //	- Check Tags exist in DB
 func (srv Service) NewActivity(label string, place string, desc string, timeStart time.Time, dur time.Duration, tags *[]domain.Tag) (domain.Activity, error) {
-	now := time.Now()
-	// Check Label Length
-	if len(label) < domain.ActivityLabelMinLen || len(label) > domain.ActivityLabelMaxLen {
-		return domain.Activity{}, domain.ErrActivityLabelLength
-	}
-	// Check Place Length
-	if len(place) > domain.ActivityPlaceMaxLen {
-		return domain.Activity{}, domain.ErrActivityPlaceLength
-	}
-	// Transform Place to Lowercase
 	place = strings.ToLower(place)
-	// Check Desc Length
-	if len(desc) > domain.ActivityDescMaxLen {
-		return domain.Activity{}, domain.ErrActivityDescLength
+	act := domain.Activity{
+		Label:    label,
+		Place:    place,
+		Desc:     desc,
+		Time:     timeStart,
+		Duration: dur,
 	}
-	// Check TimeEnd not future
-	if timeEnd := timeStart.Add(dur); timeEnd.After(now) {
-		return domain.Activity{}, domain.ErrActivityTimeFuture
+	if err := act.Valid(); err != nil {
+		return domain.Activity{}, err
 	}
+
 	// Check & Fetch Tags
 	fetchedTags := []domain.Tag{}
 	for _, t := range *tags {
@@ -43,14 +36,7 @@ func (srv Service) NewActivity(label string, place string, desc string, timeStar
 		}
 		fetchedTags = append(fetchedTags, fetched)
 	}
+	act.Tags = fetchedTags
 
-	act := domain.Activity{
-		Label:    label,
-		Place:    place,
-		Desc:     desc,
-		Time:     timeStart,
-		Duration: dur,
-		Tags:     fetchedTags,
-	}
 	return srv.repo.AddActivity(act)
 }
