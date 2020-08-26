@@ -14,7 +14,7 @@ import (
 //	- Check Description length
 //	- Check Time + Duration not future
 //	- Check Tags exist in DB
-func (srv Service) NewActivity(label string, place string, desc string, timeStart time.Time, dur time.Duration, tags *[]domain.Tag) (domain.Activity, error) {
+func (srv Service) NewActivity(label string, place string, desc string, timeStart time.Time, dur time.Duration, tags *[]domain.Tag) (domain.ActivityID, error) {
 	place = strings.ToLower(place)
 	act := domain.Activity{
 		Label:    label,
@@ -24,7 +24,7 @@ func (srv Service) NewActivity(label string, place string, desc string, timeStar
 		Duration: dur,
 	}
 	if err := act.Valid(); err != nil {
-		return domain.Activity{}, err
+		return 0, err
 	}
 
 	// Check & Fetch Tags
@@ -32,7 +32,7 @@ func (srv Service) NewActivity(label string, place string, desc string, timeStar
 	for _, t := range *tags {
 		fetched, err := srv.repo.FindTagByID(t.ID)
 		if err != nil {
-			return domain.Activity{}, err
+			return 0, err
 		}
 		fetchedTags = append(fetchedTags, fetched)
 	}

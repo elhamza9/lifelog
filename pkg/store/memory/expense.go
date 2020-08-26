@@ -26,10 +26,10 @@ func (repo Repository) FindExpenseByID(id domain.ExpenseID) (domain.Expense, err
 }
 
 // AddExpense stores the given Expense in memory  and returns created expense
-func (repo Repository) AddExpense(exp domain.Expense) (domain.Expense, error) {
+func (repo Repository) AddExpense(exp domain.Expense) (domain.ExpenseID, error) {
 	exp.ID = generateRandomExpenseID()
 	(*repo.Expenses)[exp.ID] = exp
-	return exp, nil
+	return exp.ID, nil
 }
 
 // FindExpensesByTime returns expenses with Time

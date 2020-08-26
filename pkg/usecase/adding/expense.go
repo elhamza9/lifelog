@@ -16,7 +16,7 @@ import (
 //	- Checks Unit length
 //	- Transform Unit to lowercase
 //	- Checks Tags exist in Repo
-func (srv Service) NewExpense(label string, t time.Time, value float32, unit string, activityID domain.ActivityID, tags *[]domain.Tag) (domain.Expense, error) {
+func (srv Service) NewExpense(label string, t time.Time, value float32, unit string, activityID domain.ActivityID, tags *[]domain.Tag) (domain.ExpenseID, error) {
 
 	// Transform unit to lowecase
 	unit = strings.ToLower(unit)
@@ -29,13 +29,13 @@ func (srv Service) NewExpense(label string, t time.Time, value float32, unit str
 	}
 	// Check validitity of fields
 	if err := exp.Valid(); err != nil {
-		return domain.Expense{}, err
+		return 0, err
 	}
 
 	// Check Activity exists
 	if activityID > 0 {
 		if _, err := srv.repo.FindActivityByID(activityID); err != nil {
-			return domain.Expense{}, err
+			return 0, err
 		}
 	}
 	exp.ActivityID = activityID
@@ -45,7 +45,7 @@ func (srv Service) NewExpense(label string, t time.Time, value float32, unit str
 	for _, t := range *tags {
 		fetched, err := srv.repo.FindTagByID(t.ID)
 		if err != nil {
-			return domain.Expense{}, err
+			return 0, err
 		}
 		fetchedTags = append(fetchedTags, fetched)
 	}

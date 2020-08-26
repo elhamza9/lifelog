@@ -9,18 +9,18 @@ import (
 
 // NewTag creates the new tag and calls the service repository to store it.
 //   - checks repo for tag with same name ( duplicate tags are not allowed )
-func (srv Service) NewTag(name string) (domain.Tag, error) {
+func (srv Service) NewTag(name string) (domain.TagID, error) {
 	t := domain.Tag{Name: name}
 	// Transform name to lowercase
 	t.Name = strings.ToLower(t.Name)
 	if err := t.Valid(); err != nil {
-		return domain.Tag{}, err
+		return 0, err
 	}
 	// Check tag name is not duplicate
 	if t, err := srv.repo.FindTagByName(t.Name); err != nil {
-		return domain.Tag{}, err
+		return 0, err
 	} else if len(t.Name) > 0 {
-		return domain.Tag{}, usecase.ErrTagNameDuplicate
+		return 0, usecase.ErrTagNameDuplicate
 	}
 	// Create & Store
 	return srv.repo.AddTag(t)

@@ -17,10 +17,10 @@ func NewService(r Repository) Service {
 
 // Repository defines methods that must be implemented to store entities
 type Repository interface {
-	AddTag(domain.Tag) (domain.Tag, error)
+	AddTag(domain.Tag) (domain.TagID, error)
+	AddExpense(domain.Expense) (domain.ExpenseID, error)
+	AddActivity(domain.Activity) (domain.ActivityID, error)
 	FindTagByName(string) (domain.Tag, error)
-	AddExpense(domain.Expense) (domain.Expense, error)
-	AddActivity(domain.Activity) (domain.Activity, error)
 	FindTagByID(domain.TagID) (domain.Tag, error)
 	FindActivityByID(domain.ActivityID) (domain.Activity, error)
 }

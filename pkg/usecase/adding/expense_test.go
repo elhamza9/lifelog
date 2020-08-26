@@ -131,28 +131,21 @@ func TestNewExpense(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			resExp, err := adder.NewExpense(test.label, test.time, test.val, test.unit, test.activityID, test.tags)
+			createdID, err := adder.NewExpense(test.label, test.time, test.val, test.unit, test.activityID, test.tags)
 			testFailed := err != test.expectedErr
-			var expectedErrStr string = "No Error"
-			if test.expectedErr != nil {
-				expectedErrStr = test.expectedErr.Error()
-			}
-			var errStr string = "No Error"
-			if err != nil {
-				errStr = err.Error()
-			}
 			if testFailed {
-				t.Fatalf("\nExpecting: %s\nBut Got: %s", expectedErrStr, errStr)
+				t.Fatalf("Expected Error: %v\nReturned Error: %v", test.expectedErr, err)
 			}
 			if err == nil {
-				if resExp.Unit != strings.ToLower(test.unit) {
-					t.Fatalf("Expense Unit should be transformed to Lower case.\nGot: %s", resExp.Unit)
+				createdExpense := (*repo.Expenses)[createdID]
+				expectedUnit := strings.ToLower(test.unit)
+				if createdExpense.Unit != expectedUnit {
+					t.Fatalf("Expected Unit: %s\nReturned Unit: %s", expectedUnit, createdExpense.Unit)
 				}
-				if len(resExp.Tags) != len((*test.tags)) {
+				if len(createdExpense.Tags) != len((*test.tags)) {
 					t.Fatalf("Created expense has number of tags different from number of tags given")
 				}
 			}
-
 		})
 	}
 }

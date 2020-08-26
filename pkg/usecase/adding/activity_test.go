@@ -88,16 +88,17 @@ func TestNewActivity(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			resAct, err := adder.NewActivity(test.label, test.place, test.desc, test.time, test.dur, &test.tags)
+			createdID, err := adder.NewActivity(test.label, test.place, test.desc, test.time, test.dur, &test.tags)
 			testFailed := err != test.expectedErr
 			if testFailed {
 				t.Fatalf("\nExpected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
 			if err == nil {
+				createdActivity := (*repo.Activities)[createdID]
 				// Tests after creation successful
 				expectedPlace := strings.ToLower(test.place)
-				if resAct.Place != expectedPlace {
-					t.Fatalf("Expected Place: %s\nReturned Place: %s", expectedPlace, resAct.Place)
+				if createdActivity.Place != expectedPlace {
+					t.Fatalf("Expected Place: %s\nReturned Place: %s", expectedPlace, createdActivity.Place)
 				}
 			}
 		})

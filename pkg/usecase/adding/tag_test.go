@@ -31,22 +31,19 @@ func TestNewTag(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			resTag, err := adder.NewTag(test.name)
+			createdID, err := adder.NewTag(test.name)
 			testFailed := err != test.expectedErr
 			if testFailed {
-				var expectedErrStr string = "No Error"
-				if test.expectedErr != nil {
-					expectedErrStr = test.expectedErr.Error()
-				}
-				var errStr string = "No error"
-				if err != nil {
-					errStr = err.Error()
-				}
-				t.Fatalf("\nUnexpected: %s\nExpecting : %s", errStr, expectedErrStr)
+				t.Fatalf("Expected Error: %v\nReturned Error: %v", test.expectedErr, err)
 			}
+
 			// If no error was returned, check if stored tag's name was transformed to lowercase
-			if err == nil && resTag.Name != strings.ToLower(test.name) {
-				t.Fatalf("Tag Name was not transformed to Lowercase.")
+			if err == nil {
+				createdTag := (*repo.Tags)[createdID]
+				expectedName := strings.ToLower(test.name)
+				if createdTag.Name != expectedName {
+					t.Fatalf("Expected Tag Name: %s\nReturned Tag Name: %s", expectedName, createdTag.Name)
+				}
 			}
 		})
 	}
