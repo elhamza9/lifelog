@@ -36,29 +36,34 @@ var (
 	ErrExpenseTimeFuture  = errors.New("Expense Time can not be future")
 )
 
+// ************* Methods *************
+
 // String returns a one-line representation of an expense
 func (exp Expense) String() string {
 	return fmt.Sprintf("[%d | %s (%2.f %s) | %s]", exp.ID, exp.Label, exp.Value, exp.Unit, exp.Time.Format("2006-01-02"))
 }
 
-// Valid checks if expense fields are valid
+// Valid checks primitive, non-db-related fields for validity
 func (exp Expense) Valid() error {
 	now := time.Now()
-	// Check Label
-	if len(exp.Label) < ExpenseLabelMinLen || len(exp.Label) > ExpenseLabelMaxLen {
+	// Check Label length
+	labelLen := len(exp.Label)
+	if labelLen < ExpenseLabelMinLen || labelLen > ExpenseLabelMaxLen {
 		return ErrExpenseLabelLength
 	}
 	// Check Time is not future
 	if exp.Time.After(now) {
 		return ErrExpenseTimeFuture
 	}
-	// Check value
+	// Check value strictly positive
 	if exp.Value <= 0 {
 		return ErrExpenseValue
 	}
-	// Check Unit and transform it to lowercase
-	if len(exp.Unit) < ExpenseUnitMinLen || len(exp.Unit) > ExpenseUnitMaxLen {
+	// Check Unit length
+	unitLen := len(exp.Unit)
+	if unitLen < ExpenseUnitMinLen || unitLen > ExpenseUnitMaxLen {
 		return ErrExpenseUnitLength
 	}
+	// Everything is good
 	return nil
 }

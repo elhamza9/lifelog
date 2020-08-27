@@ -36,12 +36,14 @@ var (
 	ErrActivityTimeFuture  error = errors.New("Activity Time + Duration can not result in future date")
 )
 
+// ************* Methods *************
+
 // String returns a one line string representation of an activity
 func (act Activity) String() string {
 	return fmt.Sprintf("[%d | %s | %s ]", act.ID, act.Label, act.Time.Format("2006-01-02 15:04"))
 }
 
-// Valid checks fields for validity
+// Valid checks primitive, non-db-related fields for validity
 func (act Activity) Valid() error {
 	now := time.Now()
 	// Check Label Length
@@ -61,5 +63,6 @@ func (act Activity) Valid() error {
 	if timeEnd := act.Time.Add(act.Duration); timeEnd.After(now) {
 		return ErrActivityTimeFuture
 	}
+	// Everything is good
 	return nil
 }

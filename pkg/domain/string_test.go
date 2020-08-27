@@ -1,5 +1,7 @@
 package domain
 
+// Tests just to visually check the string format of the entities
+
 import (
 	"log"
 	"testing"

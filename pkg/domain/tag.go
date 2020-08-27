@@ -17,9 +17,9 @@ type Tag struct {
 
 // Constants for tag name conditions
 const (
-	TagNameMinLength       int    = 3
-	TagNameMaxLength       int    = 20
-	TagNameValidCharacters string = `^[\w-]*$` // Only Alphanumeric characters and dashes
+	TagNameMinLength  int    = 3
+	TagNameMaxLength  int    = 20
+	TagNameValidChars string = `^[\w-]*$` // Only Alphanumeric characters and dashes
 )
 
 // Errors
@@ -28,12 +28,14 @@ var (
 	ErrTagNameInvalidCharacters = errors.New("Tag name can only contain alphanumeric characters and dashes")
 )
 
-// String returns a one-line representation of an tag
+// ************* Methods *************
+
+// String returns a one-line representation of a tag
 func (t Tag) String() string {
 	return fmt.Sprintf("[%d | %s ]", t.ID, t.Name)
 }
 
-// Valid returns an error if the tag fields are invalid
+// Valid checks primitive, non-db-related fields for validity
 func (t Tag) Valid() error {
 	// Check tag name length
 	nameTooShort := len(t.Name) < TagNameMinLength
@@ -42,10 +44,9 @@ func (t Tag) Valid() error {
 		return ErrTagNameLen
 	}
 	// Check Tag name characters
-	if match, _ := regexp.Match(TagNameValidCharacters, []byte(t.Name)); !match {
+	if match, _ := regexp.Match(TagNameValidChars, []byte(t.Name)); !match {
 		return ErrTagNameInvalidCharacters
 	}
 	// Everything is good
 	return nil
-
 }
