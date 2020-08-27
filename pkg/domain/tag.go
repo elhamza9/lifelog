@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 // TagID is a value-object representing Id of a Tag.
@@ -35,14 +36,15 @@ func (t Tag) String() string {
 	return fmt.Sprintf("[%d | %s ]", t.ID, t.Name)
 }
 
-// Valid checks primitive, non-db-related fields for validity
-func (t Tag) Valid() error {
+// Validate checks primitive, non-db-related fields for validity
+func (t *Tag) Validate() error {
 	// Check tag name length
 	nameTooShort := len(t.Name) < TagNameMinLength
 	nameTooLong := len(t.Name) > TagNameMaxLength
 	if nameTooShort || nameTooLong {
 		return ErrTagNameLen
 	}
+	t.Name = strings.ToLower(t.Name)
 	// Check Tag name characters
 	if match, _ := regexp.Match(TagNameValidChars, []byte(t.Name)); !match {
 		return ErrTagNameInvalidCharacters

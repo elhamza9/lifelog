@@ -1,8 +1,6 @@
 package editing
 
 import (
-	"strings"
-
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
 
@@ -14,11 +12,8 @@ func (srv Service) EditActivity(act domain.Activity) error {
 		return err
 	}
 
-	// Transform unit to lowecase
-	act.Place = strings.ToLower(act.Place)
-
 	// Check primitive fields are valid
-	if err := act.Valid(); err != nil {
+	if err := act.Validate(); err != nil {
 		return err
 	}
 

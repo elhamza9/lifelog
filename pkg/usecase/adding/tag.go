@@ -1,8 +1,6 @@
 package adding
 
 import (
-	"strings"
-
 	"github.com/elhamza90/lifelog/pkg/domain"
 	"github.com/elhamza90/lifelog/pkg/usecase"
 )
@@ -11,14 +9,11 @@ import (
 //	- It transforms name to lowercase
 //	- checks repo for tag with same name ( duplicate tags are not allowed )
 func (srv Service) NewTag(name string) (domain.TagID, error) {
-	// Transform name to lowercase
-	name = strings.ToLower(name)
-
 	// Create Tag
 	t := domain.Tag{Name: name}
 
 	// Check fields valid
-	if err := t.Valid(); err != nil {
+	if err := t.Validate(); err != nil {
 		return 0, err
 	}
 

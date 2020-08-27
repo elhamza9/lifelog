@@ -1,19 +1,14 @@
 package editing
 
 import (
-	"strings"
-
 	"github.com/elhamza90/lifelog/pkg/domain"
 	"github.com/elhamza90/lifelog/pkg/usecase"
 )
 
 // EditTag calls repo to edit the provided tag
 func (srv Service) EditTag(t domain.Tag) error {
-	// Transform name to lowercase
-	t.Name = strings.ToLower(t.Name)
-
 	// Check Tag valid
-	if err := t.Valid(); err != nil {
+	if err := t.Validate(); err != nil {
 		return err
 	}
 	// Check Tag exists

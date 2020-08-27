@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -43,8 +44,9 @@ func (act Activity) String() string {
 	return fmt.Sprintf("[%d | %s | %s ]", act.ID, act.Label, act.Time.Format("2006-01-02 15:04"))
 }
 
-// Valid checks primitive, non-db-related fields for validity
-func (act Activity) Valid() error {
+// Validate checks primitive, non-db-related fields for validity
+// It also transforms place to lowercase
+func (act *Activity) Validate() error {
 	now := time.Now()
 	// Check Label Length
 	if len(act.Label) < ActivityLabelMinLen || len(act.Label) > ActivityLabelMaxLen {
@@ -54,6 +56,7 @@ func (act Activity) Valid() error {
 	if len(act.Place) > ActivityPlaceMaxLen {
 		return ErrActivityPlaceLength
 	}
+	act.Place = strings.ToLower(act.Place)
 	// Transform Place to Lowercase
 	// Check Desc Length
 	if len(act.Desc) > ActivityDescMaxLen {

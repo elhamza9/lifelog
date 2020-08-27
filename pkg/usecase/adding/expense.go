@@ -1,7 +1,6 @@
 package adding
 
 import (
-	"strings"
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
@@ -9,14 +8,10 @@ import (
 
 // NewExpense creates the new expense and calls the service repository to store it.
 // It does the following checks:
-//	- Transform Unit to lowercase
 //	- Check primitive fields are valid
 //	- Check Activity with provided ActivityID exists
 //	- Checks Tags exist and fetch them
 func (srv Service) NewExpense(label string, t time.Time, value float32, unit string, activityID domain.ActivityID, tags *[]domain.Tag) (domain.ExpenseID, error) {
-
-	// Transform unit to lowecase
-	unit = strings.ToLower(unit)
 
 	// Create Expense
 	exp := domain.Expense{
@@ -27,7 +22,7 @@ func (srv Service) NewExpense(label string, t time.Time, value float32, unit str
 	}
 
 	// Check primitive fields are valid
-	if err := exp.Valid(); err != nil {
+	if err := exp.Validate(); err != nil {
 		return 0, err
 	}
 

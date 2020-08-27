@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -43,8 +44,9 @@ func (exp Expense) String() string {
 	return fmt.Sprintf("[%d | %s (%2.f %s) | %s]", exp.ID, exp.Label, exp.Value, exp.Unit, exp.Time.Format("2006-01-02"))
 }
 
-// Valid checks primitive, non-db-related fields for validity
-func (exp Expense) Valid() error {
+// Validate checks primitive, non-db-related fields for validity
+// It also transforms unit to lowercase
+func (exp *Expense) Validate() error {
 	now := time.Now()
 	// Check Label length
 	labelLen := len(exp.Label)
@@ -64,6 +66,8 @@ func (exp Expense) Valid() error {
 	if unitLen < ExpenseUnitMinLen || unitLen > ExpenseUnitMaxLen {
 		return ErrExpenseUnitLength
 	}
+	// Transform unit to lowercase
+	exp.Unit = strings.ToLower(exp.Unit)
 	// Everything is good
 	return nil
 }

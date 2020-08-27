@@ -1,7 +1,6 @@
 package adding
 
 import (
-	"strings"
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
@@ -9,13 +8,9 @@ import (
 
 // NewActivity creates a new activity and calls the repo to store it.
 // It does the following checks:
-//	- Transform place to Lowercase
 //	- Check primitive fields are valid
 //	- Check Tags exist in DB
 func (srv Service) NewActivity(label string, place string, desc string, timeStart time.Time, dur time.Duration, tags *[]domain.Tag) (domain.ActivityID, error) {
-	// Transform place to Lowercase
-	place = strings.ToLower(place)
-
 	// Create Activity
 	act := domain.Activity{
 		Label:    label,
@@ -26,7 +21,7 @@ func (srv Service) NewActivity(label string, place string, desc string, timeStar
 	}
 
 	// Check primitive fields are valid
-	if err := act.Valid(); err != nil {
+	if err := act.Validate(); err != nil {
 		return 0, err
 	}
 
