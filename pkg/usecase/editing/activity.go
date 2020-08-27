@@ -6,8 +6,8 @@ import (
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
 
-// Activity calls repo to update given activity
-func (srv Service) Activity(act domain.Activity) error {
+// EditActivity calls repo to update given activity
+func (srv Service) EditActivity(act domain.Activity) error {
 
 	// Check Activity Exists
 	if _, err := srv.repo.FindActivityByID(act.ID); err != nil {
@@ -16,6 +16,8 @@ func (srv Service) Activity(act domain.Activity) error {
 
 	// Transform unit to lowecase
 	act.Place = strings.ToLower(act.Place)
+
+	// Check primitive fields are valid
 	if err := act.Valid(); err != nil {
 		return err
 	}

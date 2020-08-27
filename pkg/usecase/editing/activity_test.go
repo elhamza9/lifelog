@@ -30,6 +30,7 @@ func TestEditActivity(t *testing.T) {
 			act: domain.Activity{
 				ID:       1,
 				Label:    "Edited Test Activity",
+				Place:    "Somewhere",
 				Tags:     []domain.Tag{{ID: 1}},
 				Time:     time.Now().AddDate(0, 0, -1),
 				Duration: time.Duration(time.Hour),
@@ -40,6 +41,7 @@ func TestEditActivity(t *testing.T) {
 			act: domain.Activity{
 				ID:       1232,
 				Label:    "Edited Test Activity",
+				Place:    "Somewhere",
 				Tags:     []domain.Tag{{ID: 1}},
 				Time:     time.Now().AddDate(0, 0, -1),
 				Duration: time.Duration(time.Hour),
@@ -51,6 +53,7 @@ func TestEditActivity(t *testing.T) {
 			act: domain.Activity{
 				ID:       1,
 				Label:    "Edited Test Activity",
+				Place:    "Somewhere",
 				Tags:     []domain.Tag{{ID: 9898}},
 				Time:     time.Now().AddDate(0, 0, -1),
 				Duration: time.Duration(time.Hour),
@@ -61,6 +64,7 @@ func TestEditActivity(t *testing.T) {
 			act: domain.Activity{
 				ID:       1,
 				Label:    "Edited Test Activity",
+				Place:    "Somewhere",
 				Tags:     []domain.Tag{{ID: 1}},
 				Time:     time.Now().AddDate(0, 0, 1),
 				Duration: time.Duration(time.Hour),
@@ -71,7 +75,7 @@ func TestEditActivity(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			err := editter.Activity(test.act)
+			err := editor.EditActivity(test.act)
 			if err != test.expectedErr {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}

@@ -6,10 +6,12 @@ import (
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
 
-// Expense calls repo to update given expense
-func (srv Service) Expense(exp domain.Expense) error {
+// EditExpense calls repo to update given expense
+func (srv Service) EditExpense(exp domain.Expense) error {
 	// Transform unit to lowecase
 	exp.Unit = strings.ToLower(exp.Unit)
+
+	// Check primitive fields are valid
 	if err := exp.Valid(); err != nil {
 		return err
 	}

@@ -36,7 +36,7 @@ func TestEditTag(t *testing.T) {
 	// Test Subcase: Non-existing Tag
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			err := editter.Tag(test.tag)
+			err := editor.EditTag(test.tag)
 			if err != test.expectedErr {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}

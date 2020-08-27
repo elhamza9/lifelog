@@ -89,7 +89,7 @@ func TestEditExpense(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			err := editter.Expense(test.exp)
+			err := editor.EditExpense(test.exp)
 			if err != test.expectedErr {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}

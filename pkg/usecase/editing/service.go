@@ -16,7 +16,17 @@ func NewService(r Repository) Service {
 	return Service{repo: r}
 }
 
-// Repository defines methods that must be implemented to edit entities
+// Repository is the interface that wraps the methods
+// that must be implemented by the repository in order
+// for editing service to perform its job
+//
+//	- EditTag, EditExpense, EditActivity are the main editing methods
+//
+//	- FindTagByID is used to check if tags exist when editing expenses/activities
+//
+//	- FindTagByName is used to check for duplicate tags when editing tag
+//
+// 	- FindActivityByID is used to check if activity exists when editing expense
 type Repository interface {
 	EditTag(domain.Tag) error
 	EditExpense(domain.Expense) error

@@ -7,10 +7,11 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase"
 )
 
-// Tag calls repo to edit the provided tag
-func (srv Service) Tag(t domain.Tag) error {
+// EditTag calls repo to edit the provided tag
+func (srv Service) EditTag(t domain.Tag) error {
 	// Transform name to lowercase
 	t.Name = strings.ToLower(t.Name)
+
 	// Check Tag valid
 	if err := t.Valid(); err != nil {
 		return err

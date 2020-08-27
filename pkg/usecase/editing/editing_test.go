@@ -9,12 +9,12 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase/editing"
 )
 
-var editter editing.Service
-var repo memory.Repository
+var editor editing.Service // Instance of service we will be testing
+var repo memory.Repository  // Repository used by service
 
 func TestMain(m *testing.M) {
 	log.Println("Setting up tests")
 	repo = memory.NewRepository()       // Work with In-Memory DB
-	editter = editing.NewService(&repo) // Passing by reference to change db when testing
+	editor = editing.NewService(&repo) // Passing by reference to change db when testing
 	os.Exit(m.Run())
 }
