@@ -12,16 +12,27 @@ func NewService(r Repository) Service {
 	return Service{repo: r}
 }
 
-// Repository defines methods that must be implemented to delete entities
+// Repository is the interface that wraps the methods that must be
+// implemented by the repository in order for deleting service
+// to perform its job
+//
+//	- DeleteExpense, DeleteExpensesByActivity, DeleteActivity, DeleteTag
+//	  are the main methods to delete entities
+//
+//	- FindExpenseByID, FindActivityByID, FindTagByID are used to check
+//	  for existance of entities before deleting them
+//
+//	- FindExpensesByActivity, FindExpensesByTag, FindActivitiesByTag are used
+//	  to check if there are any things associated with tag before deleting it.
 type Repository interface {
-	DeleteExpense(id domain.ExpenseID) error
-	DeleteExpensesByActivity(domain.ActivityID) error
-	DeleteActivity(domain.ActivityID) error
 	DeleteTag(domain.TagID) error
-	FindExpenseByID(id domain.ExpenseID) (domain.Expense, error)
-	FindExpensesByActivity(domain.ActivityID) (*[]domain.Expense, error)
+	DeleteExpense(id domain.ExpenseID) error
+	DeleteActivity(domain.ActivityID) error
+	DeleteExpensesByActivity(domain.ActivityID) error
 	FindActivityByID(domain.ActivityID) (domain.Activity, error)
+	FindExpenseByID(id domain.ExpenseID) (domain.Expense, error)
 	FindTagByID(domain.TagID) (domain.Tag, error)
+	FindExpensesByActivity(domain.ActivityID) (*[]domain.Expense, error)
 	FindExpensesByTag(domain.TagID) (*[]domain.Expense, error)
 	FindActivitiesByTag(domain.TagID) (*[]domain.Activity, error)
 }

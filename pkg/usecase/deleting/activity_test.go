@@ -49,7 +49,7 @@ func TestDeleteActivity(t *testing.T) {
 			err := deleter.Activity(test.ID)
 			failed := err != test.expectedErr
 			if failed {
-				t.Fatalf("Expecting Error: %v\nReturned Error; %v", err, test.expectedErr)
+				t.Fatalf("\nExpected Error: %v\nReturned Error; %v", err, test.expectedErr)
 			}
 		})
 	}

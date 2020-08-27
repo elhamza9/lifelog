@@ -69,7 +69,7 @@ func TestDeleteActivityExpenses(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			err := deleter.ActivityExpenses(test.actID)
 			if err != test.expectedErr {
-				t.Fatalf("Expected: %v\nReturned: %v", test.expectedErr, err)
+				t.Fatalf("\nExpected err: %v\nReturned err: %v", test.expectedErr, err)
 			}
 		})
 	}
