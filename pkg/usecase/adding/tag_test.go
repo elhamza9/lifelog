@@ -14,7 +14,7 @@ func TestNewTag(t *testing.T) {
 		100000: {Name: "duplicate-tag"},
 	}
 
-	// Sub-tests
+	// Sub-tests Definitions
 	tests := map[string]struct {
 		name        string
 		expectedErr error
@@ -29,20 +29,21 @@ func TestNewTag(t *testing.T) {
 		"Too Long":       {"myveryveryveryveryveryverylongtag", domain.ErrTagNameLen},
 	}
 
+	// Sub-tests execution
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			createdID, err := adder.NewTag(test.name)
 			testFailed := err != test.expectedErr
 			if testFailed {
-				t.Fatalf("Expected Error: %v\nReturned Error: %v", test.expectedErr, err)
+				t.Fatalf("\nExpected Error: %v\nReturned Error: %v", test.expectedErr, err)
 			}
-
 			// If no error was returned, check if stored tag's name was transformed to lowercase
 			if err == nil {
+				// Fetch created tag from repo
 				createdTag := (*repo.Tags)[createdID]
 				expectedName := strings.ToLower(test.name)
 				if createdTag.Name != expectedName {
-					t.Fatalf("Expected Tag Name: %s\nReturned Tag Name: %s", expectedName, createdTag.Name)
+					t.Fatalf("\nExpected Tag Name: %s\nReturned Tag Name: %s", expectedName, createdTag.Name)
 				}
 			}
 		})

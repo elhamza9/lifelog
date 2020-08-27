@@ -10,9 +10,10 @@ import (
 )
 
 func TestNewExpense(t *testing.T) {
-	// Init Repo with some activities to test checking if activity exist
+	now := time.Now()
+	// Init Repo with one activity to test checking if activity exist
 	repo.Activities = &map[domain.ActivityID]domain.Activity{
-		100000: {ID: 100000, Label: "Test Activity", Time: time.Now().AddDate(0, 0, -1), Duration: time.Duration(time.Hour)},
+		100000: {ID: 100000, Label: "Test Activity", Time: now.AddDate(0, 0, -1), Duration: time.Duration(time.Hour)},
 	}
 	// Init Repo with some tags to test checking if tags exist
 	repo.Tags = &map[domain.TagID]domain.Tag{
@@ -36,7 +37,7 @@ func TestNewExpense(t *testing.T) {
 	}{
 		"Correct-with-activity": {
 			label:       "my expense",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
@@ -45,7 +46,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Correct-without-activity": {
 			label:       "my expense",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
@@ -54,37 +55,34 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Non-existing-Activity": {
 			label:       "my expense",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			activityID:  98899889,
 			expectedErr: store.ErrActivityNotFound,
 		},
-
 		"Zero value": {
 			label:       "my expense",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         0,
 			unit:        "Dh",
 			activityID:  100000,
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: domain.ErrExpenseValue,
 		},
-
 		"Time Future": {
 			label:       "my expense",
-			time:        time.Now().AddDate(0, 0, 1),
+			time:        now.AddDate(0, 0, 1),
 			val:         15.5,
 			unit:        "Dh",
 			activityID:  100000,
 			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: domain.ErrExpenseTimeFuture,
 		},
-
 		"Short Label": {
 			label:       "my",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			activityID:  100000,
@@ -93,7 +91,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Long Label": {
 			label:       "my ver ver ver very very ver very very very very very very very very very long label",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			activityID:  100000,
@@ -102,7 +100,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Long Unit": {
 			label:       "my expense",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "LongLongUnit",
 			activityID:  100000,
@@ -111,7 +109,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Short Unit": {
 			label:       "my expense",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "D",
 			activityID:  100000,
@@ -120,7 +118,7 @@ func TestNewExpense(t *testing.T) {
 		},
 		"Non-Existing Tag": {
 			label:       "my expense",
-			time:        time.Now().AddDate(0, 0, -1),
+			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
 			activityID:  100000,
@@ -134,16 +132,20 @@ func TestNewExpense(t *testing.T) {
 			createdID, err := adder.NewExpense(test.label, test.time, test.val, test.unit, test.activityID, test.tags)
 			testFailed := err != test.expectedErr
 			if testFailed {
-				t.Fatalf("Expected Error: %v\nReturned Error: %v", test.expectedErr, err)
+				t.Fatalf("\nExpected Error: %v\nReturned Error: %v", test.expectedErr, err)
 			}
+			// If expense was added without errors:
 			if err == nil {
+				// Fetch created expense directly from repo
 				createdExpense := (*repo.Expenses)[createdID]
+				// Check unit was transformed to lowercase
 				expectedUnit := strings.ToLower(test.unit)
 				if createdExpense.Unit != expectedUnit {
-					t.Fatalf("Expected Unit: %s\nReturned Unit: %s", expectedUnit, createdExpense.Unit)
+					t.Fatalf("\nExpected Unit: %s\nReturned Unit: %s", expectedUnit, createdExpense.Unit)
 				}
+				// Check Tags were populated
 				if len(createdExpense.Tags) != len((*test.tags)) {
-					t.Fatalf("Created expense has number of tags different from number of tags given")
+					t.Fatalf("\nCreated expense has number of tags different from number of tags given")
 				}
 			}
 		})

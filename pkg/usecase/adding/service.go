@@ -10,12 +10,25 @@ type Service struct {
 	repo Repository
 }
 
-// NewService returns a new service with provided repository
+// NewService returns a new adding service with provided repository
 func NewService(r Repository) Service {
 	return Service{repo: r}
 }
 
-// Repository defines methods that must be implemented to store entities
+// Repository is the interface that wraps the methods
+// that must be implemented by the repository
+// in order for adding service to perform its job.
+//
+// - AddTag, AddExpense and AddActivity are the main
+// methods to store the objects.
+//
+// - FindTagByName is used to check for duplicate tag names.
+//
+// - FindTagByID is used to check that tags exist when
+//   creating an activity or an expense with tags.
+//
+// - FindActivityByID is used to check that an activity
+//   exists when creating an expense.
 type Repository interface {
 	AddTag(domain.Tag) (domain.TagID, error)
 	AddExpense(domain.Expense) (domain.ExpenseID, error)

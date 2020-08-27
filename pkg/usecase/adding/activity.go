@@ -7,15 +7,16 @@ import (
 	"github.com/elhamza90/lifelog/pkg/domain"
 )
 
-// NewActivity creates a new activity and calls the repo to store it
+// NewActivity creates a new activity and calls the repo to store it.
 // It does the following checks:
-//	- Check Label length
-//	- Check Place length
-//	- Check Description length
-//	- Check Time + Duration not future
+//	- Transform place to Lowercase
+//	- Check primitive fields are valid
 //	- Check Tags exist in DB
 func (srv Service) NewActivity(label string, place string, desc string, timeStart time.Time, dur time.Duration, tags *[]domain.Tag) (domain.ActivityID, error) {
+	// Transform place to Lowercase
 	place = strings.ToLower(place)
+
+	// Create Activity
 	act := domain.Activity{
 		Label:    label,
 		Place:    place,
@@ -23,6 +24,8 @@ func (srv Service) NewActivity(label string, place string, desc string, timeStar
 		Time:     timeStart,
 		Duration: dur,
 	}
+
+	// Check primitive fields are valid
 	if err := act.Valid(); err != nil {
 		return 0, err
 	}

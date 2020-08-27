@@ -10,6 +10,8 @@ import (
 )
 
 func TestNewActivity(t *testing.T) {
+	now := time.Now()
+	defaultDur := time.Duration(time.Hour)
 	// Init Repo with some tags to test checking if tags exist
 	repo.Tags = &map[domain.TagID]domain.Tag{
 		100000: {ID: 100000, Name: "tag-100000"},
@@ -20,7 +22,7 @@ func TestNewActivity(t *testing.T) {
 		100005: {ID: 100005, Name: "tag-100005"},
 	}
 
-	// Sub-tests
+	// Sub-tests Definitions
 	tests := map[string]struct {
 		label       string
 		place       string
@@ -34,8 +36,8 @@ func TestNewActivity(t *testing.T) {
 			label:       "New Activity",
 			place:       "Beach",
 			desc:        "Play Soccer",
-			time:        time.Now().AddDate(0, 0, -1),
-			dur:         time.Duration(time.Hour),
+			time:        now.AddDate(0, 0, -1),
+			dur:         defaultDur,
 			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
 			expectedErr: nil,
 		},
@@ -43,8 +45,8 @@ func TestNewActivity(t *testing.T) {
 			label:       "",
 			place:       "Beach",
 			desc:        "Play Soccer",
-			time:        time.Now().AddDate(0, 0, -1),
-			dur:         time.Duration(time.Hour),
+			time:        now.AddDate(0, 0, -1),
+			dur:         defaultDur,
 			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
 			expectedErr: domain.ErrActivityLabelLength,
 		},
@@ -52,8 +54,8 @@ func TestNewActivity(t *testing.T) {
 			label:       "My very very very very very very very very very very very very very very very Long Label",
 			place:       "Beach",
 			desc:        "Play Soccer",
-			time:        time.Now().AddDate(0, 0, -1),
-			dur:         time.Duration(time.Hour),
+			time:        now.AddDate(0, 0, -1),
+			dur:         defaultDur,
 			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
 			expectedErr: domain.ErrActivityLabelLength,
 		},
@@ -61,8 +63,8 @@ func TestNewActivity(t *testing.T) {
 			label:       "New Activity",
 			place:       "My  very very very very very very very very very very very Long Place",
 			desc:        "Play Soccer",
-			time:        time.Now().AddDate(0, 0, -1),
-			dur:         time.Duration(time.Hour),
+			time:        now.AddDate(0, 0, -1),
+			dur:         defaultDur,
 			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
 			expectedErr: domain.ErrActivityPlaceLength,
 		},
@@ -70,8 +72,8 @@ func TestNewActivity(t *testing.T) {
 			label:       "New Activity",
 			place:       "Beach",
 			desc:        "Play Soccer",
-			time:        time.Now(),
-			dur:         time.Duration(time.Hour),
+			time:        now,
+			dur:         defaultDur,
 			tags:        []domain.Tag{{ID: 100002}, {ID: 100005}},
 			expectedErr: domain.ErrActivityTimeFuture,
 		},
@@ -79,8 +81,8 @@ func TestNewActivity(t *testing.T) {
 			label:       "New Activity",
 			place:       "Beach",
 			desc:        "Play Soccer",
-			time:        time.Now().AddDate(0, 0, -1),
-			dur:         time.Duration(time.Hour),
+			time:        now.AddDate(0, 0, -1),
+			dur:         defaultDur,
 			tags:        []domain.Tag{{ID: 100002}, {ID: 100010}},
 			expectedErr: store.ErrTagNotFound,
 		},
@@ -98,10 +100,9 @@ func TestNewActivity(t *testing.T) {
 				// Tests after creation successful
 				expectedPlace := strings.ToLower(test.place)
 				if createdActivity.Place != expectedPlace {
-					t.Fatalf("Expected Place: %s\nReturned Place: %s", expectedPlace, createdActivity.Place)
+					t.Fatalf("\nExpected Place: %s\nReturned Place: %s", expectedPlace, createdActivity.Place)
 				}
 			}
 		})
 	}
-
 }

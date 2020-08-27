@@ -9,17 +9,15 @@ import (
 
 // NewExpense creates the new expense and calls the service repository to store it.
 // It does the following checks:
-//	- Checks ActivityID exists (foreign key)
-//	- Checks Label length
-//	- Checks Time is not future
-//	- Checks Value is strictly positive
-//	- Checks Unit length
 //	- Transform Unit to lowercase
-//	- Checks Tags exist in Repo
+//	- Check primitive fields are valid
+//	- Check Activity with provided ActivityID exists
+//	- Checks Tags exist and fetch them
 func (srv Service) NewExpense(label string, t time.Time, value float32, unit string, activityID domain.ActivityID, tags *[]domain.Tag) (domain.ExpenseID, error) {
 
 	// Transform unit to lowecase
 	unit = strings.ToLower(unit)
+
 	// Create Expense
 	exp := domain.Expense{
 		Label: label,
@@ -27,7 +25,8 @@ func (srv Service) NewExpense(label string, t time.Time, value float32, unit str
 		Value: value,
 		Unit:  unit,
 	}
-	// Check validitity of fields
+
+	// Check primitive fields are valid
 	if err := exp.Valid(); err != nil {
 		return 0, err
 	}
