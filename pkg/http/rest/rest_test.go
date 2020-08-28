@@ -15,7 +15,10 @@ var router *echo.Echo
 func TestMain(m *testing.M) {
 	log.Println("Setting Up Main")
 	router = echo.New()
-	rest.RegisterRoutes(router)
+	hnd := rest.Handler{
+		// TODO: Init with services
+	}
+	rest.RegisterRoutes(router, &hnd)
 }
 
 func TestHealthCheck(t *testing.T) {
