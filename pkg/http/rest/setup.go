@@ -30,8 +30,11 @@ func NewHandler(lister *listing.Service, adder *adding.Service, editor *editing.
 }
 
 // RegisterRoutes registers routes with handlers.
-func RegisterRoutes(r *echo.Echo, handler *Handler) {
+func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	r.GET("/health-check", HealthCheck)
+	// Group Tags
+	tags := r.Group("/tags")
+	tags.GET("", hnd.GetAllTags)
 }
 
 // HealthCheck handler informs that api is up and running.
