@@ -10,7 +10,7 @@ import (
 // It does the following checks:
 //	- Check primitive fields are valid
 //	- Check Tags exist in DB
-func (srv Service) NewActivity(label string, place string, desc string, timeStart time.Time, dur time.Duration, tags *[]domain.Tag) (domain.ActivityID, error) {
+func (srv Service) NewActivity(label string, place string, desc string, timeStart time.Time, dur time.Duration, tags []domain.Tag) (domain.ActivityID, error) {
 	// Create Activity
 	act := domain.Activity{
 		Label:    label,
@@ -27,7 +27,7 @@ func (srv Service) NewActivity(label string, place string, desc string, timeStar
 
 	// Check & Fetch Tags
 	fetchedTags := []domain.Tag{}
-	for _, t := range *tags {
+	for _, t := range tags {
 		fetched, err := srv.repo.FindTagByID(t.ID)
 		if err != nil {
 			return 0, err

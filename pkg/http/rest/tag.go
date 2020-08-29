@@ -12,5 +12,5 @@ func (h *Handler) GetAllTags(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, *tags)
+	return c.JSON(http.StatusOK, tags)
 }

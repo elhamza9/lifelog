@@ -48,13 +48,13 @@ func TestExpensesByTime(t *testing.T) {
 			if err != test.expectedErr {
 				t.Fatalf("Unexpected error: %v\nExpecting: %v", err, test.expectedErr)
 			}
-			errMsg := fmt.Sprintf("Expecting: %v\nGot: %v", test.expectedIDs, *res)
+			errMsg := fmt.Sprintf("Expecting: %v\nGot: %v", test.expectedIDs, res)
 			// Check result length
-			if len(*res) != len(test.expectedIDs) {
+			if len(res) != len(test.expectedIDs) {
 				t.Fatalf(errMsg)
 			}
 			// Check content and order of result
-			for i, exp := range *res {
+			for i, exp := range res {
 				if exp.ID != test.expectedIDs[i] {
 					t.Fatalf(errMsg)
 				}
@@ -127,10 +127,10 @@ func TestExpensesByTag(t *testing.T) {
 		}
 		expectedIDs := []domain.ExpenseID{3, 4, 1}
 		errMsg := fmt.Sprintf("Expected: %v\nReturned: %v", expectedIDs, res)
-		if len(*res) != len(expectedIDs) {
+		if len(res) != len(expectedIDs) {
 			t.Fatal(errMsg)
 		}
-		for i, exp := range *res {
+		for i, exp := range res {
 			if exp.ID != expectedIDs[i] {
 				t.Fatal(errMsg)
 			}
@@ -192,11 +192,11 @@ func TestExpensesByActivity(t *testing.T) {
 		}
 		expectedIDs := []domain.ExpenseID{2, 3}
 		errMsg := fmt.Sprintf("Expected: %v\nReturned: %v", expectedIDs, res)
-		if len(*res) != len(expectedIDs) {
+		if len(res) != len(expectedIDs) {
 			t.Fatal(errMsg)
 		}
 		var found bool
-		for _, exp := range *res {
+		for _, exp := range res {
 			found = false
 			for _, id := range expectedIDs {
 				if exp.ID == id {

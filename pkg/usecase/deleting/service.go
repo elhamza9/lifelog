@@ -32,7 +32,7 @@ type Repository interface {
 	FindActivityByID(domain.ActivityID) (domain.Activity, error)
 	FindExpenseByID(id domain.ExpenseID) (domain.Expense, error)
 	FindTagByID(domain.TagID) (domain.Tag, error)
-	FindExpensesByActivity(domain.ActivityID) (*[]domain.Expense, error)
-	FindExpensesByTag(domain.TagID) (*[]domain.Expense, error)
-	FindActivitiesByTag(domain.TagID) (*[]domain.Activity, error)
+	FindExpensesByActivity(domain.ActivityID) ([]domain.Expense, error)
+	FindExpensesByTag(domain.TagID) ([]domain.Expense, error)
+	FindActivitiesByTag(domain.TagID) ([]domain.Activity, error)
 }

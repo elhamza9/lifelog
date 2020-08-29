@@ -11,7 +11,7 @@ import (
 //	- Check primitive fields are valid
 //	- Check Activity with provided ActivityID exists
 //	- Checks Tags exist and fetch them
-func (srv Service) NewExpense(label string, t time.Time, value float32, unit string, activityID domain.ActivityID, tags *[]domain.Tag) (domain.ExpenseID, error) {
+func (srv Service) NewExpense(label string, t time.Time, value float32, unit string, activityID domain.ActivityID, tags []domain.Tag) (domain.ExpenseID, error) {
 
 	// Create Expense
 	exp := domain.Expense{
@@ -36,7 +36,7 @@ func (srv Service) NewExpense(label string, t time.Time, value float32, unit str
 
 	// Check & Fetch Tags
 	fetchedTags := []domain.Tag{}
-	for _, t := range *tags {
+	for _, t := range tags {
 		fetched, err := srv.repo.FindTagByID(t.ID)
 		if err != nil {
 			return 0, err

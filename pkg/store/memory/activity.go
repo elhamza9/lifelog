@@ -34,18 +34,18 @@ func (repo Repository) AddActivity(act domain.Activity) (domain.ActivityID, erro
 
 // FindActivitiesByTime returns activities
 // with Time field greater than or equal to the given time
-func (repo Repository) FindActivitiesByTime(t time.Time) (*[]domain.Activity, error) {
+func (repo Repository) FindActivitiesByTime(t time.Time) ([]domain.Activity, error) {
 	res := []domain.Activity{}
 	for _, act := range repo.Activities {
 		if !act.Time.Before(t) {
 			res = append(res, act)
 		}
 	}
-	return &res, nil
+	return res, nil
 }
 
 // FindActivitiesByTag returns actenses that have the provided tag in their Tags field
-func (repo Repository) FindActivitiesByTag(tid domain.TagID) (*[]domain.Activity, error) {
+func (repo Repository) FindActivitiesByTag(tid domain.TagID) ([]domain.Activity, error) {
 	res := []domain.Activity{}
 	for _, act := range repo.Activities {
 		for _, tag := range act.Tags {
@@ -54,7 +54,7 @@ func (repo Repository) FindActivitiesByTag(tid domain.TagID) (*[]domain.Activity
 			}
 		}
 	}
-	return &res, nil
+	return res, nil
 }
 
 // DeleteActivity removes activity with provided ID from memory

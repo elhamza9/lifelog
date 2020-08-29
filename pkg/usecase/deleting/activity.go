@@ -22,7 +22,7 @@ func (srv Service) Activity(id domain.ActivityID) error {
 	// Check activity has no expenses
 	if res, err := srv.repo.FindExpensesByActivity(id); err != nil {
 		return err
-	} else if len(*res) > 0 {
+	} else if len(res) > 0 {
 		return ErrActivityHasExpenses
 	}
 	return srv.repo.DeleteActivity(id)

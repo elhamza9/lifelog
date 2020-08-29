@@ -34,18 +34,18 @@ func (repo Repository) AddExpense(exp domain.Expense) (domain.ExpenseID, error) 
 
 // FindExpensesByTime returns expenses with Time
 // field greater than or equal to provided tim
-func (repo Repository) FindExpensesByTime(t time.Time) (*[]domain.Expense, error) {
+func (repo Repository) FindExpensesByTime(t time.Time) ([]domain.Expense, error) {
 	res := []domain.Expense{}
 	for _, exp := range repo.Expenses {
 		if !exp.Time.Before(t) {
 			res = append(res, exp)
 		}
 	}
-	return &res, nil
+	return res, nil
 }
 
 // FindExpensesByTag returns expenses that have the provided tag in their Tags field
-func (repo Repository) FindExpensesByTag(tid domain.TagID) (*[]domain.Expense, error) {
+func (repo Repository) FindExpensesByTag(tid domain.TagID) ([]domain.Expense, error) {
 	res := []domain.Expense{}
 	for _, exp := range repo.Expenses {
 		for _, tag := range exp.Tags {
@@ -54,18 +54,18 @@ func (repo Repository) FindExpensesByTag(tid domain.TagID) (*[]domain.Expense, e
 			}
 		}
 	}
-	return &res, nil
+	return res, nil
 }
 
 // FindExpensesByActivity returns expenses with ActivityID matching given id
-func (repo Repository) FindExpensesByActivity(aid domain.ActivityID) (*[]domain.Expense, error) {
+func (repo Repository) FindExpensesByActivity(aid domain.ActivityID) ([]domain.Expense, error) {
 	res := []domain.Expense{}
 	for _, exp := range repo.Expenses {
 		if exp.ActivityID == aid {
 			res = append(res, exp)
 		}
 	}
-	return &res, nil
+	return res, nil
 }
 
 // DeleteExpense deletes expense from memory

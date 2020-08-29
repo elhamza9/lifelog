@@ -44,12 +44,12 @@ func (repo Repository) AddTag(t domain.Tag) (domain.TagID, error) {
 }
 
 // ListAllTags returns all stored tags in memory
-func (repo Repository) ListAllTags() (*[]domain.Tag, error) {
+func (repo Repository) ListAllTags() ([]domain.Tag, error) {
 	tags := []domain.Tag{}
 	for _, t := range repo.Tags {
 		tags = append(tags, t)
 	}
-	return &tags, nil
+	return tags, nil
 }
 
 // DeleteTag deletes tag from memory

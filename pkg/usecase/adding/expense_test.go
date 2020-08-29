@@ -31,7 +31,7 @@ func TestNewExpense(t *testing.T) {
 		time        time.Time
 		val         float32
 		unit        string
-		tags        *[]domain.Tag
+		tags        []domain.Tag
 		activityID  domain.ActivityID
 		expectedErr error
 	}{
@@ -40,7 +40,7 @@ func TestNewExpense(t *testing.T) {
 			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
-			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			tags:        []domain.Tag{{ID: 100001}, {ID: 100005}},
 			activityID:  100000,
 			expectedErr: nil,
 		},
@@ -49,7 +49,7 @@ func TestNewExpense(t *testing.T) {
 			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
-			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			tags:        []domain.Tag{{ID: 100001}, {ID: 100005}},
 			activityID:  0,
 			expectedErr: nil,
 		},
@@ -58,7 +58,7 @@ func TestNewExpense(t *testing.T) {
 			time:        now.AddDate(0, 0, -1),
 			val:         15.5,
 			unit:        "Dh",
-			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			tags:        []domain.Tag{{ID: 100001}, {ID: 100005}},
 			activityID:  98899889,
 			expectedErr: store.ErrActivityNotFound,
 		},
@@ -68,7 +68,7 @@ func TestNewExpense(t *testing.T) {
 			val:         0,
 			unit:        "Dh",
 			activityID:  100000,
-			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			tags:        []domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: domain.ErrExpenseValue,
 		},
 		"Time Future": {
@@ -77,7 +77,7 @@ func TestNewExpense(t *testing.T) {
 			val:         15.5,
 			unit:        "Dh",
 			activityID:  100000,
-			tags:        &[]domain.Tag{{ID: 100001}, {ID: 100005}},
+			tags:        []domain.Tag{{ID: 100001}, {ID: 100005}},
 			expectedErr: domain.ErrExpenseTimeFuture,
 		},
 		"Short Label": {
@@ -86,7 +86,7 @@ func TestNewExpense(t *testing.T) {
 			val:         15.5,
 			unit:        "Dh",
 			activityID:  100000,
-			tags:        &[]domain.Tag{},
+			tags:        []domain.Tag{},
 			expectedErr: domain.ErrExpenseLabelLength,
 		},
 		"Long Label": {
@@ -95,7 +95,7 @@ func TestNewExpense(t *testing.T) {
 			val:         15.5,
 			unit:        "Dh",
 			activityID:  100000,
-			tags:        &[]domain.Tag{},
+			tags:        []domain.Tag{},
 			expectedErr: domain.ErrExpenseLabelLength,
 		},
 		"Long Unit": {
@@ -104,7 +104,7 @@ func TestNewExpense(t *testing.T) {
 			val:         15.5,
 			unit:        "LongLongUnit",
 			activityID:  100000,
-			tags:        &[]domain.Tag{},
+			tags:        []domain.Tag{},
 			expectedErr: domain.ErrExpenseUnitLength,
 		},
 		"Short Unit": {
@@ -113,7 +113,7 @@ func TestNewExpense(t *testing.T) {
 			val:         15.5,
 			unit:        "D",
 			activityID:  100000,
-			tags:        &[]domain.Tag{},
+			tags:        []domain.Tag{},
 			expectedErr: domain.ErrExpenseUnitLength,
 		},
 		"Non-Existing Tag": {
@@ -122,7 +122,7 @@ func TestNewExpense(t *testing.T) {
 			val:         15.5,
 			unit:        "Dh",
 			activityID:  100000,
-			tags:        &[]domain.Tag{{ID: 200000}},
+			tags:        []domain.Tag{{ID: 200000}},
 			expectedErr: store.ErrTagNotFound,
 		},
 	}
@@ -144,7 +144,7 @@ func TestNewExpense(t *testing.T) {
 					t.Fatalf("\nExpected Unit: %s\nReturned Unit: %s", expectedUnit, createdExpense.Unit)
 				}
 				// Check Tags were populated
-				if len(createdExpense.Tags) != len((*test.tags)) {
+				if len(createdExpense.Tags) != len(test.tags) {
 					t.Fatalf("\nCreated expense has number of tags different from number of tags given")
 				}
 			}

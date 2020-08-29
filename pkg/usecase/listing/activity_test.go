@@ -55,10 +55,10 @@ func TestActivitiesByTime(t *testing.T) {
 			}
 			// Test Result content and order
 			errMsg := fmt.Sprintf("Expecting: %v\nReturned: %v", test.expectedIDs, res)
-			if len(*res) != len(test.expectedIDs) {
+			if len(res) != len(test.expectedIDs) {
 				t.Fatalf(errMsg)
 			}
-			for i, act := range *res {
+			for i, act := range res {
 				if act.ID != test.expectedIDs[i] {
 					t.Fatalf(errMsg)
 				}
@@ -103,11 +103,11 @@ func TestActivitiesByTag(t *testing.T) {
 			t.Fatalf("Unexpected Error: %v", err)
 		}
 		expectedIDs := []domain.ActivityID{2, 4, 1}
-		errMsg := fmt.Sprintf("Expected: %v\nReturned: %v", expectedIDs, *res)
-		if len(*res) != len(expectedIDs) {
+		errMsg := fmt.Sprintf("Expected: %v\nReturned: %v", expectedIDs, res)
+		if len(res) != len(expectedIDs) {
 			t.Fatal(errMsg)
 		}
-		for i, act := range *res {
+		for i, act := range res {
 			if act.ID != expectedIDs[i] {
 				t.Fatal(errMsg)
 			}

@@ -90,7 +90,7 @@ func TestNewActivity(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			createdID, err := adder.NewActivity(test.label, test.place, test.desc, test.time, test.dur, &test.tags)
+			createdID, err := adder.NewActivity(test.label, test.place, test.desc, test.time, test.dur, test.tags)
 			testFailed := err != test.expectedErr
 			if testFailed {
 				t.Fatalf("\nExpected Err: %v\nReturned Err: %v", test.expectedErr, err)

@@ -26,14 +26,14 @@ func (srv Service) Tag(id domain.TagID) error {
 	// Check if tag has expenses
 	if res, err := srv.repo.FindExpensesByTag(id); err != nil {
 		return err
-	} else if len(*res) > 0 {
+	} else if len(res) > 0 {
 		return ErrTagHasExpenses
 	}
 
 	// Check if tag has activities
 	if res, err := srv.repo.FindActivitiesByTag(id); err != nil {
 		return err
-	} else if len(*res) > 0 {
+	} else if len(res) > 0 {
 		return ErrTagHasActivities
 	}
 
