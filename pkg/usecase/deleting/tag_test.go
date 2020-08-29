@@ -9,13 +9,13 @@ import (
 )
 
 func TestDeleteTag(t *testing.T) {
-	repo.Tags = &map[domain.TagID]domain.Tag{
+	repo.Tags = map[domain.TagID]domain.Tag{
 		1: {ID: 1, Name: "tag-1"},
 		2: {ID: 2, Name: "tag-2"},
 		3: {ID: 3, Name: "tag-3"},
 	}
 
-	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
 		1: {
 			ID:    1,
 			Label: "Expense Tag 2",
@@ -25,7 +25,7 @@ func TestDeleteTag(t *testing.T) {
 		},
 	}
 
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		1: {
 			ID:       1,
 			Label:    "Activity Tag 3",

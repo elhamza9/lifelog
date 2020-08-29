@@ -13,7 +13,7 @@ func TestNewActivity(t *testing.T) {
 	now := time.Now()
 	defaultDur := time.Duration(time.Hour)
 	// Init Repo with some tags to test checking if tags exist
-	repo.Tags = &map[domain.TagID]domain.Tag{
+	repo.Tags = map[domain.TagID]domain.Tag{
 		100000: {ID: 100000, Name: "tag-100000"},
 		100001: {ID: 100001, Name: "tag-100001"},
 		100002: {ID: 100002, Name: "tag-100002"},
@@ -96,7 +96,7 @@ func TestNewActivity(t *testing.T) {
 				t.Fatalf("\nExpected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
 			if err == nil {
-				createdActivity := (*repo.Activities)[createdID]
+				createdActivity := repo.Activities[createdID]
 				// Tests after creation successful
 				expectedPlace := strings.ToLower(test.place)
 				if createdActivity.Place != expectedPlace {

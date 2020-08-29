@@ -10,10 +10,10 @@ import (
 )
 
 func TestEditActivity(t *testing.T) {
-	repo.Tags = &map[domain.TagID]domain.Tag{
+	repo.Tags = map[domain.TagID]domain.Tag{
 		1: {ID: 1, Name: "tag-1"},
 	}
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		1: {
 			ID:       1,
 			Label:    "Test Activity",
@@ -80,7 +80,7 @@ func TestEditActivity(t *testing.T) {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
 
-			edited := (*repo.Activities)[test.act.ID]
+			edited := repo.Activities[test.act.ID]
 			expectedPlace := strings.ToLower(test.act.Place)
 			if err == nil && edited.Place != expectedPlace {
 				t.Fatalf("Expected: %v\nReturned: %v", expectedPlace, edited.Place)

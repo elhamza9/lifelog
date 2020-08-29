@@ -11,7 +11,7 @@ import (
 
 func TestActivitiesByTime(t *testing.T) {
 	now := time.Now()
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		1: {
 			ID:       1,
 			Label:    "Activity last year",
@@ -71,13 +71,13 @@ func TestActivitiesByTime(t *testing.T) {
 func TestActivitiesByTag(t *testing.T) {
 	now := time.Now()
 	d := time.Duration(time.Minute * 45)
-	repo.Tags = &map[domain.TagID]domain.Tag{
+	repo.Tags = map[domain.TagID]domain.Tag{
 		1: {ID: 1, Name: "tag-1"},
 		2: {ID: 2, Name: "tag-2"},
 		3: {ID: 3, Name: "tag-3"},
 	}
 
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		1: {ID: 1, Label: "Act tag-1", Time: now.AddDate(0, 0, -3), Duration: d, Tags: []domain.Tag{{ID: 1}}},
 		2: {ID: 2, Label: "Act tag-1/3", Time: now.AddDate(0, 0, -1), Duration: d, Tags: []domain.Tag{{ID: 3}, {ID: 1}}},
 		3: {ID: 3, Label: "Act tag-2", Time: now.AddDate(0, 0, -1), Duration: d, Tags: []domain.Tag{{ID: 2}}},

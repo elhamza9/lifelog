@@ -10,7 +10,7 @@ import (
 )
 
 func TestEditTag(t *testing.T) {
-	repo.Tags = &map[domain.TagID]domain.Tag{
+	repo.Tags = map[domain.TagID]domain.Tag{
 		1: {ID: 1, Name: "tag-1"},
 		2: {ID: 2, Name: "duplicate"},
 	}
@@ -41,7 +41,7 @@ func TestEditTag(t *testing.T) {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
 			expectedName := strings.ToLower(test.tag.Name)
-			edited := (*repo.Tags)[test.tag.ID]
+			edited := repo.Tags[test.tag.ID]
 			if err == nil && edited.Name != expectedName {
 				t.Fatalf("Expected name: %s\nReturned name: %s", expectedName, edited.Name)
 			}

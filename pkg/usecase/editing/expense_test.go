@@ -10,7 +10,7 @@ import (
 )
 
 func TestEditExpense(t *testing.T) {
-	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
 		1: {
 			ID:         1,
 			Label:      "Test Expense",
@@ -21,10 +21,10 @@ func TestEditExpense(t *testing.T) {
 			Unit:       "Eu",
 		},
 	}
-	repo.Tags = &map[domain.TagID]domain.Tag{
+	repo.Tags = map[domain.TagID]domain.Tag{
 		1: {ID: 1, Name: "tag-1"},
 	}
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		1: {
 			ID:       1,
 			Label:    "Test Activity",
@@ -93,7 +93,7 @@ func TestEditExpense(t *testing.T) {
 			if err != test.expectedErr {
 				t.Fatalf("Expected Err: %v\nReturned Err: %v", test.expectedErr, err)
 			}
-			edited := (*repo.Expenses)[test.exp.ID]
+			edited := repo.Expenses[test.exp.ID]
 			if err == nil && (edited.Unit != strings.ToLower(test.exp.Unit) || edited.Label != test.exp.Label || edited.Value != test.exp.Value || edited.ActivityID != test.exp.ActivityID || len(edited.Tags) != len(test.exp.Tags)) {
 				t.Fatalf("Expected: %v\nReturned: %v", test.exp, edited)
 			}

@@ -11,7 +11,7 @@ import (
 
 func TestExpensesByTime(t *testing.T) {
 	now := time.Now()
-	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
 		1: {ID: 1, Label: "exp a day ago", Time: now.AddDate(0, 0, -1), Value: 10, Unit: "Eu"},
 		2: {ID: 2, Label: "exp 1 month ago", Time: now.AddDate(0, -1, 0), Value: 10, Unit: "Eu"},
 		3: {ID: 3, Label: "exp 1 year ago", Time: now.AddDate(-1, 0, 0), Value: 10, Unit: "Eu"},
@@ -65,12 +65,12 @@ func TestExpensesByTime(t *testing.T) {
 
 func TestExpensesByTag(t *testing.T) {
 	now := time.Now()
-	repo.Tags = &map[domain.TagID]domain.Tag{
+	repo.Tags = map[domain.TagID]domain.Tag{
 		1: {ID: 1, Name: "tag-1"},
 		2: {ID: 2, Name: "tag-2"},
 		3: {ID: 3, Name: "tag-3"},
 	}
-	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
 		1: {
 			ID:    1,
 			Label: "6 months ago / tag-1 & tag-3",
@@ -141,10 +141,10 @@ func TestExpensesByTag(t *testing.T) {
 func TestExpensesByActivity(t *testing.T) {
 
 	act := domain.Activity{ID: 88}
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		act.ID: act,
 	}
-	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
 		1: {
 			ID:         1,
 			Label:      "Test Exp",

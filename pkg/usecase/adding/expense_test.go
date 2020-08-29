@@ -12,11 +12,11 @@ import (
 func TestNewExpense(t *testing.T) {
 	now := time.Now()
 	// Init Repo with one activity to test checking if activity exist
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		100000: {ID: 100000, Label: "Test Activity", Time: now.AddDate(0, 0, -1), Duration: time.Duration(time.Hour)},
 	}
 	// Init Repo with some tags to test checking if tags exist
-	repo.Tags = &map[domain.TagID]domain.Tag{
+	repo.Tags = map[domain.TagID]domain.Tag{
 		100000: {ID: 100000, Name: "tag-100000"},
 		100001: {ID: 100001, Name: "tag-100001"},
 		100002: {ID: 100002, Name: "tag-100002"},
@@ -137,7 +137,7 @@ func TestNewExpense(t *testing.T) {
 			// If expense was added without errors:
 			if err == nil {
 				// Fetch created expense directly from repo
-				createdExpense := (*repo.Expenses)[createdID]
+				createdExpense := repo.Expenses[createdID]
 				// Check unit was transformed to lowercase
 				expectedUnit := strings.ToLower(test.unit)
 				if createdExpense.Unit != expectedUnit {

@@ -9,7 +9,7 @@ import (
 )
 
 func TestDeleteExpense(t *testing.T) {
-	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
 		9: {
 			ID:         9,
 			Label:      "Exp",
@@ -42,7 +42,7 @@ func TestDeleteExpense(t *testing.T) {
 func TestDeleteActivityExpenses(t *testing.T) {
 	now := time.Now()
 	const testActID domain.ActivityID = 1
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		testActID: {ID: testActID, Label: "Test Act", Time: now.AddDate(0, 0, -1), Duration: time.Duration(time.Hour)},
 	}
 

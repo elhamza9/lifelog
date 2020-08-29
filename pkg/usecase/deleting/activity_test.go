@@ -10,7 +10,7 @@ import (
 )
 
 func TestDeleteActivity(t *testing.T) {
-	repo.Expenses = &map[domain.ExpenseID]domain.Expense{
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
 		1: {
 			ID:         1,
 			Label:      "Expense of activity 10",
@@ -20,7 +20,7 @@ func TestDeleteActivity(t *testing.T) {
 			Unit:       "Eu",
 		},
 	}
-	repo.Activities = &map[domain.ActivityID]domain.Activity{
+	repo.Activities = map[domain.ActivityID]domain.Activity{
 		9: {
 			ID:       9,
 			Label:    "Exp",
