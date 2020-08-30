@@ -8,3 +8,8 @@ import (
 func (srv Service) AllTags() ([]domain.Tag, error) {
 	return srv.repo.ListAllTags()
 }
+
+// GetTagByID returns a tag ith given ID
+func (srv Service) GetTagByID(id domain.TagID) (domain.Tag, error) {
+	return srv.repo.FindTagByID(id)
+}

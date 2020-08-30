@@ -14,3 +14,25 @@ func (h *Handler) GetAllTags(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, tags)
 }
+
+// AddTag handler calls adding service to create a tag
+// with given name and returns the created tag
+func (h *Handler) AddTag(c echo.Context) error {
+	// Json unmarshall
+	t := new(struct {
+		Name string `json:"name"`
+	})
+	if err := c.Bind(t); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Create Tag
+	id, err := h.adder.NewTag((*t).Name)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Get created Tag
+	created, err := h.lister.GetTagByID(id)
+	return c.JSON(http.StatusCreated, created)
+}
