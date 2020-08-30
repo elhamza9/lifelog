@@ -10,7 +10,7 @@ import (
 func (h *Handler) GetAllTags(c echo.Context) error {
 	tags, err := h.lister.AllTags()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, tags)
 }

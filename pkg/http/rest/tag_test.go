@@ -11,14 +11,10 @@ func TestGetAllTags(t *testing.T) {
 	path := "/tags"
 	req := httptest.NewRequest(http.MethodGet, path, nil)
 	rec := httptest.NewRecorder()
-	c := router.NewContext(req, rec)
-	c.SetPath(path)
-	var err error
-	if err = hnd.GetAllTags(c); err != nil {
-		t.Fatalf("\nUnexpected Error: %v", err)
-	}
-	code := rec.Code
-	if code != expectedCode {
-		t.Fatalf("\nExpected Code: %d\nReturned Code: %d", expectedCode, code)
+	ctx := router.NewContext(req, rec)
+	ctx.SetPath(path)
+	hnd.GetAllTags(ctx)
+	if rec.Code != expectedCode {
+		t.Fatalf("\nExpected Code: %d\nReturned Code: %d", expectedCode, rec.Code)
 	}
 }
