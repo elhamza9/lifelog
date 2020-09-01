@@ -1,8 +1,12 @@
 package rest
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
+	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 	"github.com/labstack/echo/v4"
 )
 
@@ -35,4 +39,43 @@ func (h *Handler) AddTag(c echo.Context) error {
 	// Get created Tag
 	created, err := h.lister.GetTagByID(id)
 	return c.JSON(http.StatusCreated, created)
+}
+
+// EditTag handler calls editing service to edit a tag
+// with given name and returns the edited tag
+func (h *Handler) EditTag(c echo.Context) error {
+	// Get Tag ID from path
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Json unmarshall
+	t := new(struct {
+		Name string `json:"name"`
+	})
+	if err := c.Bind(t); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Edit Tag
+	var tag domain.Tag = domain.Tag{
+		ID:   domain.TagID(id),
+		Name: t.Name,
+	}
+	if err := h.editor.EditTag(tag); err != nil {
+		// return 404 if not found
+		if errors.Is(err, store.ErrTagNotFound) {
+			return c.String(http.StatusNotFound, err.Error())
+		}
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Get edited Tag
+	edited, err := h.lister.GetTagByID(tag.ID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, edited)
 }
