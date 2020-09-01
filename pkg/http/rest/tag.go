@@ -7,6 +7,7 @@ import (
 
 	"github.com/elhamza90/lifelog/pkg/domain"
 	"github.com/elhamza90/lifelog/pkg/store"
+	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 	"github.com/labstack/echo/v4"
 )
 
@@ -78,4 +79,26 @@ func (h *Handler) EditTag(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, edited)
+}
+
+// DeleteTag handler calls deleting service to delete a tag
+func (h *Handler) DeleteTag(c echo.Context) error {
+	// Get Tag ID from path
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	err = h.deleter.Tag(domain.TagID(id))
+	if err != nil {
+		if errors.Is(err, store.ErrTagNotFound) {
+			return c.String(http.StatusNotFound, err.Error())
+		} else if errors.Is(err, deleting.ErrTagHasExpenses) || errors.Is(err, deleting.ErrTagHasActivities) {
+			return c.String(http.StatusUnprocessableEntity, err.Error())
+		} else {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+	}
+	return c.String(http.StatusNoContent, "Tag Deleted Successfully")
 }
