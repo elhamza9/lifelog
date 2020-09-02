@@ -59,6 +59,70 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 	return c.JSON(http.StatusOK, act)
 }
 
+// EditActivity handler edits an activity with given ID
+// It required a path parameter :id
+func (h *Handler) EditActivity(c echo.Context) error {
+	// Get ID from Path param
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Get Activity
+	act, err := h.lister.Activity(domain.ActivityID(id))
+	if err != nil {
+		if errors.Is(err, store.ErrActivityNotFound) {
+			return c.String(http.StatusNotFound, err.Error())
+		}
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Json unmarshall
+	a := new(struct {
+		Label    string         `json:"label"`
+		Desc     string         `json:"desc"`
+		Place    string         `json:"place"`
+		Time     time.Time      `json:"time"`
+		Duration time.Duration  `json:"duration"`
+		TagIds   []domain.TagID `json:"tagIds"`
+	})
+	if err := c.Bind(a); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Construct Tags slice from ids ( don't fetch anything )
+	tags := []domain.Tag{}
+	for _, id := range (*a).TagIds {
+		tags = append(tags, domain.Tag{ID: id})
+	}
+
+	// Edit Activity
+	act.Label = (*a).Label
+	act.Desc = (*a).Desc
+	act.Place = (*a).Place
+	act.Time = (*a).Time
+	act.Duration = (*a).Duration
+	act.Tags = tags
+	err = h.editor.EditActivity(act)
+	if err != nil {
+		if errors.Is(err, store.ErrTagNotFound) {
+			return c.String(http.StatusUnprocessableEntity, err.Error())
+		}
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Retrieve edited activity
+	edited, err := h.lister.Activity(act.ID)
+	if err != nil {
+		if errors.Is(err, store.ErrActivityNotFound) {
+			return c.String(http.StatusNotFound, err.Error())
+		}
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, edited)
+}
+
 // DeleteActivity handler deletes an activity with given ID
 // It required a path parameter :id
 func (h *Handler) DeleteActivity(c echo.Context) error {

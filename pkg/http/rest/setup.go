@@ -42,6 +42,7 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	activities := r.Group("/activities")
 	activities.GET("", hnd.ActivitiesByDate)
 	activities.GET("/:id", hnd.ActivityDetails)
+	activities.PUT("/:id", hnd.EditActivity)
 	activities.DELETE("/:id", hnd.DeleteActivity)
 }
 

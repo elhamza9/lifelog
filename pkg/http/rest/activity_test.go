@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -122,8 +123,82 @@ func TestActivityDetails(t *testing.T) {
 	}
 }
 
-func TestDeleteActivity(t *testing.T) {
+func TestEditActivity(t *testing.T) {
+	// Init Repo with one test activity
+	act := domain.Activity{
+		ID:       1,
+		Label:    "Test Activity",
+		Time:     time.Now().AddDate(0, 0, -2),
+		Duration: time.Duration(time.Hour),
+		Tags: []domain.Tag{
+			{ID: 1, Name: "tag1"},
+			{ID: 2, Name: "tag2"},
+		},
+	}
+	repo.Activities = map[domain.ActivityID]domain.Activity{
+		act.ID: act,
+	}
+	repo.Tags = map[domain.TagID]domain.Tag{
+		1: {ID: 1, Name: "tag1"},
+		2: {ID: 2, Name: "tag2"},
+		3: {ID: 3, Name: "tag3"},
+	}
 
+	// Sub-tests definitions
+	tests := map[string]struct {
+		idStr        string
+		json         string
+		expectedCode int
+	}{
+		"Correct": {
+			idStr:        strconv.Itoa(int(act.ID)),
+			json:         `{"label":"Edited Label","description":"edited desc","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[3]}`,
+			expectedCode: http.StatusOK,
+		},
+		"Non-Existing": {
+			idStr:        "234234",
+			json:         `{"label":"Edited Label","description":"edited desc","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[3]}`,
+			expectedCode: http.StatusNotFound,
+		},
+		"Non-Existing Tag": {
+			idStr:        strconv.Itoa(int(act.ID)),
+			json:         `{"label":"Edited Label","description":"edited desc","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[4]}`,
+			expectedCode: http.StatusUnprocessableEntity,
+		},
+		"Wrong ID": {
+			idStr:        "sdfsdf",
+			json:         `{"label":"Edited Label","description":"edited desc","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[3]}`,
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+
+	// Sub-tests Execution
+	const path string = "/activities/:id"
+	const url string = "/activities/%s"
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			req = httptest.NewRequest(http.MethodGet, fmt.Sprintf(url, test.idStr), strings.NewReader(test.json))
+			req.Header.Set("Content-type", "application/json")
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			ctx.SetParamNames("id")
+			ctx.SetParamValues(test.idStr)
+			hnd.EditActivity(ctx)
+			if rec.Code != test.expectedCode {
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+		})
+	}
+}
+
+func TestDeleteActivity(t *testing.T) {
 	// Init Repo with two test activities: one with and one without expense
 	actWithoutExpense := domain.Activity{
 		ID:       1,
