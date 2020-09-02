@@ -63,7 +63,6 @@ func TestActivitiesByDate(t *testing.T) {
 }
 
 func TestActivityDetails(t *testing.T) {
-
 	// Init Repo with one test activity
 	act := domain.Activity{
 		ID:       1,
@@ -115,6 +114,91 @@ func TestActivityDetails(t *testing.T) {
 			ctx.SetParamNames("id")
 			ctx.SetParamValues(test.idStr)
 			hnd.ActivityDetails(ctx)
+			if rec.Code != test.expectedCode {
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+		})
+	}
+}
+
+func TestDeleteActivity(t *testing.T) {
+
+	// Init Repo with two test activities: one with and one without expense
+	actWithoutExpense := domain.Activity{
+		ID:       1,
+		Label:    "Test Activity",
+		Time:     time.Now().AddDate(0, 0, -2),
+		Duration: time.Duration(time.Hour),
+		Tags: []domain.Tag{
+			{ID: 1, Name: "tag1"},
+			{ID: 2, Name: "tag2"},
+		},
+	}
+	actWithExpense := domain.Activity{
+		ID:       2,
+		Label:    "Test Activity",
+		Time:     time.Now().AddDate(0, 0, -3),
+		Duration: time.Duration(time.Hour),
+		Tags: []domain.Tag{
+			{ID: 2, Name: "tag2"},
+		},
+	}
+	repo.Activities = map[domain.ActivityID]domain.Activity{
+		actWithoutExpense.ID: actWithoutExpense,
+		actWithExpense.ID:    actWithExpense,
+	}
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
+		1: {
+			ID:         1,
+			Label:      "Expense for activity 2",
+			Value:      14,
+			Unit:       "Eu",
+			Time:       time.Now().AddDate(0, 0, -3),
+			ActivityID: actWithExpense.ID,
+		},
+	}
+
+	// Sub-tests definitions
+	tests := map[string]struct {
+		idStr        string
+		expectedCode int
+	}{
+		"Existing Activity Without Expense": {
+			idStr:        strconv.Itoa(int(actWithoutExpense.ID)),
+			expectedCode: http.StatusNoContent,
+		},
+		"Existing Activity With expense": {
+			idStr:        strconv.Itoa(int(actWithExpense.ID)),
+			expectedCode: http.StatusUnprocessableEntity,
+		},
+		"Non-Existing Activity": {
+			idStr:        "234234", // Random non-existing ID
+			expectedCode: http.StatusNotFound,
+		},
+		"Wrong Id format": {
+			idStr:        "blabls",
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+
+	// Sub-tests Execution
+	const path string = "/activities/:id"
+	const url string = "/activities/%s"
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			req = httptest.NewRequest(http.MethodGet, fmt.Sprintf(url, test.idStr), nil)
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			ctx.SetParamNames("id")
+			ctx.SetParamValues(test.idStr)
+			hnd.DeleteActivity(ctx)
 			if rec.Code != test.expectedCode {
 				body := rec.Body.String()
 				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)

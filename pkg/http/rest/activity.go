@@ -8,6 +8,7 @@ import (
 
 	"github.com/elhamza90/lifelog/pkg/domain"
 	"github.com/elhamza90/lifelog/pkg/store"
+	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 	"github.com/labstack/echo/v4"
 )
 
@@ -56,4 +57,28 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, act)
+}
+
+// DeleteActivity handler deletes an activity with given ID
+// It required a path parameter :id
+func (h *Handler) DeleteActivity(c echo.Context) error {
+	// Get ID from Path param
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Delete Activity
+	err = h.deleter.Activity(domain.ActivityID(id))
+	if err != nil {
+		if errors.Is(err, store.ErrActivityNotFound) {
+			return c.String(http.StatusNotFound, err.Error())
+		}
+		if errors.Is(err, deleting.ErrActivityHasExpenses) {
+			return c.String(http.StatusUnprocessableEntity, err.Error())
+		}
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusNoContent, "Activity Deleted Successfully")
 }
