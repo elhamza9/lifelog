@@ -38,6 +38,9 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	tags.POST("", hnd.AddTag)
 	tags.PUT("/:id", hnd.EditTag)
 	tags.DELETE("/:id", hnd.EditTag)
+	// Group Activities
+	activities := r.Group("/activities")
+	activities.GET("", hnd.ActivitiesByDate)
 }
 
 // HealthCheck handler informs that api is up and running.
