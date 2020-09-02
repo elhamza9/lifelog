@@ -47,3 +47,8 @@ func (srv Service) ActivitiesByTag(tid domain.TagID) ([]domain.Activity, error) 
 	})
 	return res, nil
 }
+
+// Activity returns activity with given ID
+func (srv Service) Activity(id domain.ActivityID) (domain.Activity, error) {
+	return srv.repo.FindActivityByID(id)
+}

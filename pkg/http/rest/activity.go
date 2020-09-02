@@ -3,9 +3,11 @@ package rest
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
+	"github.com/elhamza90/lifelog/pkg/store"
 	"github.com/labstack/echo/v4"
 )
 
@@ -33,4 +35,25 @@ func (h *Handler) ActivitiesByDate(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, activities)
+}
+
+// ActivityDetails handler returns details of activity with given ID
+// It required a path parameter :id
+func (h *Handler) ActivityDetails(c echo.Context) error {
+	// Get ID from Path param
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Get Activity
+	act, err := h.lister.Activity(domain.ActivityID(id))
+	if err != nil {
+		if errors.Is(err, store.ErrActivityNotFound) {
+			return c.String(http.StatusNotFound, err.Error())
+		}
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, act)
 }

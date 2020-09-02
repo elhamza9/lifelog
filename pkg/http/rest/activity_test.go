@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 	"time"
 
+	"github.com/elhamza90/lifelog/pkg/domain"
 	"github.com/labstack/echo/v4"
 )
 
@@ -58,5 +60,65 @@ func TestActivitiesByDate(t *testing.T) {
 			}
 		})
 	}
+}
 
+func TestActivityDetails(t *testing.T) {
+
+	// Init Repo with one test activity
+	act := domain.Activity{
+		ID:       1,
+		Label:    "Test Activity",
+		Time:     time.Now().AddDate(0, 0, -2),
+		Duration: time.Duration(time.Hour),
+		Tags: []domain.Tag{
+			{ID: 1, Name: "tag1"},
+			{ID: 2, Name: "tag2"},
+		},
+	}
+	repo.Activities = map[domain.ActivityID]domain.Activity{
+		act.ID: act,
+	}
+
+	// Sub-tests definitions
+	tests := map[string]struct {
+		idStr        string
+		expectedCode int
+	}{
+		"Existing Activity": {
+			idStr:        strconv.Itoa(int(act.ID)),
+			expectedCode: http.StatusOK,
+		},
+		"Non-Existing Activity": {
+			idStr:        "234234", // Random non-existing ID
+			expectedCode: http.StatusNotFound,
+		},
+		"Wrong Id format": {
+			idStr:        "blabls",
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+
+	// Sub-tests Execution
+	const path string = "/activities/:id"
+	const url string = "/activities/%s"
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			req = httptest.NewRequest(http.MethodGet, fmt.Sprintf(url, test.idStr), nil)
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			ctx.SetParamNames("id")
+			ctx.SetParamValues(test.idStr)
+			hnd.ActivityDetails(ctx)
+			if rec.Code != test.expectedCode {
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+		})
+	}
 }
