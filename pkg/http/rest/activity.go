@@ -89,7 +89,7 @@ func (h *Handler) AddActivity(c echo.Context) error {
 		Duration: (*a).Duration,
 		Tags:     tags,
 	}
-	id, err := h.adder.NewActivity(act.Label, act.Place, act.Desc, act.Time, act.Duration, tags)
+	id, err := h.adder.NewActivity(act)
 	if err != nil {
 		if errors.Is(err, store.ErrTagNotFound) {
 			return c.String(http.StatusUnprocessableEntity, err.Error())

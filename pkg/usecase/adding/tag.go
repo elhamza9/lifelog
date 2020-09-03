@@ -5,13 +5,10 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase"
 )
 
-// NewTag creates the new tag and calls the service repository to store it.
+// NewTag validates tag and calls the service repository to store it.
 //	- It transforms name to lowercase
 //	- checks repo for tag with same name ( duplicate tags are not allowed )
-func (srv Service) NewTag(name string) (domain.TagID, error) {
-	// Create Tag
-	t := domain.Tag{Name: name}
-
+func (srv Service) NewTag(t domain.Tag) (domain.TagID, error) {
 	// Check fields valid
 	if err := t.Validate(); err != nil {
 		return 0, err

@@ -32,7 +32,8 @@ func TestNewTag(t *testing.T) {
 	// Sub-tests execution
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			createdID, err := adder.NewTag(test.name)
+			tag := domain.Tag{Name: test.name}
+			createdID, err := adder.NewTag(tag)
 			testFailed := err != test.expectedErr
 			if testFailed {
 				t.Fatalf("\nExpected Error: %v\nReturned Error: %v", test.expectedErr, err)

@@ -129,7 +129,15 @@ func TestNewExpense(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			createdID, err := adder.NewExpense(test.label, test.time, test.val, test.unit, test.activityID, test.tags)
+			exp := domain.Expense{
+				Label:      test.label,
+				Time:       test.time,
+				Value:      test.val,
+				Unit:       test.unit,
+				ActivityID: test.activityID,
+				Tags:       test.tags,
+			}
+			createdID, err := adder.NewExpense(exp)
 			testFailed := err != test.expectedErr
 			if testFailed {
 				t.Fatalf("\nExpected Error: %v\nReturned Error: %v", test.expectedErr, err)

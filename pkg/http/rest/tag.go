@@ -32,7 +32,10 @@ func (h *Handler) AddTag(c echo.Context) error {
 	}
 
 	// Create Tag
-	id, err := h.adder.NewTag((*t).Name)
+	tag := domain.Tag{
+		Name: (*t).Name,
+	}
+	id, err := h.adder.NewTag(tag)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
