@@ -11,6 +11,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// jsonTag is used to unmarshal a json tag
+type jsonTag struct {
+	Name string `json:"name"`
+}
+
 // GetAllTags handler returns a list of all tags
 func (h *Handler) GetAllTags(c echo.Context) error {
 	tags, err := h.lister.AllTags()
@@ -24,9 +29,7 @@ func (h *Handler) GetAllTags(c echo.Context) error {
 // with given name and returns the created tag
 func (h *Handler) AddTag(c echo.Context) error {
 	// Json unmarshall
-	t := new(struct {
-		Name string `json:"name"`
-	})
+	t := new(jsonTag)
 	if err := c.Bind(t); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
@@ -56,9 +59,7 @@ func (h *Handler) EditTag(c echo.Context) error {
 	}
 
 	// Json unmarshall
-	t := new(struct {
-		Name string `json:"name"`
-	})
+	t := new(jsonTag)
 	if err := c.Bind(t); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}

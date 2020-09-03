@@ -12,6 +12,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// jsonActivity is used to unmarshal a json activity
+type jsonActivity struct {
+	Label    string         `json:"label"`
+	Desc     string         `json:"desc"`
+	Place    string         `json:"place"`
+	Time     time.Time      `json:"time"`
+	Duration time.Duration  `json:"duration"`
+	TagIds   []domain.TagID `json:"tagIds"`
+}
+
 // ActivitiesByDate handler returns a list of all activities done
 // from a specific date up to now.
 // It requires a query parameter "from" specifying the date as mm-dd-yyyy
@@ -62,14 +72,7 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 // AddActivity handler adds an activity
 func (h *Handler) AddActivity(c echo.Context) error {
 	// Json unmarshall
-	a := new(struct {
-		Label    string         `json:"label"`
-		Desc     string         `json:"desc"`
-		Place    string         `json:"place"`
-		Time     time.Time      `json:"time"`
-		Duration time.Duration  `json:"duration"`
-		TagIds   []domain.TagID `json:"tagIds"`
-	})
+	a := new(jsonActivity)
 	if err := c.Bind(a); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
@@ -132,14 +135,7 @@ func (h *Handler) EditActivity(c echo.Context) error {
 	}
 
 	// Json unmarshall
-	a := new(struct {
-		Label    string         `json:"label"`
-		Desc     string         `json:"desc"`
-		Place    string         `json:"place"`
-		Time     time.Time      `json:"time"`
-		Duration time.Duration  `json:"duration"`
-		TagIds   []domain.TagID `json:"tagIds"`
-	})
+	a := new(jsonActivity)
 	if err := c.Bind(a); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
