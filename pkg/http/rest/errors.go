@@ -30,6 +30,14 @@ func errToHTTPCode(err error, grp string) int {
 	case domain.ErrActivityPlaceLength:
 		fallthrough
 	case domain.ErrActivityDescLength:
+		fallthrough
+	case domain.ErrExpenseLabelLength:
+		fallthrough
+	case domain.ErrExpenseValue:
+		fallthrough
+	case domain.ErrExpenseUnitLength:
+		fallthrough
+	case domain.ErrExpenseTimeFuture:
 		return http.StatusBadRequest
 	// usecase errors
 	case deleting.ErrTagHasExpenses:
