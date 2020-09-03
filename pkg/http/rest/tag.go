@@ -1,13 +1,10 @@
 package rest
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
-	"github.com/elhamza90/lifelog/pkg/store"
-	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 	"github.com/labstack/echo/v4"
 )
 
@@ -33,16 +30,14 @@ func (h *Handler) AddTag(c echo.Context) error {
 	if err := c.Bind(t); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Create Tag
 	tag := domain.Tag{
 		Name: (*t).Name,
 	}
 	id, err := h.adder.NewTag(tag)
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return c.String(errToHTTPCode(err, "tags"), err.Error())
 	}
-
 	// Get created Tag
 	created, err := h.lister.GetTagByID(id)
 	return c.JSON(http.StatusCreated, created)
@@ -57,30 +52,23 @@ func (h *Handler) EditTag(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Json unmarshall
 	t := new(jsonTag)
 	if err := c.Bind(t); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Edit Tag
 	var tag domain.Tag = domain.Tag{
 		ID:   domain.TagID(id),
 		Name: t.Name,
 	}
 	if err := h.editor.EditTag(tag); err != nil {
-		// return 404 if not found
-		if errors.Is(err, store.ErrTagNotFound) {
-			return c.String(http.StatusNotFound, err.Error())
-		}
-		return c.String(http.StatusBadRequest, err.Error())
+		return c.String(errToHTTPCode(err, "tags"), err.Error())
 	}
-
-	// Get edited Tag
+	// Retrieve edited Tag
 	edited, err := h.lister.GetTagByID(tag.ID)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "tags"), err.Error())
 	}
 	return c.JSON(http.StatusOK, edited)
 }
@@ -93,16 +81,10 @@ func (h *Handler) DeleteTag(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
+	// Delete Tag
 	err = h.deleter.Tag(domain.TagID(id))
 	if err != nil {
-		if errors.Is(err, store.ErrTagNotFound) {
-			return c.String(http.StatusNotFound, err.Error())
-		} else if errors.Is(err, deleting.ErrTagHasExpenses) || errors.Is(err, deleting.ErrTagHasActivities) {
-			return c.String(http.StatusUnprocessableEntity, err.Error())
-		} else {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
+		return c.String(errToHTTPCode(err, "tags"), err.Error())
 	}
 	return c.String(http.StatusNoContent, "Tag Deleted Successfully")
 }

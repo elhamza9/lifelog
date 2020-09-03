@@ -1,14 +1,11 @@
 package rest
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
-	"github.com/elhamza90/lifelog/pkg/store"
-	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 	"github.com/labstack/echo/v4"
 )
 
@@ -40,10 +37,7 @@ func (h *Handler) ActivitiesByDate(c echo.Context) error {
 	}
 	activities, err := h.lister.ActivitiesByTime(date)
 	if err != nil {
-		if errors.Is(err, domain.ErrActivityTimeFuture) {
-			return c.String(http.StatusBadRequest, err.Error())
-		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
 	return c.JSON(http.StatusOK, activities)
 }
@@ -57,14 +51,10 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Get Activity
 	act, err := h.lister.Activity(domain.ActivityID(id))
 	if err != nil {
-		if errors.Is(err, store.ErrActivityNotFound) {
-			return c.String(http.StatusNotFound, err.Error())
-		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
 	return c.JSON(http.StatusOK, act)
 }
@@ -76,13 +66,11 @@ func (h *Handler) AddActivity(c echo.Context) error {
 	if err := c.Bind(a); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Construct Tags slice from ids ( don't fetch anything )
 	tags := []domain.Tag{}
 	for _, id := range (*a).TagIds {
 		tags = append(tags, domain.Tag{ID: id})
 	}
-
 	// Call adding service
 	act := domain.Activity{
 		Label:    (*a).Label,
@@ -94,25 +82,14 @@ func (h *Handler) AddActivity(c echo.Context) error {
 	}
 	id, err := h.adder.NewActivity(act)
 	if err != nil {
-		if errors.Is(err, store.ErrTagNotFound) {
-			return c.String(http.StatusUnprocessableEntity, err.Error())
-		}
-		if errors.Is(err, domain.ErrActivityTimeFuture) {
-			return c.String(http.StatusBadRequest, err.Error())
-		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
-
 	// Retrieve created activity
 	created, err := h.lister.Activity(id)
 	if err != nil {
-		if errors.Is(err, store.ErrActivityNotFound) {
-			return c.String(http.StatusNotFound, err.Error())
-		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
 	return c.JSON(http.StatusCreated, created)
-
 }
 
 // EditActivity handler edits an activity with given ID
@@ -124,28 +101,21 @@ func (h *Handler) EditActivity(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Get Activity
 	act, err := h.lister.Activity(domain.ActivityID(id))
 	if err != nil {
-		if errors.Is(err, store.ErrActivityNotFound) {
-			return c.String(http.StatusNotFound, err.Error())
-		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
-
 	// Json unmarshall
 	a := new(jsonActivity)
 	if err := c.Bind(a); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Construct Tags slice from ids ( don't fetch anything )
 	tags := []domain.Tag{}
 	for _, id := range (*a).TagIds {
 		tags = append(tags, domain.Tag{ID: id})
 	}
-
 	// Edit Activity
 	act.Label = (*a).Label
 	act.Desc = (*a).Desc
@@ -155,19 +125,12 @@ func (h *Handler) EditActivity(c echo.Context) error {
 	act.Tags = tags
 	err = h.editor.EditActivity(act)
 	if err != nil {
-		if errors.Is(err, store.ErrTagNotFound) {
-			return c.String(http.StatusUnprocessableEntity, err.Error())
-		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
-
 	// Retrieve edited activity
 	edited, err := h.lister.Activity(act.ID)
 	if err != nil {
-		if errors.Is(err, store.ErrActivityNotFound) {
-			return c.String(http.StatusNotFound, err.Error())
-		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
 	return c.JSON(http.StatusOK, edited)
 }
@@ -181,17 +144,10 @@ func (h *Handler) DeleteActivity(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Delete Activity
 	err = h.deleter.Activity(domain.ActivityID(id))
 	if err != nil {
-		if errors.Is(err, store.ErrActivityNotFound) {
-			return c.String(http.StatusNotFound, err.Error())
-		}
-		if errors.Is(err, deleting.ErrActivityHasExpenses) {
-			return c.String(http.StatusUnprocessableEntity, err.Error())
-		}
-		return c.String(http.StatusInternalServerError, err.Error())
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
 	return c.JSON(http.StatusNoContent, "Activity Deleted Successfully")
 }
