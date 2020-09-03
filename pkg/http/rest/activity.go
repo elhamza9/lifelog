@@ -59,6 +59,59 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 	return c.JSON(http.StatusOK, act)
 }
 
+// AddActivity handler adds an activity
+func (h *Handler) AddActivity(c echo.Context) error {
+	// Json unmarshall
+	a := new(struct {
+		Label    string         `json:"label"`
+		Desc     string         `json:"desc"`
+		Place    string         `json:"place"`
+		Time     time.Time      `json:"time"`
+		Duration time.Duration  `json:"duration"`
+		TagIds   []domain.TagID `json:"tagIds"`
+	})
+	if err := c.Bind(a); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Construct Tags slice from ids ( don't fetch anything )
+	tags := []domain.Tag{}
+	for _, id := range (*a).TagIds {
+		tags = append(tags, domain.Tag{ID: id})
+	}
+
+	// Call adding service
+	act := domain.Activity{
+		Label:    (*a).Label,
+		Desc:     (*a).Desc,
+		Place:    (*a).Place,
+		Time:     (*a).Time,
+		Duration: (*a).Duration,
+		Tags:     tags,
+	}
+	id, err := h.adder.NewActivity(act.Label, act.Place, act.Desc, act.Time, act.Duration, tags)
+	if err != nil {
+		if errors.Is(err, store.ErrTagNotFound) {
+			return c.String(http.StatusUnprocessableEntity, err.Error())
+		}
+		if errors.Is(err, domain.ErrActivityTimeFuture) {
+			return c.String(http.StatusBadRequest, err.Error())
+		}
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Retrieve created activity
+	created, err := h.lister.Activity(id)
+	if err != nil {
+		if errors.Is(err, store.ErrActivityNotFound) {
+			return c.String(http.StatusNotFound, err.Error())
+		}
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusCreated, created)
+
+}
+
 // EditActivity handler edits an activity with given ID
 // It required a path parameter :id
 func (h *Handler) EditActivity(c echo.Context) error {

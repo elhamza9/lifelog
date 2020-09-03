@@ -2,6 +2,7 @@ package rest_test
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -280,4 +281,56 @@ func TestDeleteActivity(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAddActivity(t *testing.T) {
+	// Init Repo with some tags
+	repo.Tags = map[domain.TagID]domain.Tag{
+		1: {ID: 1, Name: "tag1"},
+		2: {ID: 2, Name: "tag2"},
+		3: {ID: 3, Name: "tag3"},
+	}
+
+	// Sub-tests definitions
+	tests := map[string]struct {
+		json         string
+		expectedCode int
+	}{
+		"Correct": {
+			json:         `{"label":"New Activity","description":"Details","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[1,3]}`,
+			expectedCode: http.StatusCreated,
+		},
+		"Non-Existing Tag": {
+			json:         `{"label":"New Activity","description":"Details","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[1,3]}`,
+			expectedCode: http.StatusCreated,
+		},
+		"Time Future": {
+			json:         `{"label":"New Activity","description":"Details","place":"beach",` + fmt.Sprintf("\"time\":\"%s\"", time.Now().Format("2006-01-02T15:04:00Z")) + `,"duration":3600000000000,"tagIds":[1,3]}`,
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+
+	// Sub-tests Execution
+	const path string = "/activities"
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			log.Print(test.json)
+			req = httptest.NewRequest(http.MethodPost, path, strings.NewReader(test.json))
+			req.Header.Set("Content-type", "application/json")
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			hnd.AddActivity(ctx)
+			if rec.Code != test.expectedCode {
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+		})
+	}
+
 }
