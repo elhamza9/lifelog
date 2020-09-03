@@ -38,7 +38,7 @@ func errToHTTPCode(err error, grp string) int {
 		fallthrough
 	case deleting.ErrActivityHasExpenses:
 		return http.StatusUnprocessableEntity
-	// domain errors
+	// store errors
 	case store.ErrTagNotFound:
 		if grp == "tags" {
 			return http.StatusNotFound
