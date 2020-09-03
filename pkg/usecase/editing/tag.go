@@ -2,7 +2,6 @@ package editing
 
 import (
 	"github.com/elhamza90/lifelog/pkg/domain"
-	"github.com/elhamza90/lifelog/pkg/usecase"
 )
 
 // EditTag calls repo to edit the provided tag
@@ -19,7 +18,7 @@ func (srv Service) EditTag(t domain.Tag) error {
 	if t, err := srv.repo.FindTagByName(t.Name); err != nil {
 		return err
 	} else if len(t.Name) > 0 {
-		return usecase.ErrTagNameDuplicate
+		return domain.ErrTagNameDuplicate
 	}
 	return srv.repo.EditTag(t)
 }
