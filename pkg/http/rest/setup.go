@@ -48,6 +48,7 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	// Group Expenses
 	expenses := r.Group("/expenses")
 	expenses.GET("", hnd.ExpensesByDate)
+	expenses.GET("/:id", hnd.ExpenseDetails)
 	expenses.POST("", hnd.AddExpense)
 	expenses.PUT("/:id", hnd.EditExpense)
 }

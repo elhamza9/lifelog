@@ -42,6 +42,23 @@ func (h *Handler) ExpensesByDate(c echo.Context) error {
 	return c.JSON(http.StatusOK, expenses)
 }
 
+// ExpenseDetails handler returns details of expense with given ID
+// It required a path parameter :id
+func (h *Handler) ExpenseDetails(c echo.Context) error {
+	// Get ID from Path param
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	// Get Expense
+	act, err := h.lister.Expense(domain.ExpenseID(id))
+	if err != nil {
+		return c.String(errToHTTPCode(err, "expenses"), err.Error())
+	}
+	return c.JSON(http.StatusOK, act)
+}
+
 // AddExpense handler adds an expense
 func (h *Handler) AddExpense(c echo.Context) error {
 	// Json unmarshall

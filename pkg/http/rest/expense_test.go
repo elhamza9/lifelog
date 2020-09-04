@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -57,6 +58,66 @@ func TestExpensesByDate(t *testing.T) {
 			if rec.Code != test.expectedCode {
 				body := rec.Body.String()
 				t.Fatalf("\nExpected Code: %d\nReturned Code: %v\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+		})
+	}
+}
+
+func TestExpenseDetails(t *testing.T) {
+	// Init Repo with one test activity
+	exp := domain.Expense{
+		ID:         1,
+		Label:      "Test Expense",
+		Value:      15.5,
+		Unit:       "eu",
+		Time:       time.Now().AddDate(0, 0, -2),
+		ActivityID: 0,
+		Tags: []domain.Tag{
+			{ID: 1, Name: "tag1"},
+			{ID: 2, Name: "tag2"},
+		},
+	}
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
+		exp.ID: exp,
+	}
+	// Sub-tests definitions
+	tests := map[string]struct {
+		idStr        string
+		expectedCode int
+	}{
+		"Existing Expense": {
+			idStr:        strconv.Itoa(int(exp.ID)),
+			expectedCode: http.StatusOK,
+		},
+		"Non-Existing Expense": {
+			idStr:        "234234", // Random non-existing ID
+			expectedCode: http.StatusNotFound,
+		},
+		"Wrong Id format": {
+			idStr:        "blabls",
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	// Sub-tests Execution
+	const path string = "/expenses/:id"
+	const url string = "/expenses/%s"
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			req = httptest.NewRequest(http.MethodGet, fmt.Sprintf(url, test.idStr), nil)
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			ctx.SetParamNames("id")
+			ctx.SetParamValues(test.idStr)
+			hnd.ExpenseDetails(ctx)
+			if rec.Code != test.expectedCode {
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
 			}
 		})
 	}
