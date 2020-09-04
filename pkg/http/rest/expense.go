@@ -2,6 +2,7 @@ package rest
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/elhamza90/lifelog/pkg/domain"
@@ -72,4 +73,47 @@ func (h *Handler) AddExpense(c echo.Context) error {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
 	return c.JSON(http.StatusCreated, created)
+}
+
+// EditExpense handler edits an activity with given ID
+// It required a path parameter :id
+func (h *Handler) EditExpense(c echo.Context) error {
+	// Get ID from Path param
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	// Get Expense
+	exp, err := h.lister.Expense(domain.ExpenseID(id))
+	if err != nil {
+		return c.String(errToHTTPCode(err, "expenses"), err.Error())
+	}
+	// Json unmarshall
+	e := new(jsonExpense)
+	if err := c.Bind(e); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	// Construct Tags slice from ids ( don't fetch anything )
+	tags := []domain.Tag{}
+	for _, id := range (*e).TagIds {
+		tags = append(tags, domain.Tag{ID: id})
+	}
+	// Edit Expense
+	exp.Label = (*e).Label
+	exp.Value = (*e).Value
+	exp.Unit = (*e).Unit
+	exp.Time = (*e).Time
+	exp.ActivityID = (*e).ActivityID
+	exp.Tags = tags
+	err = h.editor.EditExpense(exp)
+	if err != nil {
+		return c.String(errToHTTPCode(err, "expenses"), err.Error())
+	}
+	// Retrieve edited activity
+	edited, err := h.lister.Expense(exp.ID)
+	if err != nil {
+		return c.String(errToHTTPCode(err, "expenses"), err.Error())
+	}
+	return c.JSON(http.StatusOK, edited)
 }

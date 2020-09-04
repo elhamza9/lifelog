@@ -57,6 +57,12 @@ func errToHTTPCode(err error, grp string) int {
 			return http.StatusNotFound
 		}
 		return http.StatusUnprocessableEntity
+	case store.ErrExpenseNotFound:
+		if grp == "expenses" {
+			return http.StatusNotFound
+		}
+		return http.StatusInternalServerError
+
 	default:
 		return http.StatusInternalServerError
 	}

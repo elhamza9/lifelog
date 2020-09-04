@@ -49,6 +49,7 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	expenses := r.Group("/expenses")
 	expenses.GET("", hnd.ExpensesByDate)
 	expenses.POST("", hnd.AddExpense)
+	expenses.PUT("/:id", hnd.EditExpense)
 }
 
 // HealthCheck handler informs that api is up and running.

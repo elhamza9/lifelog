@@ -113,3 +113,83 @@ func TestAddExpense(t *testing.T) {
 		})
 	}
 }
+
+func TestEditExpense(t *testing.T) {
+	// Init Repo with some tags
+	repo.Tags = map[domain.TagID]domain.Tag{
+		1: {ID: 1, Name: "tag1"},
+		2: {ID: 2, Name: "tag2"},
+		3: {ID: 3, Name: "tag3"},
+	}
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
+		1: {
+			ID:    1,
+			Label: "Existing Expense",
+			Value: 13.4,
+			Unit:  "Eu",
+			Time:  time.Now().AddDate(0, 0, -2),
+			Tags:  []domain.Tag{},
+		},
+	}
+	// Sub-tests definitions
+	tests := map[string]struct {
+		idStr        string
+		json         string
+		expectedCode int
+	}{
+		"Correct": {
+			idStr:        "1",
+			json:         `{"label":"New Expense","value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
+			expectedCode: http.StatusOK,
+		},
+		"Non-Existing Expense": {
+			idStr:        "32543454",
+			json:         `{"label":"New Expense","value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
+			expectedCode: http.StatusNotFound,
+		},
+		"Non-Existing Tag": {
+			idStr:        "1",
+			json:         `{"label":"New Expense","value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,33]}`,
+			expectedCode: http.StatusUnprocessableEntity,
+		},
+		"Time Future": {
+			idStr:        "1",
+			json:         `{"label":"New Expense","value":9.5,"unit":"eu",` + fmt.Sprintf("\"time\":\"%s\"", time.Now().AddDate(0, 0, 1).Format("2006-01-02")) + `,"tagIds":[1,3]}`,
+			expectedCode: http.StatusBadRequest,
+		},
+		"Value zero": {
+			idStr:        "1",
+			json:         `{"label":"New Expense","value":0,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
+			expectedCode: http.StatusBadRequest,
+		},
+		"Wrong ID": {
+			idStr:        "sdf",
+			json:         `{"label":"New Expense","value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	// Sub-tests Execution
+	const path string = "/expenses"
+	const url string = "/activities/%s"
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			req = httptest.NewRequest(http.MethodGet, fmt.Sprintf(url, test.idStr), strings.NewReader(test.json))
+			req.Header.Set("Content-type", "application/json")
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			ctx.SetParamNames("id")
+			ctx.SetParamValues(test.idStr)
+			hnd.EditExpense(ctx)
+			if rec.Code != test.expectedCode {
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+		})
+	}
+}
