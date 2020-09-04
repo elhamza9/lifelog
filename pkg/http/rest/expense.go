@@ -92,7 +92,7 @@ func (h *Handler) AddExpense(c echo.Context) error {
 	return c.JSON(http.StatusCreated, created)
 }
 
-// EditExpense handler edits an activity with given ID
+// EditExpense handler edits an expense with given ID
 // It required a path parameter :id
 func (h *Handler) EditExpense(c echo.Context) error {
 	// Get ID from Path param
@@ -133,4 +133,21 @@ func (h *Handler) EditExpense(c echo.Context) error {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
 	return c.JSON(http.StatusOK, edited)
+}
+
+// DeleteExpense handler deletes an expense with given ID
+// It required a path parameter :id
+func (h *Handler) DeleteExpense(c echo.Context) error {
+	// Get ID from Path param
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	// Delete Expense
+	err = h.deleter.Expense(domain.ExpenseID(id))
+	if err != nil {
+		return c.String(errToHTTPCode(err, "expenses"), err.Error())
+	}
+	return c.JSON(http.StatusNoContent, "Expense Deleted Successfully")
 }

@@ -254,3 +254,53 @@ func TestEditExpense(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteExpense(t *testing.T) {
+	// Init Repo with two test activities: one with and one without expense
+	repo.Expenses = map[domain.ExpenseID]domain.Expense{
+		1: {
+			ID:    1,
+			Label: "Expense for activity 2",
+			Value: 14,
+			Unit:  "Eu",
+			Time:  time.Now().AddDate(0, 0, -3),
+		},
+	}
+	// Sub-tests definitions
+	tests := map[string]struct {
+		idStr        string
+		expectedCode int
+	}{
+		"Existing Expense Without Expense": {
+			idStr:        strconv.Itoa(1),
+			expectedCode: http.StatusNoContent,
+		},
+		"Wrong Id format": {
+			idStr:        "blabls",
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	// Sub-tests Execution
+	const path string = "/expenses/:id"
+	const url string = "/expenses/%s"
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			req = httptest.NewRequest(http.MethodGet, fmt.Sprintf(url, test.idStr), nil)
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			ctx.SetParamNames("id")
+			ctx.SetParamValues(test.idStr)
+			hnd.DeleteExpense(ctx)
+			if rec.Code != test.expectedCode {
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+		})
+	}
+}
