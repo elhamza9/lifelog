@@ -40,3 +40,36 @@ func (h *Handler) ExpensesByDate(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, expenses)
 }
+
+// AddExpense handler adds an expense
+func (h *Handler) AddExpense(c echo.Context) error {
+	// Json unmarshall
+	a := new(jsonExpense)
+	if err := c.Bind(a); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	// Construct Tags slice from ids ( don't fetch anything )
+	tags := []domain.Tag{}
+	for _, id := range (*a).TagIds {
+		tags = append(tags, domain.Tag{ID: id})
+	}
+	// Call adding service
+	exp := domain.Expense{
+		Label:      (*a).Label,
+		Value:      (*a).Value,
+		Unit:       (*a).Unit,
+		Time:       (*a).Time,
+		ActivityID: (*a).ActivityID,
+		Tags:       tags,
+	}
+	id, err := h.adder.NewExpense(exp)
+	if err != nil {
+		return c.String(errToHTTPCode(err, "expenses"), err.Error())
+	}
+	// Retrieve created expense
+	created, err := h.lister.Expense(id)
+	if err != nil {
+		return c.String(errToHTTPCode(err, "expenses"), err.Error())
+	}
+	return c.JSON(http.StatusCreated, created)
+}

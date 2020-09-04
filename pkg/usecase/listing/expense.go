@@ -71,3 +71,8 @@ func (srv Service) ExpensesByActivity(aid domain.ActivityID) ([]domain.Expense, 
 	})
 	return res, nil
 }
+
+// Expense returns expense with given ID
+func (srv Service) Expense(id domain.ExpenseID) (domain.Expense, error) {
+	return srv.repo.FindExpenseByID(id)
+}

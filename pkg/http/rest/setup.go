@@ -48,6 +48,7 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	// Group Expenses
 	expenses := r.Group("/expenses")
 	expenses.GET("", hnd.ExpensesByDate)
+	expenses.POST("", hnd.AddExpense)
 }
 
 // HealthCheck handler informs that api is up and running.
