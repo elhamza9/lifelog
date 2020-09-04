@@ -6,7 +6,6 @@ import (
 
 	"github.com/elhamza90/lifelog/pkg/domain"
 	"github.com/elhamza90/lifelog/pkg/store"
-	"github.com/elhamza90/lifelog/pkg/usecase"
 )
 
 func TestEditTag(t *testing.T) {
@@ -25,7 +24,7 @@ func TestEditTag(t *testing.T) {
 		},
 		"Duplicate Tag": {
 			tag:         domain.Tag{ID: 1, Name: "Duplicate"},
-			expectedErr: usecase.ErrTagNameDuplicate,
+			expectedErr: domain.ErrTagNameDuplicate,
 		},
 		"Existing Tag": {
 			tag:         domain.Tag{ID: 1, Name: "Edited-tag-1"},
