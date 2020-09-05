@@ -151,7 +151,6 @@ func TestAddTag(t *testing.T) {
 	repo.Tags = map[domain.TagID]domain.Tag{
 		8987: {ID: 8987, Name: "existing-tag"},
 	}
-
 	// Sub-tests definition
 	tests := map[string]struct {
 		json         string
@@ -170,7 +169,6 @@ func TestAddTag(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-
 	// Sub-tests execution
 	const path string = "/tags"
 	var (
@@ -199,7 +197,6 @@ func TestEditTag(t *testing.T) {
 		8987: {ID: 8987, Name: "existing-tag"},
 		8988: {ID: 8988, Name: "dup-tag"},
 	}
-
 	// Sub-tests definition
 	tests := map[string]struct {
 		json         string
@@ -227,7 +224,6 @@ func TestEditTag(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-
 	// Sub-tests execution
 	const path string = "/tags/:id"
 	var (
@@ -279,7 +275,6 @@ func TestDeleteTag(t *testing.T) {
 			Tags:     []domain.Tag{{ID: 9999, Name: "tag-with-activity"}},
 		},
 	}
-
 	// Sub-tests definition
 	tests := map[string]struct {
 		id           domain.TagID // id of tag to delete
@@ -302,7 +297,6 @@ func TestDeleteTag(t *testing.T) {
 			expectedCode: http.StatusUnprocessableEntity,
 		},
 	}
-
 	// Sub-tests execution
 	const path string = "/tags/:id"
 	var (

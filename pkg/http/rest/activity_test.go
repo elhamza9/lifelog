@@ -19,7 +19,6 @@ func TestActivitiesByDate(t *testing.T) {
 	const param string = "from"
 	const frmt string = "01-02-2006" // time format in query param
 	now := time.Now()
-
 	// Sub-tests definition
 	tests := map[string]struct {
 		filter       string
@@ -42,7 +41,6 @@ func TestActivitiesByDate(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-
 	// Sub-tests Execution
 	var (
 		req *http.Request
@@ -79,7 +77,6 @@ func TestActivityDetails(t *testing.T) {
 	repo.Activities = map[domain.ActivityID]domain.Activity{
 		act.ID: act,
 	}
-
 	// Sub-tests definitions
 	tests := map[string]struct {
 		idStr        string
@@ -98,7 +95,6 @@ func TestActivityDetails(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-
 	// Sub-tests Execution
 	const path string = "/activities/:id"
 	const url string = "/activities/%s"
@@ -123,7 +119,6 @@ func TestActivityDetails(t *testing.T) {
 		})
 	}
 }
-
 func TestEditActivity(t *testing.T) {
 	// Init Repo with one test activity
 	act := domain.Activity{
@@ -144,7 +139,6 @@ func TestEditActivity(t *testing.T) {
 		2: {ID: 2, Name: "tag2"},
 		3: {ID: 3, Name: "tag3"},
 	}
-
 	// Sub-tests definitions
 	tests := map[string]struct {
 		idStr        string
@@ -172,7 +166,6 @@ func TestEditActivity(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-
 	// Sub-tests Execution
 	const path string = "/activities/:id"
 	const url string = "/activities/%s"
@@ -234,7 +227,6 @@ func TestDeleteActivity(t *testing.T) {
 			ActivityID: actWithExpense.ID,
 		},
 	}
-
 	// Sub-tests definitions
 	tests := map[string]struct {
 		idStr        string
@@ -257,7 +249,6 @@ func TestDeleteActivity(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-
 	// Sub-tests Execution
 	const path string = "/activities/:id"
 	const url string = "/activities/%s"
@@ -290,7 +281,6 @@ func TestAddActivity(t *testing.T) {
 		2: {ID: 2, Name: "tag2"},
 		3: {ID: 3, Name: "tag3"},
 	}
-
 	// Sub-tests definitions
 	tests := map[string]struct {
 		json         string
@@ -309,7 +299,6 @@ func TestAddActivity(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-
 	// Sub-tests Execution
 	const path string = "/activities"
 	var (
@@ -332,5 +321,4 @@ func TestAddActivity(t *testing.T) {
 			}
 		})
 	}
-
 }

@@ -8,6 +8,9 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 )
 
+// dateFilterFormat specifies the format of date in a query filter
+const dateFilterFormat string = "01-02-2006"
+
 // errToHTTPCode returns the http code that should be sent for an error
 // The grp parameter specifies which handler group called the function
 // because some errors will get treated differently depending on the handler

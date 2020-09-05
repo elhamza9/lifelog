@@ -18,7 +18,6 @@ func TestExpensesByDate(t *testing.T) {
 	const param string = "from"
 	const frmt string = "01-02-2006" // time format in query param
 	now := time.Now()
-
 	// Sub-tests definition
 	tests := map[string]struct {
 		filter       string
@@ -41,7 +40,6 @@ func TestExpensesByDate(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-
 	// Sub-tests Execution
 	var (
 		req *http.Request
@@ -62,7 +60,6 @@ func TestExpensesByDate(t *testing.T) {
 		})
 	}
 }
-
 func TestExpenseDetails(t *testing.T) {
 	// Init Repo with one test activity
 	exp := domain.Expense{

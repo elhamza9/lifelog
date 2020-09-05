@@ -30,14 +30,12 @@ func (h *Handler) GetTagExpenses(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-
 	// Get Expenses
 	expenses, err := h.lister.ExpensesByTag(domain.TagID(id))
 	if err != nil {
 		return c.String(errToHTTPCode(err, "tags"), err.Error())
 	}
 	return c.JSON(http.StatusOK, expenses)
-
 }
 
 // GetTagActivities handler returns activities of a given tag
@@ -60,13 +58,13 @@ func (h *Handler) GetTagActivities(c echo.Context) error {
 // with given name and returns the created tag
 func (h *Handler) AddTag(c echo.Context) error {
 	// Json unmarshall
-	t := new(jsonTag)
-	if err := c.Bind(t); err != nil {
+	var jsTag jsonTag
+	if err := c.Bind(&jsTag); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Create Tag
 	tag := domain.Tag{
-		Name: (*t).Name,
+		Name: jsTag.Name,
 	}
 	id, err := h.adder.NewTag(tag)
 	if err != nil {
@@ -87,14 +85,14 @@ func (h *Handler) EditTag(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Json unmarshall
-	t := new(jsonTag)
-	if err := c.Bind(t); err != nil {
+	var jsTag jsonTag
+	if err := c.Bind(&jsTag); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Edit Tag
 	var tag domain.Tag = domain.Tag{
 		ID:   domain.TagID(id),
-		Name: t.Name,
+		Name: jsTag.Name,
 	}
 	if err := h.editor.EditTag(tag); err != nil {
 		return c.String(errToHTTPCode(err, "tags"), err.Error())

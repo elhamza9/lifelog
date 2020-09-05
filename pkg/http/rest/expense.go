@@ -19,6 +19,12 @@ type jsonExpense struct {
 	TagIds     []domain.TagID    `json:"tagIds"`
 }
 
+// defaultExpensesMinDate specifies default date filter when listing expenses
+// and no filter was provided
+func defaultExpensesDateFilter() time.Time {
+	return time.Now().AddDate(0, -3, 0)
+}
+
 // ExpensesByDate handler returns a list of all expenses done
 // from a specific date up to now.
 // It requires a query parameter "from" specifying the date as mm-dd-yyyy
@@ -27,10 +33,10 @@ func (h *Handler) ExpensesByDate(c echo.Context) error {
 	dateStr := c.QueryParam("from")
 	var date time.Time
 	if len(dateStr) == 0 {
-		date = time.Now().AddDate(0, -3, 0)
+		date = defaultExpensesDateFilter()
 	} else {
 		var err error
-		date, err = time.Parse("01-02-2006", dateStr)
+		date, err = time.Parse(dateFilterFormat, dateStr)
 		if err != nil {
 			return c.String(http.StatusBadRequest, err.Error())
 		}
@@ -62,22 +68,22 @@ func (h *Handler) ExpenseDetails(c echo.Context) error {
 // AddExpense handler adds an expense
 func (h *Handler) AddExpense(c echo.Context) error {
 	// Json unmarshall
-	a := new(jsonExpense)
-	if err := c.Bind(a); err != nil {
+	var jsExp jsonExpense
+	if err := c.Bind(&jsExp); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Construct Tags slice from ids ( don't fetch anything )
 	tags := []domain.Tag{}
-	for _, id := range (*a).TagIds {
+	for _, id := range jsExp.TagIds {
 		tags = append(tags, domain.Tag{ID: id})
 	}
 	// Call adding service
 	exp := domain.Expense{
-		Label:      (*a).Label,
-		Value:      (*a).Value,
-		Unit:       (*a).Unit,
-		Time:       (*a).Time,
-		ActivityID: (*a).ActivityID,
+		Label:      jsExp.Label,
+		Value:      jsExp.Value,
+		Unit:       jsExp.Unit,
+		Time:       jsExp.Time,
+		ActivityID: jsExp.ActivityID,
 		Tags:       tags,
 	}
 	id, err := h.adder.NewExpense(exp)
@@ -101,33 +107,33 @@ func (h *Handler) EditExpense(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	// Get Expense
+	// Retrieve Expense with given ID
 	exp, err := h.lister.Expense(domain.ExpenseID(id))
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
 	// Json unmarshall
-	e := new(jsonExpense)
-	if err := c.Bind(e); err != nil {
+	var jsExp jsonExpense
+	if err := c.Bind(&jsExp); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Construct Tags slice from ids ( don't fetch anything )
 	tags := []domain.Tag{}
-	for _, id := range (*e).TagIds {
+	for _, id := range jsExp.TagIds {
 		tags = append(tags, domain.Tag{ID: id})
 	}
 	// Edit Expense
-	exp.Label = (*e).Label
-	exp.Value = (*e).Value
-	exp.Unit = (*e).Unit
-	exp.Time = (*e).Time
-	exp.ActivityID = (*e).ActivityID
+	exp.Label = jsExp.Label
+	exp.Value = jsExp.Value
+	exp.Unit = jsExp.Unit
+	exp.Time = jsExp.Time
+	exp.ActivityID = jsExp.ActivityID
 	exp.Tags = tags
 	err = h.editor.EditExpense(exp)
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
-	// Retrieve edited activity
+	// Retrieve edited expense
 	edited, err := h.lister.Expense(exp.ID)
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())

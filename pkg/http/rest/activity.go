@@ -19,6 +19,12 @@ type jsonActivity struct {
 	TagIds   []domain.TagID `json:"tagIds"`
 }
 
+// defaultActivitiesMinDate specifies default date filter when listing activities
+// and no filter was provided
+func defaultActivitiesDateFilter() time.Time {
+	return time.Now().AddDate(0, -3, 0)
+}
+
 // ActivitiesByDate handler returns a list of all activities done
 // from a specific date up to now.
 // It requires a query parameter "from" specifying the date as mm-dd-yyyy
@@ -27,10 +33,10 @@ func (h *Handler) ActivitiesByDate(c echo.Context) error {
 	dateStr := c.QueryParam("from")
 	var date time.Time
 	if len(dateStr) == 0 {
-		date = time.Now().AddDate(0, -3, 0)
+		date = defaultActivitiesDateFilter()
 	} else {
 		var err error
-		date, err = time.Parse("01-02-2006", dateStr)
+		date, err = time.Parse(dateFilterFormat, dateStr)
 		if err != nil {
 			return c.String(http.StatusBadRequest, err.Error())
 		}
@@ -62,22 +68,22 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 // AddActivity handler adds an activity
 func (h *Handler) AddActivity(c echo.Context) error {
 	// Json unmarshall
-	a := new(jsonActivity)
-	if err := c.Bind(a); err != nil {
+	var jsAct jsonActivity
+	if err := c.Bind(&jsAct); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Construct Tags slice from ids ( don't fetch anything )
 	tags := []domain.Tag{}
-	for _, id := range (*a).TagIds {
+	for _, id := range jsAct.TagIds {
 		tags = append(tags, domain.Tag{ID: id})
 	}
 	// Call adding service
 	act := domain.Activity{
-		Label:    (*a).Label,
-		Desc:     (*a).Desc,
-		Place:    (*a).Place,
-		Time:     (*a).Time,
-		Duration: (*a).Duration,
+		Label:    jsAct.Label,
+		Desc:     jsAct.Desc,
+		Place:    jsAct.Place,
+		Time:     jsAct.Time,
+		Duration: jsAct.Duration,
 		Tags:     tags,
 	}
 	id, err := h.adder.NewActivity(act)
@@ -107,21 +113,21 @@ func (h *Handler) EditActivity(c echo.Context) error {
 		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
 	// Json unmarshall
-	a := new(jsonActivity)
-	if err := c.Bind(a); err != nil {
+	var jsAct jsonActivity
+	if err := c.Bind(&jsAct); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Construct Tags slice from ids ( don't fetch anything )
 	tags := []domain.Tag{}
-	for _, id := range (*a).TagIds {
+	for _, id := range jsAct.TagIds {
 		tags = append(tags, domain.Tag{ID: id})
 	}
 	// Edit Activity
-	act.Label = (*a).Label
-	act.Desc = (*a).Desc
-	act.Place = (*a).Place
-	act.Time = (*a).Time
-	act.Duration = (*a).Duration
+	act.Label = jsAct.Label
+	act.Desc = jsAct.Desc
+	act.Place = jsAct.Place
+	act.Time = jsAct.Time
+	act.Duration = jsAct.Duration
 	act.Tags = tags
 	err = h.editor.EditActivity(act)
 	if err != nil {
