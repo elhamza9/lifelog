@@ -40,6 +40,22 @@ func (h *Handler) GetTagExpenses(c echo.Context) error {
 
 }
 
+// GetTagActivities handler returns activities of a given tag
+func (h *Handler) GetTagActivities(c echo.Context) error {
+	// Get Tag ID from path
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	// Get Activities
+	activities, err := h.lister.ActivitiesByTag(domain.TagID(id))
+	if err != nil {
+		return c.String(errToHTTPCode(err, "tags"), err.Error())
+	}
+	return c.JSON(http.StatusOK, activities)
+}
+
 // AddTag handler calls adding service to create a tag
 // with given name and returns the created tag
 func (h *Handler) AddTag(c echo.Context) error {

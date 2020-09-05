@@ -36,6 +36,7 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	tags := r.Group("/tags")
 	tags.GET("", hnd.GetAllTags)
 	tags.GET("/:id/expenses", hnd.GetTagExpenses)
+	tags.GET("/:id/activities", hnd.GetTagActivities)
 	tags.POST("", hnd.AddTag)
 	tags.PUT("/:id", hnd.EditTag)
 	tags.DELETE("/:id", hnd.DeleteTag)

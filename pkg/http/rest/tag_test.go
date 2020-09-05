@@ -86,6 +86,66 @@ func TestGetTagExpenses(t *testing.T) {
 	}
 }
 
+func TestGetTagActivities(t *testing.T) {
+	repo.Tags = map[domain.TagID]domain.Tag{
+		8987: {ID: 8987, Name: "tag-with-nothing"},
+		5555: {ID: 5555, Name: "tag-with-activity"},
+	}
+	repo.Activities = map[domain.ActivityID]domain.Activity{
+		1: {
+			ID:       1,
+			Label:    "Activity for tag 5555",
+			Time:     time.Now().AddDate(0, 0, -2),
+			Duration: time.Duration(time.Hour),
+			Tags:     []domain.Tag{{ID: 5555, Name: "tag-with-activity"}},
+		},
+	}
+	// Sub-tests definition
+	tests := map[string]struct {
+		idStr        string
+		expectedCode int
+	}{
+		"Tag with activity": {
+			idStr:        "5555",
+			expectedCode: http.StatusOK,
+		},
+		"Tag without activity": {
+			idStr:        "8987",
+			expectedCode: http.StatusOK,
+		},
+		"Non-Existing Tag": {
+			idStr:        "234234243",
+			expectedCode: http.StatusNotFound,
+		},
+		"Wrong ID": {
+			idStr:        "sdfsdf",
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	// Sub-tests execution
+	const path string = "/tags/:id/activities"
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			req = httptest.NewRequest(http.MethodGet, path, nil)
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			ctx.SetParamNames("id")
+			ctx.SetParamValues(test.idStr)
+			hnd.GetTagActivities(ctx)
+			if rec.Code != test.expectedCode {
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %v\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+		})
+	}
+}
+
 func TestAddTag(t *testing.T) {
 	// Init repo with a tag to test duplicate tag name return code.
 	repo.Tags = map[domain.TagID]domain.Tag{
