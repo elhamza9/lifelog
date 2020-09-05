@@ -22,6 +22,24 @@ func (h *Handler) GetAllTags(c echo.Context) error {
 	return c.JSON(http.StatusOK, tags)
 }
 
+// GetTagExpenses handler returns expenses of a given tag
+func (h *Handler) GetTagExpenses(c echo.Context) error {
+	// Get Tag ID from path
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Get Expenses
+	expenses, err := h.lister.ExpensesByTag(domain.TagID(id))
+	if err != nil {
+		return c.String(errToHTTPCode(err, "tags"), err.Error())
+	}
+	return c.JSON(http.StatusOK, expenses)
+
+}
+
 // AddTag handler calls adding service to create a tag
 // with given name and returns the created tag
 func (h *Handler) AddTag(c echo.Context) error {
