@@ -60,6 +60,7 @@ func TestExpensesByDate(t *testing.T) {
 		})
 	}
 }
+
 func TestExpenseDetails(t *testing.T) {
 	// Init Repo with one test activity
 	exp := domain.Expense{
@@ -148,6 +149,10 @@ func TestAddExpense(t *testing.T) {
 			json:         `{"label":"New Expense","value":0,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
 			expectedCode: http.StatusBadRequest,
 		},
+		"Wrong Json": {
+			json:         `{"label":"New Expense","value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z""tagIds":[1,3]}`,
+			expectedCode: http.StatusBadRequest,
+		},
 	}
 	// Sub-tests Execution
 	const path string = "/expenses"
@@ -179,15 +184,16 @@ func TestEditExpense(t *testing.T) {
 		2: {ID: 2, Name: "tag2"},
 		3: {ID: 3, Name: "tag3"},
 	}
+	exp := domain.Expense{
+		ID:    1,
+		Label: "Existing Expense",
+		Value: 13.4,
+		Unit:  "Eu",
+		Time:  time.Now().AddDate(0, 0, -2),
+		Tags:  []domain.Tag{},
+	}
 	repo.Expenses = map[domain.ExpenseID]domain.Expense{
-		1: {
-			ID:    1,
-			Label: "Existing Expense",
-			Value: 13.4,
-			Unit:  "Eu",
-			Time:  time.Now().AddDate(0, 0, -2),
-			Tags:  []domain.Tag{},
-		},
+		exp.ID: exp,
 	}
 	// Sub-tests definitions
 	tests := map[string]struct {
@@ -196,7 +202,7 @@ func TestEditExpense(t *testing.T) {
 		expectedCode int
 	}{
 		"Correct": {
-			idStr:        "1",
+			idStr:        strconv.Itoa(int(exp.ID)),
 			json:         `{"label":"New Expense","value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
 			expectedCode: http.StatusOK,
 		},
@@ -206,17 +212,17 @@ func TestEditExpense(t *testing.T) {
 			expectedCode: http.StatusNotFound,
 		},
 		"Non-Existing Tag": {
-			idStr:        "1",
+			idStr:        strconv.Itoa(int(exp.ID)),
 			json:         `{"label":"New Expense","value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,33]}`,
 			expectedCode: http.StatusUnprocessableEntity,
 		},
 		"Time Future": {
-			idStr:        "1",
+			idStr:        strconv.Itoa(int(exp.ID)),
 			json:         `{"label":"New Expense","value":9.5,"unit":"eu",` + fmt.Sprintf("\"time\":\"%s\"", time.Now().AddDate(0, 0, 1).Format("2006-01-02")) + `,"tagIds":[1,3]}`,
 			expectedCode: http.StatusBadRequest,
 		},
 		"Value zero": {
-			idStr:        "1",
+			idStr:        strconv.Itoa(int(exp.ID)),
 			json:         `{"label":"New Expense","value":0,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
 			expectedCode: http.StatusBadRequest,
 		},
@@ -225,10 +231,15 @@ func TestEditExpense(t *testing.T) {
 			json:         `{"label":"New Expense","value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
 			expectedCode: http.StatusBadRequest,
 		},
+		"Wrong Json": {
+			idStr:        strconv.Itoa(int(exp.ID)),
+			json:         `{"label":"New Expense,"value":9.5,"unit":"eu","time":"2020-04-01T18:00:00Z","tagIds":[1,3]}`,
+			expectedCode: http.StatusBadRequest,
+		},
 	}
 	// Sub-tests Execution
 	const path string = "/expenses"
-	const url string = "/activities/%s"
+	const url string = "/expenses/%s"
 	var (
 		req *http.Request
 		rec *httptest.ResponseRecorder
@@ -254,23 +265,28 @@ func TestEditExpense(t *testing.T) {
 
 func TestDeleteExpense(t *testing.T) {
 	// Init Repo with two test activities: one with and one without expense
+	exp := domain.Expense{
+		ID:    1,
+		Label: "Expense for activity 2",
+		Value: 14,
+		Unit:  "Eu",
+		Time:  time.Now().AddDate(0, 0, -3),
+	}
 	repo.Expenses = map[domain.ExpenseID]domain.Expense{
-		1: {
-			ID:    1,
-			Label: "Expense for activity 2",
-			Value: 14,
-			Unit:  "Eu",
-			Time:  time.Now().AddDate(0, 0, -3),
-		},
+		exp.ID: exp,
 	}
 	// Sub-tests definitions
 	tests := map[string]struct {
 		idStr        string
 		expectedCode int
 	}{
-		"Existing Expense Without Expense": {
-			idStr:        strconv.Itoa(1),
+		"Existing Expense": {
+			idStr:        strconv.Itoa(int(exp.ID)),
 			expectedCode: http.StatusNoContent,
+		},
+		"Non-Existing Expense": {
+			idStr:        "24234",
+			expectedCode: http.StatusNotFound,
 		},
 		"Wrong Id format": {
 			idStr:        "blabls",

@@ -3,7 +3,6 @@ package rest_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -168,6 +167,10 @@ func TestAddTag(t *testing.T) {
 			json:         `{"name":"bad$tag"}`,
 			expectedCode: http.StatusBadRequest,
 		},
+		"Wrong Json": {
+			json:         `{"name""new-tag"}`,
+			expectedCode: http.StatusBadRequest,
+		},
 	}
 	// Sub-tests execution
 	const path string = "/tags"
@@ -185,7 +188,8 @@ func TestAddTag(t *testing.T) {
 			ctx.SetPath(path)
 			hnd.AddTag(ctx)
 			if rec.Code != test.expectedCode {
-				t.Fatalf("\nExpected Code: %d\nReturned Code: %v", test.expectedCode, rec.Code)
+				body := rec.Body.String()
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
 			}
 		})
 	}
@@ -200,27 +204,37 @@ func TestEditTag(t *testing.T) {
 	// Sub-tests definition
 	tests := map[string]struct {
 		json         string
-		id           domain.TagID
+		idStr        string
 		expectedCode int
 	}{
 		"Correct": {
 			json:         `{"name":"edited-tag"}`,
-			id:           8987,
+			idStr:        "8987",
 			expectedCode: http.StatusOK,
 		},
 		"Non-Existing Tag ID": {
 			json:         `{"name":"bla-tag"}`,
-			id:           789987, // Random Non-Existing Tag ID!
+			idStr:        "789987", // Random Non-Existing Tag ID
 			expectedCode: http.StatusNotFound,
 		},
+		"Wrong Id": {
+			json:         `{"name":"edited-tag"}`,
+			idStr:        "sdfdfg",
+			expectedCode: http.StatusBadRequest,
+		},
 		"Duplicate": {
-			json:         `{"name":"dup-tag"}`, // This name already exists!
-			id:           8987,
+			json:         `{"name":"dup-tag"}`, // This name already exists
+			idStr:        "8987",
 			expectedCode: http.StatusBadRequest,
 		},
 		"Invalid Chars": {
 			json:         `{"name":"bad$tag"}`,
-			id:           8987,
+			idStr:        "8987",
+			expectedCode: http.StatusBadRequest,
+		},
+		"Wrong Json": {
+			json:         `{"name":"edited-tag"`,
+			idStr:        "8987",
 			expectedCode: http.StatusBadRequest,
 		},
 	}
@@ -239,7 +253,7 @@ func TestEditTag(t *testing.T) {
 			ctx = router.NewContext(req, rec)
 			ctx.SetPath(path)
 			ctx.SetParamNames("id")
-			ctx.SetParamValues(strconv.Itoa(int(test.id)))
+			ctx.SetParamValues(test.idStr)
 			hnd.EditTag(ctx)
 			if rec.Code != test.expectedCode {
 				body := rec.Body.String()
@@ -277,23 +291,27 @@ func TestDeleteTag(t *testing.T) {
 	}
 	// Sub-tests definition
 	tests := map[string]struct {
-		id           domain.TagID // id of tag to delete
+		idStr        string
 		expectedCode int
 	}{
 		"Correct": {
-			id:           8987,
+			idStr:        "8987",
 			expectedCode: http.StatusNoContent,
 		},
 		"Non-Existing Tag": {
-			id:           234234, // Random non existing Tag ID
+			idStr:        "234234", // Random non existing Tag ID
 			expectedCode: http.StatusNotFound,
 		},
+		"Wrong Id": {
+			idStr:        "sdfsf",
+			expectedCode: http.StatusBadRequest,
+		},
 		"Tag with Expense": {
-			id:           5555,
+			idStr:        "5555",
 			expectedCode: http.StatusUnprocessableEntity,
 		},
 		"Tag with Activity": {
-			id:           9999,
+			idStr:        "9999",
 			expectedCode: http.StatusUnprocessableEntity,
 		},
 	}
@@ -312,7 +330,7 @@ func TestDeleteTag(t *testing.T) {
 			ctx = router.NewContext(req, rec)
 			ctx.SetPath(path)
 			ctx.SetParamNames("id")
-			ctx.SetParamValues(strconv.Itoa(int(test.id)))
+			ctx.SetParamValues(test.idStr)
 			hnd.DeleteTag(ctx)
 			if rec.Code != test.expectedCode {
 				body := rec.Body.String()

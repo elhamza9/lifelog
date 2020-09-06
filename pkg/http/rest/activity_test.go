@@ -2,7 +2,6 @@ package rest_test
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -165,6 +164,11 @@ func TestEditActivity(t *testing.T) {
 			json:         `{"label":"Edited Label","description":"edited desc","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[3]}`,
 			expectedCode: http.StatusBadRequest,
 		},
+		"Wrong Json": {
+			idStr:        strconv.Itoa(int(act.ID)),
+			json:         `{"label":"Edited Label","description":"edited desc","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[3}`,
+			expectedCode: http.StatusBadRequest,
+		},
 	}
 	// Sub-tests Execution
 	const path string = "/activities/:id"
@@ -294,8 +298,12 @@ func TestAddActivity(t *testing.T) {
 			json:         `{"label":"New Activity","description":"Details","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[1,3]}`,
 			expectedCode: http.StatusCreated,
 		},
-		"Time Future": {
+		"Time+Duration Future": {
 			json:         `{"label":"New Activity","description":"Details","place":"beach",` + fmt.Sprintf("\"time\":\"%s\"", time.Now().Format("2006-01-02T15:04:00Z")) + `,"duration":3600000000000,"tagIds":[1,3]}`,
+			expectedCode: http.StatusBadRequest,
+		},
+		"Wrong JSON": {
+			json:         `{"label:"New Activity","description":"Details","place":"beach","time":"2020-04-01T18:00:00Z","duration":3600000000000,"tagIds":[1,3]}`,
 			expectedCode: http.StatusBadRequest,
 		},
 	}
@@ -308,7 +316,6 @@ func TestAddActivity(t *testing.T) {
 	)
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			log.Print(test.json)
 			req = httptest.NewRequest(http.MethodPost, path, strings.NewReader(test.json))
 			req.Header.Set("Content-type", "application/json")
 			rec = httptest.NewRecorder()
