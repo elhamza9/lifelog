@@ -10,11 +10,17 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestLogin(t *testing.T) {
+	// Generate Password hash and save it in env variable
 	const testPass string = "test_pass"
-	os.Setenv("LFLG_PASSWORD", testPass)
+	hash, err := bcrypt.GenerateFromPassword([]byte(testPass), 10)
+	if err != nil {
+		t.Fatalf("Error generating bcrypt hash: %s", err)
+	}
+	os.Setenv("LFLG_PASS_HASH", string(hash))
 	// Subtests Definition
 	tests := map[string]struct {
 		json         string

@@ -6,6 +6,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Login handler authenticates user and returns a JWT Token
@@ -22,13 +23,13 @@ func (h *Handler) Login(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Password too short.")
 	}
 	// Get Correct Password
-	password := os.Getenv("LFLG_PASSWORD")
-	if password == "" {
-		return c.String(http.StatusInternalServerError, "Can not perform authentication because no Original Password was found in system. ")
+	hash := os.Getenv("LFLG_PASS_HASH")
+	if hash == "" {
+		return c.String(http.StatusInternalServerError, "Can not perform authentication because no Password was found in system. ")
 	}
 	// Authenticate
-	if authReq.Password != password {
-		return c.String(http.StatusUnauthorized, authReq.Password)
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(authReq.Password)); err != nil {
+		return c.String(http.StatusUnauthorized, "Wrong Password")
 	}
 	// Return JWT Token
 	secret := JwtSecret()
