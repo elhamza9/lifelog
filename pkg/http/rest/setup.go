@@ -8,6 +8,7 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase/editing"
 	"github.com/elhamza90/lifelog/pkg/usecase/listing"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // Handler contains services required by it's methods
@@ -18,6 +19,8 @@ type Handler struct {
 	editor  editing.Service
 	deleter deleting.Service
 }
+
+const JwtSecret string = "jwtsecret"
 
 // NewHandler construct & returns a new handler with provided services.
 func NewHandler(lister *listing.Service, adder *adding.Service, editor *editing.Service, deleter *deleting.Service) *Handler {
@@ -36,7 +39,7 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	auth := r.Group("/auth")
 	auth.POST("/login", hnd.Login)
 	// Group Tags
-	tags := r.Group("/tags")
+	tags := r.Group("/tags", middleware.JWT([]byte(JwtSecret)))
 	tags.GET("", hnd.GetAllTags)
 	tags.GET("/:id/expenses", hnd.GetTagExpenses)
 	tags.GET("/:id/activities", hnd.GetTagActivities)
@@ -44,14 +47,14 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	tags.PUT("/:id", hnd.EditTag)
 	tags.DELETE("/:id", hnd.DeleteTag)
 	// Group Activities
-	activities := r.Group("/activities")
+	activities := r.Group("/activities", middleware.JWT([]byte(JwtSecret)))
 	activities.GET("", hnd.ActivitiesByDate)
 	activities.GET("/:id", hnd.ActivityDetails)
 	activities.POST("", hnd.AddActivity)
 	activities.PUT("/:id", hnd.EditActivity)
 	activities.DELETE("/:id", hnd.DeleteActivity)
 	// Group Expenses
-	expenses := r.Group("/expenses")
+	expenses := r.Group("/expenses", middleware.JWT([]byte(JwtSecret)))
 	expenses.GET("", hnd.ExpensesByDate)
 	expenses.GET("/:id", hnd.ExpenseDetails)
 	expenses.POST("", hnd.AddExpense)
