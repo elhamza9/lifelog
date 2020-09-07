@@ -3,6 +3,7 @@ package rest_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -39,9 +40,15 @@ func TestLogin(t *testing.T) {
 			ctx = router.NewContext(req, rec)
 			ctx.SetPath(path)
 			hnd.Login(ctx)
+			body := rec.Body.String()
 			if rec.Code != test.expectedCode {
-				body := rec.Body.String()
 				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+			if rec.Code == http.StatusOK {
+				pat := `^{"at":".*"}`
+				if match, err := regexp.Match(pat, []byte(body)); !match {
+					t.Fatal(body, err)
+				}
 			}
 		})
 	}
