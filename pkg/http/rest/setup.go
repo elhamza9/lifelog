@@ -32,6 +32,9 @@ func NewHandler(lister *listing.Service, adder *adding.Service, editor *editing.
 // RegisterRoutes registers routes with handlers.
 func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	r.GET("/health-check", HealthCheck)
+	// Group Auth
+	auth := r.Group("/auth")
+	auth.POST("/login", hnd.Login)
 	// Group Tags
 	tags := r.Group("/tags")
 	tags.GET("", hnd.GetAllTags)
