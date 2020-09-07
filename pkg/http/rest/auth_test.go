@@ -1,8 +1,10 @@
 package rest_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -11,18 +13,24 @@ import (
 )
 
 func TestLogin(t *testing.T) {
+	const testPass string = "test_pass"
+	os.Setenv("LFLG_PASSWORD", testPass)
 	// Subtests Definition
 	tests := map[string]struct {
 		json         string
 		expectedCode int
 	}{
-		"Correct": {
-			json:         `{"password": "mytestpass"}`,
+		"Correct Credentials": {
+			json:         fmt.Sprintf("{\"password\":\"%s\"}", testPass),
 			expectedCode: http.StatusOK,
 		},
 		"Incorrect Credentials": {
 			json:         `{"password": "mywrongtestpass"}`,
 			expectedCode: http.StatusUnauthorized,
+		},
+		"Short Password": {
+			json:         `{"password": "pswd"}`,
+			expectedCode: http.StatusBadRequest,
 		},
 	}
 	// Subtests Execution
