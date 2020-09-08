@@ -6,6 +6,7 @@ import (
 
 	"github.com/elhamza90/lifelog/pkg/domain"
 	"github.com/elhamza90/lifelog/pkg/store"
+	"github.com/elhamza90/lifelog/pkg/usecase/auth"
 	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 	"github.com/labstack/echo/v4"
 )
@@ -31,16 +32,17 @@ func httpErrorMsg(err error) string {
 //     but will raise s StatusUnprocessableEntity in an expense handler
 func errToHTTPCode(err error, grp string) int {
 	switch err {
+	// rest errors
 	case errInvalidJSON:
 		return http.StatusBadRequest
-	// auth
-	case errPasswordLength:
-		return http.StatusBadRequest
-	case errIncorrectCredentials:
-		return http.StatusUnauthorized
-	case errHashNotFound:
-		return http.StatusInternalServerError
 	case errSigningJwt:
+		return http.StatusInternalServerError
+	// auth errors
+	case auth.ErrPasswordLength:
+		return http.StatusBadRequest
+	case auth.ErrIncorrectCredentials:
+		return http.StatusUnauthorized
+	case auth.ErrHashNotFound:
 		return http.StatusInternalServerError
 	// domain errors
 	case domain.ErrTagNameDuplicate:

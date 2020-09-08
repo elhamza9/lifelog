@@ -17,7 +17,7 @@ func TestLogin(t *testing.T) {
 	const path string = "/auth/login"
 	// Sub-test No original password is set
 	t.Run("Password not found in system", func(t *testing.T) {
-		os.Setenv("LFLG_PASS_HASH", "")
+		os.Setenv(hashEnvVarName, "")
 		json := `{"password":"somepassword"}`
 		expectedCode := http.StatusInternalServerError
 		req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(json))
@@ -37,8 +37,8 @@ func TestLogin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error generating bcrypt hash: %s", err)
 	}
-	os.Setenv("LFLG_PASS_HASH", string(hash))
-	defer os.Setenv("LFLG_PASS_HASH", "")
+	os.Setenv(hashEnvVarName, string(hash))
+	defer os.Setenv(hashEnvVarName, "")
 	// Subtests Definition
 	tests := map[string]struct {
 		json         string

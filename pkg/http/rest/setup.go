@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/elhamza90/lifelog/pkg/usecase/adding"
+	"github.com/elhamza90/lifelog/pkg/usecase/auth"
 	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 	"github.com/elhamza90/lifelog/pkg/usecase/editing"
 	"github.com/elhamza90/lifelog/pkg/usecase/listing"
@@ -17,19 +18,21 @@ import (
 // Handler contains services required by it's methods
 // (which are http handlers) to perform their jobs.
 type Handler struct {
-	lister  listing.Service
-	adder   adding.Service
-	editor  editing.Service
-	deleter deleting.Service
+	lister        listing.Service
+	adder         adding.Service
+	editor        editing.Service
+	deleter       deleting.Service
+	authenticator auth.Service
 }
 
 // NewHandler construct & returns a new handler with provided services.
-func NewHandler(lister *listing.Service, adder *adding.Service, editor *editing.Service, deleter *deleting.Service) *Handler {
+func NewHandler(lister *listing.Service, adder *adding.Service, editor *editing.Service, deleter *deleting.Service, authenticator *auth.Service) *Handler {
 	return &Handler{
-		lister:  *lister,
-		adder:   *adder,
-		editor:  *editor,
-		deleter: *deleter,
+		lister:        *lister,
+		adder:         *adder,
+		editor:        *editor,
+		deleter:       *deleter,
+		authenticator: *authenticator,
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	"github.com/elhamza90/lifelog/pkg/http/rest"
 	"github.com/elhamza90/lifelog/pkg/store/memory"
 	"github.com/elhamza90/lifelog/pkg/usecase/adding"
+	"github.com/elhamza90/lifelog/pkg/usecase/auth"
 	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
 	"github.com/elhamza90/lifelog/pkg/usecase/editing"
 	"github.com/elhamza90/lifelog/pkg/usecase/listing"
@@ -16,9 +17,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var router *echo.Echo
-var hnd *rest.Handler
-var repo memory.Repository
+var (
+	router *echo.Echo
+	hnd    *rest.Handler
+	repo   memory.Repository
+)
+
+// hashEnvVarName specifies the name of the environment variable
+// where the testing password hash should be stored
+const hashEnvVarName string = "LFLG_TEST_PASS_HASH"
 
 func TestMain(m *testing.M) {
 	log.SetLevel(log.DebugLevel)
@@ -31,7 +38,8 @@ func TestMain(m *testing.M) {
 	adder := adding.NewService(&repo)
 	editor := editing.NewService(&repo)
 	deletor := deleting.NewService(&repo)
-	hnd = rest.NewHandler(&lister, &adder, &editor, &deletor)
+	authenticator := auth.NewService(hashEnvVarName)
+	hnd = rest.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
 
 	os.Setenv("LFLG_JWT_SECRET", "testsecret")
 	if err := rest.RegisterRoutes(router, hnd); err != nil {
