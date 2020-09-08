@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"errors"
 	"net/http"
 	"os"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase/listing"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	log "github.com/sirupsen/logrus"
 )
 
 // Handler contains services required by it's methods
@@ -38,8 +40,13 @@ func JwtSecret() []byte {
 }
 
 // RegisterRoutes registers routes with handlers.
-func RegisterRoutes(r *echo.Echo, hnd *Handler) {
+func RegisterRoutes(r *echo.Echo, hnd *Handler) error {
 	secret := JwtSecret()
+	if len(secret) == 0 {
+		msg := "No JWT Secret was found in system"
+		log.Fatal(msg)
+		return errors.New(msg)
+	}
 	r.GET("/health-check", HealthCheck)
 	// Group Auth
 	auth := r.Group("/auth")
@@ -66,6 +73,8 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) {
 	expenses.POST("", hnd.AddExpense)
 	expenses.PUT("/:id", hnd.EditExpense)
 	expenses.DELETE("/:id", hnd.DeleteExpense)
+
+	return nil
 }
 
 // HealthCheck handler informs that api is up and running.

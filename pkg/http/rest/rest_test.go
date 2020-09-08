@@ -1,7 +1,6 @@
 package rest_test
 
 import (
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"github.com/elhamza90/lifelog/pkg/usecase/editing"
 	"github.com/elhamza90/lifelog/pkg/usecase/listing"
 	"github.com/labstack/echo/v4"
+	log "github.com/sirupsen/logrus"
 )
 
 var router *echo.Echo
@@ -21,8 +21,11 @@ var hnd *rest.Handler
 var repo memory.Repository
 
 func TestMain(m *testing.M) {
-	log.Println("Setting Up Main")
+	log.SetLevel(log.DebugLevel)
+	log.Debug("Setting Up Test router")
+
 	router = echo.New()
+
 	repo = memory.NewRepository()
 	lister := listing.NewService(&repo)
 	adder := adding.NewService(&repo)
@@ -30,13 +33,15 @@ func TestMain(m *testing.M) {
 	deletor := deleting.NewService(&repo)
 	hnd = rest.NewHandler(&lister, &adder, &editor, &deletor)
 
-	rest.RegisterRoutes(router, hnd)
+	os.Setenv("LFLG_JWT_SECRET", "testsecret")
+	if err := rest.RegisterRoutes(router, hnd); err != nil {
+		os.Exit(1)
+	}
 
 	os.Exit(m.Run())
 }
 
 func TestHealthCheck(t *testing.T) {
-	log.Print("Test Health Check")
 	path := "/health-check"
 	req := httptest.NewRequest(http.MethodGet, path, nil)
 	rec := httptest.NewRecorder()

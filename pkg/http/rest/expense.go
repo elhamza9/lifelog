@@ -36,8 +36,7 @@ func (h *Handler) ExpensesByDate(c echo.Context) error {
 		date = defaultExpensesDateFilter()
 	} else {
 		var err error
-		date, err = time.Parse(dateFilterFormat, dateStr)
-		if err != nil {
+		if date, err = time.Parse(dateFilterFormat, dateStr); err != nil {
 			return c.String(http.StatusBadRequest, err.Error())
 		}
 	}

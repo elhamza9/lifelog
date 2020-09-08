@@ -14,6 +14,23 @@ import (
 )
 
 func TestLogin(t *testing.T) {
+	const path string = "/auth/login"
+	// Sub-test No original password is set
+	t.Run("Password not found in system", func(t *testing.T) {
+		os.Setenv("LFLG_PASS_HASH", "")
+		json := `{"password":"somepassword"}`
+		expectedCode := http.StatusInternalServerError
+		req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(json))
+		req.Header.Set("Content-type", "application/json")
+		rec := httptest.NewRecorder()
+		ctx := router.NewContext(req, rec)
+		ctx.SetPath(path)
+		hnd.Login(ctx)
+		if rec.Code != expectedCode {
+			body := rec.Body.String()
+			t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", expectedCode, rec.Code, body)
+		}
+	})
 	// Generate Password hash and save it in env variable
 	const testPass string = "test_pass"
 	hash, err := bcrypt.GenerateFromPassword([]byte(testPass), 10)
@@ -21,6 +38,7 @@ func TestLogin(t *testing.T) {
 		t.Fatalf("Error generating bcrypt hash: %s", err)
 	}
 	os.Setenv("LFLG_PASS_HASH", string(hash))
+	defer os.Setenv("LFLG_PASS_HASH", "")
 	// Subtests Definition
 	tests := map[string]struct {
 		json         string
@@ -38,9 +56,16 @@ func TestLogin(t *testing.T) {
 			json:         `{"password": "pswd"}`,
 			expectedCode: http.StatusBadRequest,
 		},
+		"Long Password": {
+			json:         fmt.Sprintf("{\"password\": \"%s\"}", strings.Repeat("abc", 100)),
+			expectedCode: http.StatusBadRequest,
+		},
+		"Invalid JSON": {
+			json:         `{"password":}`,
+			expectedCode: http.StatusBadRequest,
+		},
 	}
 	// Subtests Execution
-	const path string = "/auth/login"
 	var (
 		req *http.Request
 		rec *httptest.ResponseRecorder
