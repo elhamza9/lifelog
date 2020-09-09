@@ -3,13 +3,13 @@ package main
 import (
 	"os"
 
-	"github.com/elhamza90/lifelog/pkg/http/rest"
-	"github.com/elhamza90/lifelog/pkg/store/memory"
-	"github.com/elhamza90/lifelog/pkg/usecase/adding"
-	"github.com/elhamza90/lifelog/pkg/usecase/auth"
-	"github.com/elhamza90/lifelog/pkg/usecase/deleting"
-	"github.com/elhamza90/lifelog/pkg/usecase/editing"
-	"github.com/elhamza90/lifelog/pkg/usecase/listing"
+	"github.com/elhamza90/lifelog/internal/http/rest"
+	"github.com/elhamza90/lifelog/internal/store/memory"
+	"github.com/elhamza90/lifelog/internal/usecase/adding"
+	"github.com/elhamza90/lifelog/internal/usecase/auth"
+	"github.com/elhamza90/lifelog/internal/usecase/deleting"
+	"github.com/elhamza90/lifelog/internal/usecase/editing"
+	"github.com/elhamza90/lifelog/internal/usecase/listing"
 	"github.com/labstack/echo/v4"
 )
 
