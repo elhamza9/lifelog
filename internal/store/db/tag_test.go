@@ -29,3 +29,25 @@ func TestFindTagByID(t *testing.T) {
 		})
 	}
 }
+
+func TestFindTagByName(t *testing.T) {
+	// Create test Tag
+	tag := db.Tag{ID: 546, Name: "test-tag"}
+	grmDb.Create(&tag)
+	defer grmDb.Delete(&tag)
+	// Tests
+	tests := map[string]struct {
+		name        string
+		expectedErr error
+	}{
+		"Existing Tag":     {tag.Name, nil},
+		"Non Existing Tag": {"some-non-existing-tag", store.ErrTagNotFound},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			if _, err := repo.FindTagByName(test.name); err != test.expectedErr {
+				t.Fatalf("\nExpected Error: %v\nReturned Error: %v", test.expectedErr, err)
+			}
+		})
+	}
+}
