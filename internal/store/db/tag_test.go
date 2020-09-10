@@ -51,3 +51,16 @@ func TestFindTagByName(t *testing.T) {
 		})
 	}
 }
+
+func TestAddTag(t *testing.T) {
+	// Create test Tag
+	tag := domain.Tag{ID: 546, Name: "test-tag"}
+	id, err := repo.AddTag(tag)
+	if err != nil {
+		t.Fatalf("Unexpected Error: %v", err)
+	}
+	var created db.Tag
+	if err := grmDb.First(&created, id).Error; err != nil {
+		t.Fatalf("Unexpectd Error: %v", err)
+	}
+}

@@ -29,3 +29,10 @@ func (repo Repository) FindTagByName(name string) (domain.Tag, error) {
 	}
 	return domain.Tag{ID: t.ID, Name: t.Name}, err
 }
+
+// AddTag stores the given Tag in db and returns created tag ID
+func (repo Repository) AddTag(t domain.Tag) (domain.TagID, error) {
+	dbTag := Tag{Name: t.Name}
+	res := repo.db.Create(&dbTag)
+	return domain.TagID(dbTag.ID), res.Error
+}
