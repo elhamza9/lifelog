@@ -40,3 +40,34 @@ func TestFindExpenseByID(t *testing.T) {
 		})
 	}
 }
+
+func TestSaveExpense(t *testing.T) {
+	// Create test Expense
+	tags := []db.Tag{{ID: 1, Name: "test-tag-1"}, {ID: 2, Name: "test-tag-2"}}
+	if err := grmDb.Create(&tags).Error; err != nil {
+		t.Fatalf("Error while creating Test Tags:\n  %s", err)
+	}
+	defer grmDb.Where("1 = 1").Delete(&db.Tag{})
+	exp := domain.Expense{
+		ID:         546,
+		Label:      "test expense",
+		Time:       time.Now(),
+		Value:      150,
+		Unit:       "eu",
+		ActivityID: 0,
+		Tags:       []domain.Tag{{ID: tags[0].ID}},
+	}
+	// Test Save
+	id, err := repo.SaveExpense(exp)
+	defer grmDb.Where("1 = 1").Delete(&db.Expense{})
+	if err != nil {
+		t.Fatalf("Unexpected Error: %v", err)
+	}
+	var created db.Expense
+	if err := grmDb.Preload("Tags").First(&created, id).Error; err != nil {
+		t.Fatalf("Unexpectd Error: %v", err)
+	}
+	if len(created.Tags) != len(exp.Tags) {
+		t.Fatalf("Expected %d Tags\nReturned %d Tags", len(exp.Tags), len(created.Tags))
+	}
+}

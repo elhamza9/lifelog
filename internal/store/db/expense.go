@@ -18,3 +18,22 @@ func (repo Repository) FindExpenseByID(id domain.ExpenseID) (domain.Expense, err
 	}
 	return exp.ToDomain(), err
 }
+
+// SaveExpense stores the given Expense in Db  and returns created expense's ID
+func (repo Repository) SaveExpense(exp domain.Expense) (domain.ExpenseID, error) {
+	tags := []Tag{}
+	for _, t := range exp.Tags {
+		tags = append(tags, Tag{ID: t.ID, Name: t.Name})
+	}
+	dbExp := Expense{
+		ID:         exp.ID,
+		Label:      exp.Label,
+		Time:       exp.Time,
+		Value:      exp.Value,
+		Unit:       exp.Unit,
+		ActivityID: exp.ActivityID,
+		Tags:       tags,
+	}
+	res := repo.db.Create(&dbExp)
+	return domain.ExpenseID(dbExp.ID), res.Error
+}
