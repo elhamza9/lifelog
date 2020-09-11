@@ -20,5 +20,5 @@ func (srv Service) NewTag(t domain.Tag) (domain.TagID, error) {
 		return 0, domain.ErrTagNameDuplicate
 	}
 	// Call repo to store it
-	return srv.repo.AddTag(t)
+	return srv.repo.SaveTag(t)
 }

@@ -36,8 +36,8 @@ func (repo Repository) FindTagByName(n string) (domain.Tag, error) {
 	return domain.Tag{}, nil
 }
 
-// AddTag stores the given Tag in memory  and returns created tag
-func (repo Repository) AddTag(t domain.Tag) (domain.TagID, error) {
+// SaveTag stores the given Tag in memory  and returns created tag
+func (repo Repository) SaveTag(t domain.Tag) (domain.TagID, error) {
 	t.ID = generateRandomTagID()
 	repo.Tags[t.ID] = t
 	return t.ID, nil

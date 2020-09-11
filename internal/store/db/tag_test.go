@@ -53,10 +53,10 @@ func TestFindTagByName(t *testing.T) {
 	}
 }
 
-func TestAddTag(t *testing.T) {
+func TestSaveTag(t *testing.T) {
 	// Create test Tag
 	tag := domain.Tag{ID: 546, Name: "test-tag"}
-	id, err := repo.AddTag(tag)
+	id, err := repo.SaveTag(tag)
 	defer grmDb.Where("1 = 1").Delete(&db.Tag{})
 	if err != nil {
 		t.Fatalf("Unexpected Error: %v", err)

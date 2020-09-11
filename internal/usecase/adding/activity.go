@@ -25,5 +25,5 @@ func (srv Service) NewActivity(act domain.Activity) (domain.ActivityID, error) {
 	}
 	act.Tags = fetchedTags
 
-	return srv.repo.AddActivity(act)
+	return srv.repo.SaveActivity(act)
 }

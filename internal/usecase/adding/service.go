@@ -19,7 +19,7 @@ func NewService(r Repository) Service {
 // that must be implemented by the repository
 // in order for adding service to perform its job.
 //
-// - AddTag, AddExpense and AddActivity are the main
+// - SaveTag, SaveExpense and SaveActivity are the main
 // methods to store the objects.
 //
 // - FindTagByName is used to check for duplicate tag names.
@@ -30,9 +30,9 @@ func NewService(r Repository) Service {
 // - FindActivityByID is used to check that an activity
 //   exists when creating an expense.
 type Repository interface {
-	AddTag(domain.Tag) (domain.TagID, error)
-	AddExpense(domain.Expense) (domain.ExpenseID, error)
-	AddActivity(domain.Activity) (domain.ActivityID, error)
+	SaveTag(domain.Tag) (domain.TagID, error)
+	SaveExpense(domain.Expense) (domain.ExpenseID, error)
+	SaveActivity(domain.Activity) (domain.ActivityID, error)
 	FindTagByName(string) (domain.Tag, error)
 	FindTagByID(domain.TagID) (domain.Tag, error)
 	FindActivityByID(domain.ActivityID) (domain.Activity, error)

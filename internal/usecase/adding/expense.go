@@ -34,5 +34,5 @@ func (srv Service) NewExpense(exp domain.Expense) (domain.ExpenseID, error) {
 	}
 	exp.Tags = fetchedTags
 
-	return srv.repo.AddExpense(exp)
+	return srv.repo.SaveExpense(exp)
 }

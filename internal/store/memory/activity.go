@@ -25,8 +25,8 @@ func (repo Repository) FindActivityByID(id domain.ActivityID) (domain.Activity, 
 	return domain.Activity{}, store.ErrActivityNotFound
 }
 
-// AddActivity stores the given activity in memory and returns created activity
-func (repo Repository) AddActivity(act domain.Activity) (domain.ActivityID, error) {
+// SaveActivity stores the given activity in memory and returns created activity
+func (repo Repository) SaveActivity(act domain.Activity) (domain.ActivityID, error) {
 	act.ID = generateRandomActivityID()
 	repo.Activities[act.ID] = act
 	return act.ID, nil
