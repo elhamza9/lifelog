@@ -17,7 +17,7 @@ func (repo Repository) FindTagByID(id domain.TagID) (domain.Tag, error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = store.ErrTagNotFound
 	}
-	return domain.Tag{ID: t.ID, Name: t.Name}, err
+	return t.ToDomain(), err
 }
 
 // FindTagByName searches for a tag with the given name and returns it.
@@ -28,7 +28,7 @@ func (repo Repository) FindTagByName(name string) (domain.Tag, error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = store.ErrTagNotFound
 	}
-	return domain.Tag{ID: t.ID, Name: t.Name}, err
+	return t.ToDomain(), err
 }
 
 // SaveTag stores the given Tag in db and returns created tag ID
@@ -46,7 +46,7 @@ func (repo Repository) FindAllTags() ([]domain.Tag, error) {
 	}
 	tags := []domain.Tag{}
 	for _, t := range res {
-		tags = append(tags, domain.Tag{ID: t.ID, Name: t.Name})
+		tags = append(tags, t.ToDomain())
 	}
 	return tags, nil
 }
