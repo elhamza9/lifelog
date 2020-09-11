@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"log"
 
 	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/store"
@@ -54,4 +55,11 @@ func (repo Repository) FindAllTags() ([]domain.Tag, error) {
 func (repo Repository) DeleteTag(id domain.TagID) error {
 	err := repo.db.Delete(&Tag{}, id).Error
 	return err
+}
+
+// EditTag edits given tag in DB
+func (repo Repository) EditTag(t domain.Tag) error {
+	res := repo.db.Model(&Tag{ID: t.ID}).Updates(map[string]interface{}{"name": t.Name})
+	log.Print(res.RowsAffected)
+	return res.Error
 }

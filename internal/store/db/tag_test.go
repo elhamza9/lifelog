@@ -128,3 +128,43 @@ func TestDeleteTag(t *testing.T) {
 		})
 	}
 }
+
+func TestEditTag(t *testing.T) {
+	testFunc := func(tag domain.Tag) string {
+		if err := repo.EditTag(tag); err != nil {
+			return fmt.Sprintf("\nUnexpected Error: %v", err)
+		}
+		return ""
+	}
+	// Subcase Non Existing Tag
+	t.Run("Non Existing Tag", func(t *testing.T) {
+		nonExistingTag := domain.Tag{ID: 234234234, Name: "edited-non-existing"}
+		if err := testFunc(nonExistingTag); err != "" {
+			t.Fatal(err)
+		}
+		// Test if the tag was not saved when editing
+		if err := grmDb.First(&db.Tag{}, nonExistingTag.ID).Error; err != gorm.ErrRecordNotFound {
+			t.Fatalf("\nExpected %v\nReturned: %v", gorm.ErrRecordNotFound, err)
+		}
+	})
+	// Subcase Existing Tag
+	t.Run("Existing Tag", func(t *testing.T) {
+		// Create test Tag
+		tag := db.Tag{ID: 546, Name: "test-tag"}
+		grmDb.Create(&tag)
+		defer grmDb.Delete(&tag)
+		editedTag := domain.Tag{ID: tag.ID, Name: "edited-tag"}
+		if err := testFunc(editedTag); err != "" {
+			t.Fatal(err)
+		}
+		// Test if the fields were updated
+		var updated db.Tag
+		if err := grmDb.First(&updated, tag.ID).Error; err != nil {
+			t.Fatalf("\nUnexpected Error while retrieving updated tag: %v", err)
+		}
+		if updated.Name != editedTag.Name {
+			t.Fatalf("\nExpected Name: %s\nReturned Name: %s", editedTag.Name, updated.Name)
+		}
+
+	})
+}
