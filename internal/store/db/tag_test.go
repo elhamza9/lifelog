@@ -92,11 +92,16 @@ func TestFindAllTags(t *testing.T) {
 	t.Run(fmt.Sprintf("%d Tags in DB", nbrTags), func(t *testing.T) {
 		// Create some test tags
 		defer grmDb.Where("1 = 1").Delete(&db.Tag{})
+		tags := []db.Tag{}
 		for i := 0; i < nbrTags; i++ {
-			grmDb.Create(&db.Tag{
+			tags = append(tags, db.Tag{
 				Name: fmt.Sprintf("tag-%d", i),
 			})
 		}
+		if err := grmDb.Create(&tags).Error; err != nil {
+			t.Fatalf("Error creating test tags: %v", err)
+		}
+		// Test
 		if err := testFunc(nbrTags); err != "" {
 			t.Fatal(err)
 		}
