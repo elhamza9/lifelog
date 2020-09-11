@@ -36,3 +36,17 @@ func (repo Repository) AddTag(t domain.Tag) (domain.TagID, error) {
 	res := repo.db.Create(&dbTag)
 	return domain.TagID(dbTag.ID), res.Error
 }
+
+// ListAllTags returns all stored tags in db
+// TODO: Rename to Find
+func (repo Repository) ListAllTags() ([]domain.Tag, error) {
+	var res []Tag
+	if err := repo.db.Find(&res).Error; err != nil {
+		return []domain.Tag{}, err
+	}
+	tags := []domain.Tag{}
+	for _, t := range res {
+		tags = append(tags, domain.Tag{ID: t.ID, Name: t.Name})
+	}
+	return tags, nil
+}
