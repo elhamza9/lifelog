@@ -7,6 +7,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/store"
 	"github.com/elhamza90/lifelog/internal/store/db"
+	"gorm.io/gorm"
 )
 
 func TestFindTagByID(t *testing.T) {
@@ -100,4 +101,30 @@ func TestFindAllTags(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+}
+
+func TestDeleteTag(t *testing.T) {
+	// Create test Tag
+	tag := db.Tag{ID: 546, Name: "test-tag"}
+	grmDb.Create(&tag)
+	defer grmDb.Delete(&tag)
+	tests := map[string]struct {
+		id          domain.TagID
+		expectedErr error
+	}{
+		"Existing Tag":     {tag.ID, nil},
+		"Non Existing Tag": {3432534, nil},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			// Test return value of method
+			if err := repo.DeleteTag(test.id); err != test.expectedErr {
+				t.Fatalf("\nExpected Error: %v\nReturned Error: %v", test.expectedErr, err)
+			}
+			// Test if record is in DB by trying to retrieve it.
+			if err := grmDb.First(&db.Tag{}, test.id).Error; err != gorm.ErrRecordNotFound {
+				t.Fatalf("\nExpected %v\nReturned: %v", gorm.ErrRecordNotFound, err)
+			}
+		})
+	}
 }

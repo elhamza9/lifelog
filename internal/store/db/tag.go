@@ -49,3 +49,9 @@ func (repo Repository) FindAllTags() ([]domain.Tag, error) {
 	}
 	return tags, nil
 }
+
+// DeleteTag deletes tag from db
+func (repo Repository) DeleteTag(id domain.TagID) error {
+	err := repo.db.Delete(&Tag{}, id).Error
+	return err
+}
