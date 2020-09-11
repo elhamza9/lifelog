@@ -43,8 +43,8 @@ func (repo Repository) AddTag(t domain.Tag) (domain.TagID, error) {
 	return t.ID, nil
 }
 
-// ListAllTags returns all stored tags in memory
-func (repo Repository) ListAllTags() ([]domain.Tag, error) {
+// FindAllTags returns all stored tags in memory
+func (repo Repository) FindAllTags() ([]domain.Tag, error) {
 	tags := []domain.Tag{}
 	for _, t := range repo.Tags {
 		tags = append(tags, t)

@@ -67,10 +67,10 @@ func TestAddTag(t *testing.T) {
 	}
 }
 
-func TestListAllTags(t *testing.T) {
+func TestFindAllTags(t *testing.T) {
 	// testFunc executes the repo method, checks error and length of result
 	testFunc := func(nbrTags int) string {
-		res, err := repo.ListAllTags()
+		res, err := repo.FindAllTags()
 		if err != nil {
 			return fmt.Sprintf("\nUnexpected Error: %v", err)
 		}

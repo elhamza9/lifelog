@@ -37,9 +37,8 @@ func (repo Repository) AddTag(t domain.Tag) (domain.TagID, error) {
 	return domain.TagID(dbTag.ID), res.Error
 }
 
-// ListAllTags returns all stored tags in db
-// TODO: Rename to Find
-func (repo Repository) ListAllTags() ([]domain.Tag, error) {
+// FindAllTags returns all stored tags in db
+func (repo Repository) FindAllTags() ([]domain.Tag, error) {
 	var res []Tag
 	if err := repo.db.Find(&res).Error; err != nil {
 		return []domain.Tag{}, err

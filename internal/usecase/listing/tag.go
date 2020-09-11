@@ -6,7 +6,7 @@ import (
 
 // AllTags returns a list of all tags stored in the repo
 func (srv Service) AllTags() ([]domain.Tag, error) {
-	return srv.repo.ListAllTags()
+	return srv.repo.FindAllTags()
 }
 
 // GetTagByID returns a tag ith given ID

@@ -21,7 +21,7 @@ type Repository interface {
 	FindTagByID(domain.TagID) (domain.Tag, error)
 	FindActivityByID(domain.ActivityID) (domain.Activity, error)
 	FindExpenseByID(domain.ExpenseID) (domain.Expense, error)
-	ListAllTags() ([]domain.Tag, error)
+	FindAllTags() ([]domain.Tag, error)
 	FindExpensesByTime(time.Time) ([]domain.Expense, error)
 	FindExpensesByTag(domain.TagID) ([]domain.Expense, error)
 	FindExpensesByActivity(domain.ActivityID) ([]domain.Expense, error)
