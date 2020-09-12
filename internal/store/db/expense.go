@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/store"
@@ -36,4 +37,18 @@ func (repo Repository) SaveExpense(exp domain.Expense) (domain.ExpenseID, error)
 	}
 	res := repo.db.Create(&dbExp)
 	return domain.ExpenseID(dbExp.ID), res.Error
+}
+
+// FindExpensesByTime returns expenses with Time field
+// greater than or equal to provided time
+func (repo Repository) FindExpensesByTime(t time.Time) ([]domain.Expense, error) {
+	res := []Expense{}
+	if err := repo.db.Where("time >= ?", t).Find(&res).Error; err != nil {
+		return []domain.Expense{}, err
+	}
+	expenses := make([]domain.Expense, len(res))
+	for i, exp := range res {
+		expenses[i] = exp.ToDomain()
+	}
+	return expenses, nil
 }

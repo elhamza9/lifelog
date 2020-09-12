@@ -1,6 +1,8 @@
 package db_test
 
 import (
+	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
@@ -69,5 +71,41 @@ func TestSaveExpense(t *testing.T) {
 	}
 	if len(created.Tags) != len(exp.Tags) {
 		t.Fatalf("Expected %d Tags\nReturned %d Tags", len(exp.Tags), len(created.Tags))
+	}
+}
+
+func TestFindExpensesByTime(t *testing.T) {
+	// Create test 100 expenses:
+	// one for each day starting from today going backward
+	const nbrExpenses int = 100
+	expenses := make([]db.Expense, nbrExpenses)
+	now := time.Now()
+	for i := 0; i < nbrExpenses; i++ {
+		expenses[i] = db.Expense{
+			Label:      fmt.Sprintf("Test Expense %d", i),
+			Time:       now.AddDate(0, 0, -i),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: 0,
+			Tags:       []db.Tag{},
+		}
+	}
+	// Shuffle expenses before saving them to DB to avoid getting them by insertion order
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(expenses), func(i, j int) { expenses[i], expenses[j] = expenses[j], expenses[i] })
+	if err := grmDb.Create(&expenses).Error; err != nil {
+		t.Fatalf("\nError while creating test expenses:\n  %s", err.Error())
+	}
+	defer grmDb.Where("1 = 1").Delete(&db.Expense{})
+	// Test Get Expenses of last 15 days (Should be 15 expenses)
+	minTime := now.AddDate(0, 0, -5)
+	nbrExpectedExpenses := 6
+	res, err := repo.FindExpensesByTime(minTime)
+	if err != nil {
+		t.Fatalf("Unexpected Error: %s", err.Error())
+	}
+	if len(res) != nbrExpectedExpenses {
+		t.Logf("%v", res)
+		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
 	}
 }
