@@ -67,3 +67,18 @@ func (repo Repository) FindExpensesByTag(tid domain.TagID) ([]domain.Expense, er
 	}
 	return expenses, nil
 }
+
+// FindExpensesByActivity returns expenses with ActivityID matching given id
+func (repo Repository) FindExpensesByActivity(aid domain.ActivityID) ([]domain.Expense, error) {
+	var act Activity
+	if err := repo.db.Preload("Expenses", func(db *gorm.DB) *gorm.DB {
+		return db.Order("expenses.time DESC") // Order expenses by time
+	}).First(&act, aid).Error; err != nil {
+		return []domain.Expense{}, err
+	}
+	expenses := make([]domain.Expense, len(act.Expenses))
+	for i, exp := range act.Expenses {
+		expenses[i] = exp.ToDomain()
+	}
+	return expenses, nil
+}

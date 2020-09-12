@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 		fmt.Println("failed to connect database")
 		os.Exit(1)
 	}
-	grmDb.AutoMigrate(&db.Tag{}, &db.Expense{})
+	grmDb.AutoMigrate(&db.Tag{}, &db.Expense{}, &db.Activity{})
 	repo = db.NewRepository(grmDb)
 	log.Debug("Test Setup Complete")
 	os.Exit(m.Run())

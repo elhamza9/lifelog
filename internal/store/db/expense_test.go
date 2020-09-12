@@ -108,6 +108,7 @@ func TestFindExpensesByTime(t *testing.T) {
 		t.Log(res)
 		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
 	}
+	// Test Order by time
 	for i, exp := range res {
 		if i < len(res)-1 {
 			if exp.Time.Before(res[i+1].Time) {
@@ -163,6 +164,73 @@ func TestFindExpensesByTag(t *testing.T) {
 	// Test Get Expenses of Tag 1
 	nbrExpectedExpenses := 2
 	res, err := repo.FindExpensesByTag(tag1.ID)
+	if err != nil {
+		t.Fatalf("Unexpected Error: %s", err.Error())
+	}
+	if len(res) != nbrExpectedExpenses {
+		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
+	}
+	if res[0].ID != 3 || res[1].ID != 1 {
+		t.Fatal("Expenses not ordered by time")
+	}
+}
+
+func TestFindExpensesByActivity(t *testing.T) {
+	// Create test expenses & activities:
+	var (
+		act1 db.Activity = db.Activity{
+			ID:       11,
+			Label:    "Test Activity 1",
+			Place:    "Somewhere",
+			Time:     time.Now().AddDate(0, 0, -3),
+			Duration: time.Duration(time.Hour),
+		}
+		act2 db.Activity = db.Activity{
+			ID:       22,
+			Label:    "Test Activity 2",
+			Place:    "Somewhere",
+			Time:     time.Now().AddDate(0, 0, -20),
+			Duration: time.Duration(time.Hour),
+		}
+	)
+	if err := grmDb.Create(&[]db.Activity{act1, act2}).Error; err != nil {
+		t.Fatalf("\nError while creating test activities:\n  %s", err.Error())
+	}
+	defer grmDb.Where("1 = 1").Delete(&db.Activity{})
+	now := time.Now()
+	expenses := []db.Expense{
+		{
+			Label:      "Test Expense 1 ( Act2 )",
+			Time:       now.AddDate(0, 0, -20),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: act2.ID,
+			Tags:       []db.Tag{},
+		},
+		{
+			Label:      "Test Expense 2 ( Act1)",
+			Time:       now.AddDate(0, 0, -3),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: act1.ID,
+			Tags:       []db.Tag{},
+		},
+		{
+			Label:      "Test Expense 3 ( Act2)",
+			Time:       now.AddDate(0, 0, -15),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: act2.ID,
+			Tags:       []db.Tag{},
+		},
+	}
+	if err := grmDb.Create(&expenses).Error; err != nil {
+		t.Fatalf("\nError while creating test expenses:\n  %s", err.Error())
+	}
+	defer grmDb.Where("1 = 1").Delete(&db.Expense{})
+	// Test Get Expenses of Act 2
+	nbrExpectedExpenses := 2
+	res, err := repo.FindExpensesByActivity(act2.ID)
 	if err != nil {
 		t.Fatalf("Unexpected Error: %s", err.Error())
 	}
