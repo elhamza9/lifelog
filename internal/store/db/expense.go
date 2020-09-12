@@ -43,7 +43,7 @@ func (repo Repository) SaveExpense(exp domain.Expense) (domain.ExpenseID, error)
 // greater than or equal to provided time
 func (repo Repository) FindExpensesByTime(t time.Time) ([]domain.Expense, error) {
 	res := []Expense{}
-	if err := repo.db.Where("time >= ?", t).Find(&res).Error; err != nil {
+	if err := repo.db.Where("time >= ?", t).Order("time DESC").Find(&res).Error; err != nil {
 		return []domain.Expense{}, err
 	}
 	expenses := make([]domain.Expense, len(res))
@@ -56,7 +56,9 @@ func (repo Repository) FindExpensesByTime(t time.Time) ([]domain.Expense, error)
 // FindExpensesByTag returns expenses that have the provided tag in their Tags field
 func (repo Repository) FindExpensesByTag(tid domain.TagID) ([]domain.Expense, error) {
 	var tag Tag
-	if err := repo.db.Preload("Expenses").First(&tag, tid).Error; err != nil {
+	if err := repo.db.Preload("Expenses", func(db *gorm.DB) *gorm.DB {
+		return db.Order("expenses.time DESC") // Order expenses by time
+	}).First(&tag, tid).Error; err != nil {
 		return []domain.Expense{}, err
 	}
 	expenses := make([]domain.Expense, len(tag.Expenses))

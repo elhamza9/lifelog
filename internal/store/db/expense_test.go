@@ -97,7 +97,7 @@ func TestFindExpensesByTime(t *testing.T) {
 		t.Fatalf("\nError while creating test expenses:\n  %s", err.Error())
 	}
 	defer grmDb.Where("1 = 1").Delete(&db.Expense{})
-	// Test Get Expenses of last 15 days (Should be 15 expenses)
+	// Test Get Expenses of last 5 days (Should be 6 expenses)
 	minTime := now.AddDate(0, 0, -5)
 	nbrExpectedExpenses := 6
 	res, err := repo.FindExpensesByTime(minTime)
@@ -105,8 +105,15 @@ func TestFindExpensesByTime(t *testing.T) {
 		t.Fatalf("Unexpected Error: %s", err.Error())
 	}
 	if len(res) != nbrExpectedExpenses {
-		t.Logf("%v", res)
+		t.Log(res)
 		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
+	}
+	for i, exp := range res {
+		if i < len(res)-1 {
+			if exp.Time.Before(res[i+1].Time) {
+				t.Fatal("Expenses not ordered by time")
+			}
+		}
 	}
 }
 
@@ -125,7 +132,7 @@ func TestFindExpensesByTag(t *testing.T) {
 	expenses := []db.Expense{
 		{
 			Label:      "Test Expense 1 ( Tag1, Tag3 )",
-			Time:       now.AddDate(0, 0, -10),
+			Time:       now.AddDate(0, 0, -20),
 			Value:      10,
 			Unit:       "eu",
 			ActivityID: 0,
@@ -161,5 +168,8 @@ func TestFindExpensesByTag(t *testing.T) {
 	}
 	if len(res) != nbrExpectedExpenses {
 		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
+	}
+	if res[0].ID != 3 || res[1].ID != 1 {
+		t.Fatal("Expenses not ordered by time")
 	}
 }
