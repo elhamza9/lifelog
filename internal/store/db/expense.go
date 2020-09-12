@@ -52,3 +52,16 @@ func (repo Repository) FindExpensesByTime(t time.Time) ([]domain.Expense, error)
 	}
 	return expenses, nil
 }
+
+// FindExpensesByTag returns expenses that have the provided tag in their Tags field
+func (repo Repository) FindExpensesByTag(tid domain.TagID) ([]domain.Expense, error) {
+	var tag Tag
+	if err := repo.db.Preload("Expenses").First(&tag, tid).Error; err != nil {
+		return []domain.Expense{}, err
+	}
+	expenses := make([]domain.Expense, len(tag.Expenses))
+	for i, exp := range tag.Expenses {
+		expenses[i] = (*exp).ToDomain()
+	}
+	return expenses, nil
+}

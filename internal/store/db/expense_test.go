@@ -109,3 +109,57 @@ func TestFindExpensesByTime(t *testing.T) {
 		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
 	}
 }
+
+func TestFindExpensesByTag(t *testing.T) {
+	// Create test expenses & tags:
+	var (
+		tag1 db.Tag = db.Tag{ID: 11, Name: "test-tag-1"}
+		tag2 db.Tag = db.Tag{ID: 12, Name: "test-tag-2"}
+		tag3 db.Tag = db.Tag{ID: 13, Name: "test-tag-3"}
+	)
+	if err := grmDb.Create(&[]db.Tag{tag1, tag2, tag3}).Error; err != nil {
+		t.Fatalf("\nError while creating test tags:\n  %s", err.Error())
+	}
+	defer grmDb.Where("1 = 1").Delete(&db.Tag{})
+	now := time.Now()
+	expenses := []db.Expense{
+		{
+			Label:      "Test Expense 1 ( Tag1, Tag3 )",
+			Time:       now.AddDate(0, 0, -10),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: 0,
+			Tags:       []db.Tag{tag1, tag3},
+		},
+		{
+			Label:      "Test Expense 2 ( Tag2, Tag3 )",
+			Time:       now.AddDate(0, 0, -3),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: 0,
+			Tags:       []db.Tag{tag2, tag3},
+		},
+		{
+			Label:      "Test Expense 3 ( Tag1, Tag2 )",
+			Time:       now.AddDate(0, 0, -15),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: 0,
+			Tags:       []db.Tag{tag1, tag2},
+		},
+	}
+	if err := grmDb.Create(&expenses).Error; err != nil {
+		t.Fatalf("\nError while creating test expenses:\n  %s", err.Error())
+	}
+	defer grmDb.Exec("DELETE FROM expense_tags")
+	defer grmDb.Where("1 = 1").Delete(&db.Expense{})
+	// Test Get Expenses of Tag 1
+	nbrExpectedExpenses := 2
+	res, err := repo.FindExpensesByTag(tag1.ID)
+	if err != nil {
+		t.Fatalf("Unexpected Error: %s", err.Error())
+	}
+	if len(res) != nbrExpectedExpenses {
+		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
+	}
+}

@@ -10,6 +10,7 @@ import (
 type Tag struct {
 	ID        domain.TagID
 	Name      string
+	Expenses  []*Expense `gorm:"many2many:expense_tags;"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
