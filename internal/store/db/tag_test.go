@@ -12,9 +12,11 @@ import (
 
 func TestFindTagByID(t *testing.T) {
 	// Create test Tag
+	defer clearDB()
 	tag := db.Tag{ID: 546, Name: "test-tag"}
-	grmDb.Create(&tag)
-	defer grmDb.Delete(&tag)
+	if err := grmDb.Create(&tag).Error; err != nil {
+		t.Fatalf("\nUnexpected Error while creating test tag:\n  %v", err)
+	}
 	// Tests
 	tests := map[string]struct {
 		id          domain.TagID
@@ -34,9 +36,11 @@ func TestFindTagByID(t *testing.T) {
 
 func TestFindTagByName(t *testing.T) {
 	// Create test Tag
+	defer clearDB()
 	tag := db.Tag{ID: 546, Name: "test-tag"}
-	grmDb.Create(&tag)
-	defer grmDb.Delete(&tag)
+	if err := grmDb.Create(&tag).Error; err != nil {
+		t.Fatalf("\nUnexpected Error while creating test tag:\n  %v", err)
+	}
 	// Tests
 	tests := map[string]struct {
 		name        string
@@ -55,16 +59,15 @@ func TestFindTagByName(t *testing.T) {
 }
 
 func TestSaveTag(t *testing.T) {
-	// Create test Tag
+	defer clearDB()
 	tag := domain.Tag{ID: 546, Name: "test-tag"}
 	id, err := repo.SaveTag(tag)
-	defer grmDb.Where("1 = 1").Delete(&db.Tag{})
 	if err != nil {
-		t.Fatalf("Unexpected Error: %v", err)
+		t.Fatalf("\nUnexpected Error: %v", err)
 	}
 	var created db.Tag
 	if err := grmDb.First(&created, id).Error; err != nil {
-		t.Fatalf("Unexpectd Error: %v", err)
+		t.Fatalf("\nUnexpectd Error: %v", err)
 	}
 }
 
@@ -110,9 +113,11 @@ func TestFindAllTags(t *testing.T) {
 
 func TestDeleteTag(t *testing.T) {
 	// Create test Tag
+	defer clearDB()
 	tag := db.Tag{ID: 546, Name: "test-tag"}
-	grmDb.Create(&tag)
-	defer grmDb.Delete(&tag)
+	if err := grmDb.Create(&tag).Error; err != nil {
+		t.Fatalf("\nUnexpected Error while creating test tag:\n  %v", err)
+	}
 	tests := map[string]struct {
 		id          domain.TagID
 		expectedErr error
@@ -155,9 +160,11 @@ func TestEditTag(t *testing.T) {
 	// Subcase Existing Tag
 	t.Run("Existing Tag", func(t *testing.T) {
 		// Create test Tag
+		defer clearDB()
 		tag := db.Tag{ID: 546, Name: "test-tag"}
-		grmDb.Create(&tag)
-		defer grmDb.Delete(&tag)
+		if err := grmDb.Create(&tag).Error; err != nil {
+			t.Fatalf("\nUnexpected Error while creating test tag:\n  %v", err)
+		}
 		editedTag := domain.Tag{ID: tag.ID, Name: "edited-tag"}
 		if err := testFunc(editedTag); err != "" {
 			t.Fatal(err)
@@ -170,6 +177,5 @@ func TestEditTag(t *testing.T) {
 		if updated.Name != editedTag.Name {
 			t.Fatalf("\nExpected Name: %s\nReturned Name: %s", editedTag.Name, updated.Name)
 		}
-
 	})
 }

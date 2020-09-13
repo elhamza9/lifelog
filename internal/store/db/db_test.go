@@ -27,3 +27,11 @@ func TestMain(m *testing.M) {
 	log.Debug("Test Setup Complete")
 	os.Exit(m.Run())
 }
+
+func clearDB() {
+	grmDb.Where("1 = 1").Delete(&db.Expense{})
+	grmDb.Where("1 = 1").Delete(&db.Activity{})
+	grmDb.Where("1 = 1").Delete(&db.Tag{})
+	defer grmDb.Exec("DELETE FROM expense_tags")
+	defer grmDb.Exec("DELETE FROM activity_tags")
+}
