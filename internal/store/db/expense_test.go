@@ -163,16 +163,18 @@ func TestFindExpensesByTag(t *testing.T) {
 	defer grmDb.Exec("DELETE FROM expense_tags")
 	defer grmDb.Where("1 = 1").Delete(&db.Expense{})
 	// Test Get Expenses of Tag 1
-	nbrExpectedExpenses := 2
 	res, err := repo.FindExpensesByTag(tag1.ID)
 	if err != nil {
 		t.Fatalf("Unexpected Error: %s", err.Error())
 	}
-	if len(res) != nbrExpectedExpenses {
-		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
+	expectedExpenses := [2]db.Expense{expenses[2], expenses[0]}
+	if len(res) != len(expectedExpenses) {
+		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", len(expectedExpenses), len(res))
 	}
-	if res[0].ID != 3 || res[1].ID != 1 {
-		t.Fatal("Expenses not ordered by time")
+	for i, exp := range res {
+		if exp.ID != expectedExpenses[i].ID {
+			t.Fatalf("\nExpecting expense ID %d in %d position, Got ID %d", expectedExpenses[i].ID, i+1, exp.ID)
+		}
 	}
 }
 
@@ -230,17 +232,20 @@ func TestFindExpensesByActivity(t *testing.T) {
 	}
 	defer grmDb.Where("1 = 1").Delete(&db.Expense{})
 	// Test Get Expenses of Act 2
-	nbrExpectedExpenses := 2
 	res, err := repo.FindExpensesByActivity(act2.ID)
 	if err != nil {
 		t.Fatalf("Unexpected Error: %s", err.Error())
 	}
-	if len(res) != nbrExpectedExpenses {
-		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
+	expectedExpenses := [2]db.Expense{expenses[2], expenses[0]}
+	if len(res) != len(expectedExpenses) {
+		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", len(expectedExpenses), len(res))
 	}
-	if res[0].ID != 3 || res[1].ID != 1 {
-		t.Fatal("Expenses not ordered by time")
+	for i, exp := range res {
+		if exp.ID != expectedExpenses[i].ID {
+			t.Fatalf("\nExpecting expense ID %d in %d position, Got ID %d", expectedExpenses[i].ID, i+1, exp.ID)
+		}
 	}
+
 }
 
 func TestDeleteExpense(t *testing.T) {
