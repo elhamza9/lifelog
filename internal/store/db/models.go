@@ -68,7 +68,7 @@ type Activity struct {
 	Desc      string
 	Time      time.Time
 	Duration  time.Duration
-	Tags      []Tag `gorm:"many2many:expense_tags;"`
+	Tags      []Tag `gorm:"many2many:activity_tags;"`
 	Expenses  []Expense
 	CreatedAt time.Time
 	UpdatedAt time.Time
