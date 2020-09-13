@@ -102,3 +102,8 @@ func (repo Repository) DeleteExpensesByActivity(aid domain.ActivityID) error {
 	}
 	return nil
 }
+
+// EditExpense edits given expense in memory
+func (repo Repository) EditExpense(exp domain.Expense) error {
+	return errNotImplemented
+}

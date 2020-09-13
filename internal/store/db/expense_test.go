@@ -347,3 +347,53 @@ func TestDeleteExpensesByActivity(t *testing.T) {
 		t.Fatalf("\nRecords were not deleted")
 	}
 }
+
+func TestEditExpense(t *testing.T) {
+	testFunc := func(exp db.Expense, expectedErr error) string {
+		if err := repo.EditExpense(exp.ToDomain()); err != expectedErr {
+			return fmt.Sprintf("\nExpected Error: %v\nReturned Error: %v", expectedErr, err)
+		}
+		return ""
+	}
+	// Subcase: Non existing Expense
+	t.Run("Non Existing Expense", func(t *testing.T) {
+		exp := db.Expense{
+			ID:         2343244, // non existing
+			Label:      "Non Existing Edited",
+			Time:       time.Now().AddDate(0, 0, -1),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: 0,
+			Tags:       []db.Tag{},
+		}
+		if err := testFunc(exp, store.ErrExpenseNotFound); err != "" {
+			t.Fatal(err)
+		}
+	})
+	/*
+		// Subcase: Existing Expense
+		t.Run("Existing Expense", func(t *testing.T) {
+			// Create test expense
+			defer clearDB()
+			exp := db.Expense{
+				ID:    123,
+				Label: "Test Expense",
+				Time:  time.Now().AddDate(0, 0, -1),
+				Value: 10,
+				Unit:  "eu",
+			}
+			if err := grmDb.Create(&exp).Error; err != nil {
+				t.Fatalf("\nUnexpected Error while creating test expense:\n  %v", err)
+			}
+			// Test returned error
+			if err := testFunc(exp.ID, nil); err != "" {
+				t.Fatal(err)
+			}
+			// Test if expense in DB
+			if err := grmDb.First(&db.Expense{}, exp.ID).Error; err != gorm.ErrRecordNotFound {
+				t.Fatalf("\nExpected %v\nReturned: %v", gorm.ErrRecordNotFound, err)
+			}
+		})
+	*/
+
+}
