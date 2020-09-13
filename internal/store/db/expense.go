@@ -94,3 +94,11 @@ func (repo Repository) DeleteExpense(id domain.ExpenseID) error {
 	}
 	return nil
 }
+
+// DeleteExpensesByActivity deletes all expenses with given ActivityID
+func (repo Repository) DeleteExpensesByActivity(aid domain.ActivityID) error {
+	if err := repo.db.Where("activity_id = ?", aid).Delete(&Expense{}).Error; err != nil {
+		return err
+	}
+	return nil
+}

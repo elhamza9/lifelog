@@ -280,3 +280,71 @@ func TestDeleteExpense(t *testing.T) {
 		}
 	})
 }
+
+func TestDeleteExpensesByActivity(t *testing.T) {
+	// Create test expenses & activities
+	var (
+		act1 db.Activity = db.Activity{
+			ID:       11,
+			Label:    "Test Activity 1",
+			Place:    "Somewhere",
+			Time:     time.Now().AddDate(0, 0, -3),
+			Duration: time.Duration(time.Hour),
+		}
+		act2 db.Activity = db.Activity{
+			ID:       22,
+			Label:    "Test Activity 2",
+			Place:    "Somewhere",
+			Time:     time.Now().AddDate(0, 0, -20),
+			Duration: time.Duration(time.Hour),
+		}
+	)
+	if err := grmDb.Create(&[]db.Activity{act1, act2}).Error; err != nil {
+		t.Fatalf("\nError while creating test activities:\n  %s", err.Error())
+	}
+	defer grmDb.Where("1 = 1").Delete(&db.Activity{})
+	now := time.Now()
+	expenses := []db.Expense{
+		{
+			Label:      "Test Expense 1 ( Act2 )",
+			Time:       now.AddDate(0, 0, -20),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: act2.ID,
+			Tags:       []db.Tag{},
+		},
+		{
+			Label:      "Test Expense 2 ( Act1)",
+			Time:       now.AddDate(0, 0, -3),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: act1.ID,
+			Tags:       []db.Tag{},
+		},
+		{
+			Label:      "Test Expense 3 ( Act2)",
+			Time:       now.AddDate(0, 0, -15),
+			Value:      10,
+			Unit:       "eu",
+			ActivityID: act2.ID,
+			Tags:       []db.Tag{},
+		},
+	}
+	if err := grmDb.Create(&expenses).Error; err != nil {
+		t.Fatalf("\nError while creating test expenses:\n  %s", err.Error())
+	}
+	defer grmDb.Where("1 = 1").Delete(&db.Expense{})
+	// Test Delete expense of activity Act2
+	if err := repo.DeleteExpensesByActivity(act2.ID); err != nil {
+		t.Fatalf("\nUnexpected Error: %s", err.Error())
+	}
+	var res []db.Expense
+	// Test if records still exist in DB
+	if err := grmDb.Where("activity_id = ?", act2.ID).Find(&res).Error; err != nil {
+		t.Fatalf("\nUnexpected Error while trying to retrieve records that should be deleted:\n  %s", err.Error())
+	}
+	if len(res) != 0 {
+		t.Log(res)
+		t.Fatalf("Records were not deleted")
+	}
+}
