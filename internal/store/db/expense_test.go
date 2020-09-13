@@ -370,30 +370,39 @@ func TestEditExpense(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	/*
-		// Subcase: Existing Expense
-		t.Run("Existing Expense", func(t *testing.T) {
-			// Create test expense
-			defer clearDB()
-			exp := db.Expense{
-				ID:    123,
-				Label: "Test Expense",
-				Time:  time.Now().AddDate(0, 0, -1),
-				Value: 10,
-				Unit:  "eu",
-			}
-			if err := grmDb.Create(&exp).Error; err != nil {
-				t.Fatalf("\nUnexpected Error while creating test expense:\n  %v", err)
-			}
-			// Test returned error
-			if err := testFunc(exp.ID, nil); err != "" {
-				t.Fatal(err)
-			}
-			// Test if expense in DB
-			if err := grmDb.First(&db.Expense{}, exp.ID).Error; err != gorm.ErrRecordNotFound {
-				t.Fatalf("\nExpected %v\nReturned: %v", gorm.ErrRecordNotFound, err)
-			}
-		})
-	*/
-
+	// Subcase: Existing Expense
+	t.Run("Existing Expense", func(t *testing.T) {
+		// Create test expense and tags
+		defer clearDB()
+		exp := db.Expense{
+			ID:    123,
+			Label: "Test Expense",
+			Time:  time.Now().AddDate(0, 0, -1),
+			Value: 10,
+			Unit:  "eu",
+		}
+		if err := grmDb.Create(&exp).Error; err != nil {
+			t.Fatalf("\nUnexpected Error while creating test expense:\n  %v", err)
+		}
+		tag := db.Tag{Name: "test-tag"}
+		if err := grmDb.Create(&tag).Error; err != nil {
+			t.Fatalf("\nUnexpected Error while creating test tag:\n  %v", err)
+		}
+		// Test Edit returned error
+		exp.Label = "Edited Test Expense"
+		exp.Time = exp.Time.Add(time.Hour)
+		exp.Value = 14
+		exp.Unit = "dollar"
+		exp.Tags = []db.Tag{tag}
+		if err := testFunc(exp, nil); err != "" {
+			t.Fatal(err)
+		}
+		var res db.Expense
+		if err := grmDb.Preload("Tags").First(&res, exp.ID).Error; err != nil {
+			t.Fatalf("Unexpected Error while retrieving edited expense:\n  %v", err)
+		}
+		if res.Label != exp.Label || !res.Time.Equal(exp.Time) || res.Value != exp.Value || res.Unit != exp.Unit || len(res.Tags) != len(exp.Tags) {
+			t.Fatalf("%v\n%v", res, exp)
+		}
+	})
 }

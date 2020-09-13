@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
@@ -105,5 +106,27 @@ func (repo Repository) DeleteExpensesByActivity(aid domain.ActivityID) error {
 
 // EditExpense edits given expense in memory
 func (repo Repository) EditExpense(exp domain.Expense) error {
-	return errNotImplemented
+	if err := repo.db.First(&Expense{}, exp.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return store.ErrExpenseNotFound
+		}
+		return err
+	}
+	tags := make([]Tag, len(exp.Tags))
+	for i, t := range exp.Tags {
+		tags[i] = Tag{ID: t.ID, Name: t.Name}
+	}
+	res := repo.db.Save(&Expense{
+		ID:         exp.ID,
+		Label:      exp.Label,
+		Time:       exp.Time,
+		Value:      exp.Value,
+		Unit:       exp.Unit,
+		ActivityID: exp.ActivityID,
+		Tags:       tags,
+	})
+	if res.RowsAffected != 1 {
+		return fmt.Errorf("%d Rows were affected", res.RowsAffected)
+	}
+	return res.Error
 }
