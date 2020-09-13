@@ -82,3 +82,15 @@ func (repo Repository) FindExpensesByActivity(aid domain.ActivityID) ([]domain.E
 	}
 	return expenses, nil
 }
+
+// DeleteExpense deletes expense from DB
+func (repo Repository) DeleteExpense(id domain.ExpenseID) error {
+	res := repo.db.Delete(&Expense{ID: id})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected != 1 {
+		return store.ErrExpenseNotFound
+	}
+	return nil
+}

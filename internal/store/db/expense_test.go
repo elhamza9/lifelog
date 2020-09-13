@@ -9,6 +9,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/store"
 	"github.com/elhamza90/lifelog/internal/store/db"
+	"gorm.io/gorm"
 )
 
 func TestFindExpenseByID(t *testing.T) {
@@ -240,4 +241,42 @@ func TestFindExpensesByActivity(t *testing.T) {
 	if res[0].ID != 3 || res[1].ID != 1 {
 		t.Fatal("Expenses not ordered by time")
 	}
+}
+
+func TestDeleteExpense(t *testing.T) {
+	testFunc := func(id domain.ExpenseID, expectedErr error) string {
+		if err := repo.DeleteExpense(id); err != expectedErr {
+			return fmt.Sprintf("\nExpected Error: %s\nReturned Error: %s", expectedErr, err)
+		}
+		return ""
+	}
+	// Subcase: Non existing Expense
+	t.Run("Non Existing Expense", func(t *testing.T) {
+		if err := testFunc(domain.ExpenseID(24234234), store.ErrExpenseNotFound); err != "" {
+			t.Fatal(err)
+		}
+	})
+	// Subcase: Existing Expense
+	t.Run("Existing Expense", func(t *testing.T) {
+		// Create test expense
+		exp := db.Expense{
+			ID:    123,
+			Label: "Test Expense",
+			Time:  time.Now().AddDate(0, 0, -1),
+			Value: 10,
+			Unit:  "eu",
+		}
+		if err := grmDb.Create(&exp).Error; err != nil {
+			t.Fatalf("Unexpected Error while creating test expense:\n  %s", err.Error())
+		}
+		defer grmDb.Delete(&exp)
+		// Test returned error
+		if err := testFunc(exp.ID, nil); err != "" {
+			t.Fatal(err)
+		}
+		// Test if expense in DB
+		if err := grmDb.First(&db.Expense{}, exp.ID).Error; err != gorm.ErrRecordNotFound {
+			t.Fatalf("\nExpected %v\nReturned: %v", gorm.ErrRecordNotFound, err)
+		}
+	})
 }
