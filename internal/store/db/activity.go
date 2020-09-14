@@ -52,10 +52,19 @@ func (repo Repository) FindActivitiesByTime(t time.Time) ([]domain.Activity, err
 	return activities, nil
 }
 
-// FindActivitiesByTag returns actenses that have the provided tag in their Tags field
+// FindActivitiesByTag returns activities that have the provided tag in their Tags field
 func (repo Repository) FindActivitiesByTag(tid domain.TagID) ([]domain.Activity, error) {
-	res := []domain.Activity{}
-	return res, errNotImplemented
+	var tag Tag
+	if err := repo.db.Preload("Activities", func(db *gorm.DB) *gorm.DB {
+		return db.Order("activities.time DESC") // Order activities by time
+	}).First(&tag, tid).Error; err != nil {
+		return []domain.Activity{}, err
+	}
+	activities := make([]domain.Activity, len(tag.Activities))
+	for i, exp := range tag.Activities {
+		activities[i] = (*exp).ToDomain()
+	}
+	return activities, nil
 }
 
 // DeleteActivity removes activity with provided ID from memory

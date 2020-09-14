@@ -118,7 +118,60 @@ func TestFindActivitiesByTime(t *testing.T) {
 }
 
 func TestFindActivitiesByTag(t *testing.T) {
-	t.Fatal("Test not yet implemented")
+	// Create test activities & tags:
+	defer clearDB()
+	var (
+		tag1 db.Tag = db.Tag{ID: 11, Name: "test-tag-1"}
+		tag2 db.Tag = db.Tag{ID: 12, Name: "test-tag-2"}
+		tag3 db.Tag = db.Tag{ID: 13, Name: "test-tag-3"}
+	)
+	if err := grmDb.Create(&[]db.Tag{tag1, tag2, tag3}).Error; err != nil {
+		t.Fatalf("\nError while creating test tags:\n  %v", err)
+	}
+	now := time.Now()
+	activities := []db.Activity{
+		{
+			Label:    "Test Activity 1 ( Tag1, Tag3 )",
+			Place:    "Somewhere",
+			Desc:     "Details",
+			Time:     now.AddDate(0, 0, -20),
+			Duration: time.Duration(time.Hour),
+			Tags:     []db.Tag{tag1, tag3},
+		},
+		{
+			Label:    "Test Activity 2 ( Tag2, Tag3 )",
+			Place:    "Somewhere",
+			Desc:     "Details",
+			Time:     now.AddDate(0, 0, -3),
+			Duration: time.Duration(time.Hour),
+			Tags:     []db.Tag{tag2, tag3},
+		},
+		{
+			Label:    "Test Activity 3 ( Tag1, Tag2 )",
+			Place:    "Somewhere",
+			Desc:     "Details",
+			Time:     now.AddDate(0, 0, -15),
+			Duration: time.Duration(time.Hour),
+			Tags:     []db.Tag{tag1, tag2},
+		},
+	}
+	if err := grmDb.Create(&activities).Error; err != nil {
+		t.Fatalf("\nError while creating test activities:\n  %v", err)
+	}
+	// Test Get Activities of Tag 1
+	res, err := repo.FindActivitiesByTag(tag1.ID)
+	if err != nil {
+		t.Fatalf("\nUnexpected Error: %v", err)
+	}
+	expectedActivities := [2]db.Activity{activities[2], activities[0]}
+	if len(res) != len(expectedActivities) {
+		t.Fatalf("\nExpecting %d Activities\nReturned %d activities", len(expectedActivities), len(res))
+	}
+	for i, exp := range res {
+		if exp.ID != expectedActivities[i].ID {
+			t.Fatalf("\nExpecting activity ID %d in %d position, Got ID %d", expectedActivities[i].ID, i+1, exp.ID)
+		}
+	}
 }
 
 func TestDeleteActivity(t *testing.T) {
