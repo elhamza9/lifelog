@@ -9,6 +9,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/store"
 	"github.com/elhamza90/lifelog/internal/store/db"
+	"gorm.io/gorm"
 )
 
 func TestFindActivityByID(t *testing.T) {
@@ -175,7 +176,42 @@ func TestFindActivitiesByTag(t *testing.T) {
 }
 
 func TestDeleteActivity(t *testing.T) {
-	t.Fatal("Test not yet implemented")
+	testFunc := func(id domain.ActivityID, expectedErr error) string {
+		if err := repo.DeleteActivity(id); err != expectedErr {
+			return fmt.Sprintf("\nExpected Error: %v\nReturned Error: %v", expectedErr, err)
+		}
+		return ""
+	}
+	// Subcase: Non existing Activity
+	t.Run("Non Existing Activity", func(t *testing.T) {
+		if err := testFunc(domain.ActivityID(24234234), store.ErrActivityNotFound); err != "" {
+			t.Fatal(err)
+		}
+	})
+	// Subcase: Existing Activity
+	t.Run("Existing Activity", func(t *testing.T) {
+		// Create test activity
+		defer clearDB()
+		act := db.Activity{
+			ID:       123,
+			Label:    "Test Activity",
+			Place:    "Somewhere",
+			Desc:     "Details",
+			Time:     time.Now().AddDate(0, 0, -1),
+			Duration: time.Duration(time.Hour),
+		}
+		if err := grmDb.Create(&act).Error; err != nil {
+			t.Fatalf("\nUnexpected Error while creating test activity:\n  %v", err)
+		}
+		// Test returned error
+		if err := testFunc(act.ID, nil); err != "" {
+			t.Fatal(err)
+		}
+		// Test if activity in DB
+		if err := grmDb.First(&db.Activity{}, act.ID).Error; err != gorm.ErrRecordNotFound {
+			t.Fatalf("\nExpected %v\nReturned: %v", gorm.ErrRecordNotFound, err)
+		}
+	})
 }
 
 func TestEditActivity(t *testing.T) {

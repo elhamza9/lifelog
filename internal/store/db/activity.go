@@ -69,7 +69,14 @@ func (repo Repository) FindActivitiesByTag(tid domain.TagID) ([]domain.Activity,
 
 // DeleteActivity removes activity with provided ID from memory
 func (repo Repository) DeleteActivity(id domain.ActivityID) error {
-	return errNotImplemented
+	res := repo.db.Delete(&Activity{ID: id})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected != 1 {
+		return store.ErrActivityNotFound
+	}
+	return nil
 }
 
 // EditActivity edits given activity in memory
