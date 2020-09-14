@@ -69,8 +69,8 @@ func TestSaveExpense(t *testing.T) {
 	if err := grmDb.Preload("Tags").First(&created, id).Error; err != nil {
 		t.Fatalf("\nUnexpected Error while retrieving saved expense:\n  %v", err)
 	}
-	if len(created.Tags) != len(exp.Tags) {
-		t.Fatalf("\nExpected %d Tags\nReturned %d Tags", len(exp.Tags), len(created.Tags))
+	if created.Label != exp.Label || !created.Time.Equal(exp.Time) || created.Value != exp.Value || created.Unit != exp.Unit || created.ActivityID != exp.ActivityID || len(created.Tags) != len(exp.Tags) {
+		t.Fatalf("Field Values of Expense dont correspond to provided values:\n\tCreated Expense: %v\n\tProvided Expense: %v", created, exp)
 	}
 }
 

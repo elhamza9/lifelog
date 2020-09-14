@@ -28,12 +28,13 @@ func (repo Repository) SaveActivity(act domain.Activity) (domain.ActivityID, err
 		tags = append(tags, Tag{ID: t.ID, Name: t.Name})
 	}
 	dbAct := Activity{
-		ID:    act.ID,
-		Label: act.Label,
-		Place: act.Place,
-		Desc:  act.Desc,
-		Time:  act.Time,
-		Tags:  tags,
+		ID:       act.ID,
+		Label:    act.Label,
+		Place:    act.Place,
+		Desc:     act.Desc,
+		Time:     act.Time,
+		Duration: act.Duration,
+		Tags:     tags,
 	}
 	res := repo.db.Create(&dbAct)
 	return domain.ActivityID(dbAct.ID), res.Error

@@ -65,9 +65,14 @@ func TestSaveTag(t *testing.T) {
 	if err != nil {
 		t.Fatalf("\nUnexpected Error: %v", err)
 	}
+	// Check tag was inserted in DB
 	var created db.Tag
 	if err := grmDb.First(&created, id).Error; err != nil {
-		t.Fatalf("\nUnexpectd Error: %v", err)
+		t.Fatalf("\nUnexpected Error: %v", err)
+	}
+	// Check tag fields values correspond to values provided
+	if created.Name != tag.Name {
+		t.Fatalf("Field Values of Tag dont correspond to provided values:\n\tCreated Tag: %v\n\tProvided Tag: %v", created, tag)
 	}
 }
 

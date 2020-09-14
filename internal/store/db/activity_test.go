@@ -69,8 +69,8 @@ func TestSaveActivity(t *testing.T) {
 	if err := grmDb.Preload("Tags").First(&created, id).Error; err != nil {
 		t.Fatalf("\nUnexpected Error while retrieving saved activity:\n  %v", err)
 	}
-	if len(created.Tags) != len(act.Tags) {
-		t.Fatalf("\nExpected %d Tags\nReturned %d Tags", len(act.Tags), len(created.Tags))
+	if created.Label != act.Label || !created.Time.Equal(act.Time) || created.Duration != act.Duration || created.Place != act.Place || created.Desc != act.Desc || len(created.Tags) != len(act.Tags) {
+		t.Fatalf("Field Values of Activity dont correspond to provided values:\n\tCreated Activity: %v\n\tProvided Activity: %v", created, act)
 	}
 }
 
