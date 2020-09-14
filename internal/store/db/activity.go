@@ -1,15 +1,23 @@
 package db
 
 import (
+	"errors"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
+	"github.com/elhamza90/lifelog/internal/store"
+	"gorm.io/gorm"
 )
 
 // FindActivityByID returns activity with given ID.
 // If none is found, returns error
 func (repo Repository) FindActivityByID(id domain.ActivityID) (domain.Activity, error) {
-	return domain.Activity{}, errNotImplemented
+	var act Activity
+	err := repo.db.First(&act, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = store.ErrActivityNotFound
+	}
+	return act.ToDomain(), err
 }
 
 // SaveActivity stores the given activity in memory and returns created activity
