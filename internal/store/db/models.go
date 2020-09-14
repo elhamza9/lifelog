@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
@@ -15,6 +16,9 @@ type Tag struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
+
+// String returns a one line string representation of a Tag
+func (t Tag) String() string { return fmt.Sprintf("[ %d | %s ]", t.ID, t.Name) }
 
 // TableName specifies the name of the table for the tag model
 func (t Tag) TableName() string { return "tags" }
@@ -57,6 +61,11 @@ func (exp Expense) ToDomain() domain.Expense {
 	}
 }
 
+// String returns a one line string representation of a Expense
+func (exp Expense) String() string {
+	return fmt.Sprintf("[ %d | %s ( %.2f %s) | %s | (%d tags) ]", exp.ID, exp.Label, exp.Value, exp.Unit, exp.Time.Format("2006-01-02 15:04"), len(exp.Tags))
+}
+
 // TableName specifies the name of the table for the expense model
 func (exp Expense) TableName() string { return "expenses" }
 
@@ -72,6 +81,11 @@ type Activity struct {
 	Expenses  []Expense
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+// String returns a one line string representation of a Activity
+func (act Activity) String() string {
+	return fmt.Sprintf("[ %d | %s | %s | %s (%s) | (%d tags) ]", act.ID, act.Label, act.Place, act.Time.Format("2006-01-02 15:04"), act.Duration, len(act.Tags))
 }
 
 // TableName specifies the name of the table for the activity model
