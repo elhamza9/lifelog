@@ -274,7 +274,7 @@ func TestEditActivity(t *testing.T) {
 			t.Fatalf("Unexpected Error while retrieving edited activity:\n  %v", err)
 		}
 		if res.Label != act.Label || !res.Time.Equal(act.Time) || res.Duration != act.Duration || res.Place != act.Place || res.Desc != act.Desc || len(res.Tags) != len(act.Tags) {
-			t.Fatalf("%v\n%v", res, act)
+			t.Fatalf("\nField values of edited activity were not fully updated:\n\t%v\n\t%v", res, act)
 		}
 	})
 }

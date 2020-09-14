@@ -170,12 +170,12 @@ func TestEditTag(t *testing.T) {
 			t.Fatal(err)
 		}
 		// Test if the fields were updated
-		var updated db.Tag
-		if err := grmDb.First(&updated, tag.ID).Error; err != nil {
+		var res db.Tag
+		if err := grmDb.First(&res, tag.ID).Error; err != nil {
 			t.Fatalf("\nUnexpected Error while retrieving updated tag: %v", err)
 		}
-		if updated.Name != editedTag.Name {
-			t.Fatalf("\nExpected Name: %s\nReturned Name: %s", editedTag.Name, updated.Name)
+		if res.Name != editedTag.Name {
+			t.Fatalf("\nField values of edited activity were not fully updated:\n\t%v\n\t%v", res, editedTag)
 		}
 	})
 }

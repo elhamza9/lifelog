@@ -396,6 +396,7 @@ func TestEditExpense(t *testing.T) {
 		exp.Time = exp.Time.Add(time.Hour)
 		exp.Value = 14
 		exp.Unit = "dollar"
+		exp.ActivityID = 123
 		exp.Tags = []db.Tag{tag}
 		if err := testFunc(exp, nil); err != "" {
 			t.Fatal(err)
@@ -404,8 +405,8 @@ func TestEditExpense(t *testing.T) {
 		if err := grmDb.Preload("Tags").First(&res, exp.ID).Error; err != nil {
 			t.Fatalf("Unexpected Error while retrieving edited expense:\n  %v", err)
 		}
-		if res.Label != exp.Label || !res.Time.Equal(exp.Time) || res.Value != exp.Value || res.Unit != exp.Unit || len(res.Tags) != len(exp.Tags) {
-			t.Fatalf("%v\n%v", res, exp)
+		if res.Label != exp.Label || !res.Time.Equal(exp.Time) || res.Value != exp.Value || res.Unit != exp.Unit || res.ActivityID != exp.ActivityID || len(res.Tags) != len(exp.Tags) {
+			t.Fatalf("\nField values of edited expense were not fully updated:\n\t%v\n\t%v", res, exp)
 		}
 	})
 }
