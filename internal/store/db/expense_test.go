@@ -105,14 +105,17 @@ func TestFindExpensesByTime(t *testing.T) {
 		t.Fatalf("\nUnexpected Error: %v", err)
 	}
 	if len(res) != nbrExpectedExpenses {
-		t.Log(res)
-		t.Fatalf("\nExpecting %d Expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
+		t.Logf("Returned Expenses: %v", res)
+		t.Fatalf("\nExpecting %d expenses\nReturned %d expenses", nbrExpectedExpenses, len(res))
 	}
 	// Test Order by time
 	for i, exp := range res {
+		if exp.Time.Before(minTime) {
+			t.Fatalf("\nExpense in result has time field less than min Time:\n\t%v", exp)
+		}
 		if i < len(res)-1 {
 			if exp.Time.Before(res[i+1].Time) {
-				t.Fatal("Expenses not ordered by time")
+				t.Fatal("\nExpenses not ordered by time")
 			}
 		}
 	}

@@ -105,14 +105,17 @@ func TestFindActivitiesByTime(t *testing.T) {
 		t.Fatalf("\nUnexpected Error: %v", err)
 	}
 	if len(res) != nbrExpectedActivities {
-		t.Log(res)
+		t.Logf("Returned Activities: %v", res)
 		t.Fatalf("\nExpecting %d Activities\nReturned %d activities", nbrExpectedActivities, len(res))
 	}
 	// Test Order by time
-	for i, exp := range res {
+	for i, act := range res {
+		if act.Time.Before(minTime) {
+			t.Fatalf("\nActivity in result has time field less than min Time:\n\t%v", act)
+		}
 		if i < len(res)-1 {
-			if exp.Time.Before(res[i+1].Time) {
-				t.Fatal("Activities not ordered by time")
+			if act.Time.Before(res[i+1].Time) {
+				t.Fatal("\nActivities not ordered by time")
 			}
 		}
 	}
