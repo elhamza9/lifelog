@@ -215,5 +215,63 @@ func TestDeleteActivity(t *testing.T) {
 }
 
 func TestEditActivity(t *testing.T) {
-	t.Fatal("Test not yet implemented")
+	testFunc := func(act db.Activity, expectedErr error) string {
+		if err := repo.EditActivity(act.ToDomain()); err != expectedErr {
+			return fmt.Sprintf("\nExpected Error: %v\nReturned Error: %v", expectedErr, err)
+		}
+		return ""
+	}
+	// Subcase: Non existing Activity
+	t.Run("Non Existing Activity", func(t *testing.T) {
+		act := db.Activity{
+			ID:       2343244, // non existing
+			Label:    "Non Existing Edited",
+			Place:    "Somewhere",
+			Desc:     "Details",
+			Time:     time.Now().AddDate(0, 0, -1),
+			Duration: time.Duration(time.Hour),
+			Tags:     []db.Tag{},
+		}
+		if err := testFunc(act, store.ErrActivityNotFound); err != "" {
+			t.Fatal(err)
+		}
+	})
+	// Subcase: Existing Activity
+	t.Run("Existing Activity", func(t *testing.T) {
+		// Create test activity and tags
+		defer clearDB()
+		act := db.Activity{
+			ID:       123,
+			Label:    "Test Activity",
+			Place:    "Somewhere",
+			Desc:     "Details",
+			Time:     time.Now().AddDate(0, 0, -1),
+			Duration: time.Duration(time.Hour),
+			Tags:     []db.Tag{},
+		}
+		if err := grmDb.Create(&act).Error; err != nil {
+			t.Fatalf("\nUnexpected Error while creating test activity:\n  %v", err)
+		}
+		tag := db.Tag{Name: "test-tag"}
+		if err := grmDb.Create(&tag).Error; err != nil {
+			t.Fatalf("\nUnexpected Error while creating test tag:\n  %v", err)
+		}
+		// Test Edit returned error
+		act.Label = "Edited Test Activity"
+		act.Place = "Edited Place"
+		act.Desc = "Edited Description"
+		act.Time = act.Time.Add(time.Hour)
+		act.Duration = time.Duration(time.Hour * 2)
+		act.Tags = []db.Tag{tag}
+		if err := testFunc(act, nil); err != "" {
+			t.Fatal(err)
+		}
+		var res db.Activity
+		if err := grmDb.Preload("Tags").First(&res, act.ID).Error; err != nil {
+			t.Fatalf("Unexpected Error while retrieving edited activity:\n  %v", err)
+		}
+		if res.Label != act.Label || !res.Time.Equal(act.Time) || res.Duration != act.Duration || res.Place != act.Place || res.Desc != act.Desc || len(res.Tags) != len(act.Tags) {
+			t.Fatalf("%v\n%v", res, act)
+		}
+	})
 }
