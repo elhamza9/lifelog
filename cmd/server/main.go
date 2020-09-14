@@ -1,22 +1,30 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/elhamza90/lifelog/internal/http/rest"
-	"github.com/elhamza90/lifelog/internal/store/memory"
+	"github.com/elhamza90/lifelog/internal/store/db"
 	"github.com/elhamza90/lifelog/internal/usecase/adding"
 	"github.com/elhamza90/lifelog/internal/usecase/auth"
 	"github.com/elhamza90/lifelog/internal/usecase/deleting"
 	"github.com/elhamza90/lifelog/internal/usecase/editing"
 	"github.com/elhamza90/lifelog/internal/usecase/listing"
 	"github.com/labstack/echo/v4"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func main() {
-	router := echo.New()
+	grmDb, err := gorm.Open(sqlite.Open("dev.db"), &gorm.Config{})
+	if err != nil {
+		fmt.Println("failed to connect database")
+		os.Exit(1)
+	}
+	grmDb.AutoMigrate(&db.Tag{}, &db.Expense{}, &db.Activity{})
 
-	repo := memory.NewRepository()
+	repo := db.NewRepository(grmDb)
 
 	lister := listing.NewService(&repo)
 	adder := adding.NewService(&repo)
@@ -26,6 +34,7 @@ func main() {
 
 	hnd := rest.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
 
+	router := echo.New()
 	if err := rest.RegisterRoutes(router, hnd); err != nil {
 		os.Exit(1)
 	}
