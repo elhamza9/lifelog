@@ -33,7 +33,7 @@ func (repo Repository) FindTagByName(n string) (domain.Tag, error) {
 			return t, nil
 		}
 	}
-	return domain.Tag{}, nil
+	return domain.Tag{}, store.ErrTagNotFound
 }
 
 // SaveTag stores the given Tag in memory  and returns created tag
