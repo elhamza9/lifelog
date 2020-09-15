@@ -54,6 +54,7 @@ func RegisterRoutes(r *echo.Echo, hnd *Handler) error {
 	// Group Auth
 	auth := r.Group("/auth")
 	auth.POST("/login", hnd.Login)
+	auth.POST("/refresh", hnd.RefreshToken)
 	// Group Tags
 	tags := r.Group("/tags", middleware.JWT(secret))
 	tags.GET("", hnd.GetAllTags)

@@ -8,7 +8,9 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -79,6 +81,69 @@ func TestLogin(t *testing.T) {
 			ctx = router.NewContext(req, rec)
 			ctx.SetPath(path)
 			hnd.Login(ctx)
+			body := rec.Body.String()
+			if rec.Code != test.expectedCode {
+				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
+			}
+			if rec.Code == http.StatusOK {
+				pat := `^{"at":".*","rt":".*"}`
+				if match, err := regexp.Match(pat, []byte(body)); !match {
+					t.Fatal(body, err)
+				}
+			}
+		})
+	}
+}
+
+func TestRefreshToken(t *testing.T) {
+	// Create a new token
+	genToken := func(exp time.Time) string {
+		token := jwt.New(jwt.SigningMethodHS256)
+		claims := token.Claims.(jwt.MapClaims)
+		claims["exp"] = exp.Unix()
+		secret := os.Getenv("LFLG_JWT_SECRET")
+		signed, err := token.SignedString([]byte(secret))
+		if err != nil {
+			t.Log(err)
+			return ""
+		}
+		return signed
+	}
+	const path string = "/auth/refresh"
+	// Subtests definition
+	now := time.Now()
+	tests := map[string]struct {
+		json         string
+		expectedCode int
+	}{
+		"Correct": {
+			json:         fmt.Sprintf("{\"refresh\":\"%s\"}", genToken(now.Add(time.Duration(time.Hour)))),
+			expectedCode: http.StatusOK,
+		},
+		"Expired Token": {
+			json:         fmt.Sprintf("{\"refresh\":\"%s\"}", genToken(now.Add(time.Duration(-1*time.Hour)))),
+			expectedCode: http.StatusUnprocessableEntity,
+		},
+		"No Token in JSON": {
+			json:         `{"ref":"sdfdsf"}`,
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+	// Subtests Execution
+	var (
+		req *http.Request
+		rec *httptest.ResponseRecorder
+		ctx echo.Context
+	)
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Log(test.json)
+			req = httptest.NewRequest(http.MethodPost, path, strings.NewReader(test.json))
+			req.Header.Set("Content-type", "application/json")
+			rec = httptest.NewRecorder()
+			ctx = router.NewContext(req, rec)
+			ctx.SetPath(path)
+			hnd.RefreshToken(ctx)
 			body := rec.Body.String()
 			if rec.Code != test.expectedCode {
 				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)

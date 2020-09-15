@@ -2,6 +2,7 @@ package rest
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -13,6 +14,11 @@ import (
 // authenticationRequest specifies the structure of json when authenticating
 type authenticationRequest struct {
 	Password string `json:"password"`
+}
+
+// refreshRequest specifies the structure of json when refreshing Tokens
+type refreshRequest struct {
+	RefreshToken string `json:"refresh"`
 }
 
 // errSigningJwt represents the error returned when Token can not be signed
@@ -39,6 +45,15 @@ func generateTokenPair() (string, string, error) {
 		return "", "", err
 	}
 	return signedAccess, signedRefresh, nil
+}
+
+// tokenPairToJSON returns the JSON Body containing
+// the given access and refresh token strings
+func tokenPairToJSON(access string, refresh string) map[string]string {
+	return map[string]string{
+		"at": access,
+		"rt": refresh,
+	}
 }
 
 // Login handler authenticates user and returns a JWT Token
@@ -75,9 +90,55 @@ func (h *Handler) Login(c echo.Context) error {
 		logger.Error(msg + " : " + errSign.Error())
 		return c.String(code, msg)
 	}
-	body := map[string]string{
-		"at": access,
-		"rt": refresh,
+	body := tokenPairToJSON(access, refresh)
+	return c.JSON(http.StatusOK, body)
+}
+
+// RefreshToken handler accepts a refresh token
+// and returns a new access/refresh token pair
+func (h *Handler) RefreshToken(c echo.Context) error {
+	logger := log.WithFields(log.Fields{
+		"handler":   "RefreshToken",
+		"remote_ip": c.RealIP(),
+	})
+	// Unmarshal JSON
+	var req refreshRequest
+	if err := c.Bind(&req); err != nil {
+		var (
+			msg     string = errInvalidJSON.Error()
+			details string = httpErrorMsg(err)
+			code    int    = errToHTTPCode(errInvalidJSON, "auth")
+		)
+		logger.Error(msg + " | " + details)
+		return c.String(code, msg)
 	}
+	if req.RefreshToken == "" {
+		code := errToHTTPCode(errInvalidJSON, "auth")
+		msg := "No Refresh Token Provided"
+		return c.String(code, msg)
+	}
+	// Parse Token
+	_, err := jwt.Parse(req.RefreshToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return JwtSecret(), nil
+	})
+	if err != nil {
+		msg := "Token is Invalid"
+		logger.Error(msg + " = " + err.Error())
+		return c.String(http.StatusUnprocessableEntity, msg)
+	}
+	// Generate and return new token pair
+	access, refresh, errSign := generateTokenPair()
+	if errSign != nil {
+		var (
+			msg  string = errSigningJwt.Error()
+			code int    = errToHTTPCode(errSigningJwt, "auth")
+		)
+		logger.Error(msg + " : " + errSign.Error())
+		return c.String(code, msg)
+	}
+	body := tokenPairToJSON(access, refresh)
 	return c.JSON(http.StatusOK, body)
 }
