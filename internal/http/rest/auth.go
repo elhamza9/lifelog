@@ -18,6 +18,29 @@ type authenticationRequest struct {
 // errSigningJwt represents the error returned when Token can not be signed
 var errSigningJwt error = errors.New("Could not sign JWT Token")
 
+// generateTokenPair returns signed access & refresh tokens
+func generateTokenPair() (string, string, error) {
+	secret := JwtSecret()
+	// Access
+	access := jwt.New(jwt.SigningMethodHS256)
+	accessClaims := access.Claims.(jwt.MapClaims)
+	accessClaims["name"] = "El Hamza"
+	accessClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+	signedAccess, err := access.SignedString(secret)
+	if err != nil {
+		return "", "", err
+	}
+	// Refresh
+	refresh := jwt.New(jwt.SigningMethodHS256)
+	refreshClaims := refresh.Claims.(jwt.MapClaims)
+	refreshClaims["exp"] = time.Now().Add(time.Hour * 8).Unix()
+	signedRefresh, err := refresh.SignedString(secret)
+	if err != nil {
+		return "", "", err
+	}
+	return signedAccess, signedRefresh, nil
+}
+
 // Login handler authenticates user and returns a JWT Token
 func (h *Handler) Login(c echo.Context) error {
 	logger := log.WithFields(log.Fields{
@@ -43,41 +66,18 @@ func (h *Handler) Login(c echo.Context) error {
 		return c.String(code, msg)
 	}
 	// Sign and return Access and Refresh Tokens
-	access, refresh := generateTokenPair()
-	secret := JwtSecret()
-	signedAccess, errSignAccess := access.SignedString(secret)
-	signedRefresh, errSignRefresh := refresh.SignedString(secret)
-	if errSignAccess != nil || errSignRefresh != nil {
+	access, refresh, errSign := generateTokenPair()
+	if errSign != nil {
 		var (
 			msg  string = errSigningJwt.Error()
 			code int    = errToHTTPCode(errSigningJwt, "auth")
 		)
-		var errMsg string
-		if errSignAccess != nil {
-			errMsg = errSignAccess.Error()
-		} else {
-			errMsg = errSignRefresh.Error()
-		}
-		logger.Error(msg + " : " + errMsg)
+		logger.Error(msg + " : " + errSign.Error())
 		return c.String(code, msg)
 	}
 	body := map[string]string{
-		"at": signedAccess,
-		"rt": signedRefresh,
+		"at": access,
+		"rt": refresh,
 	}
 	return c.JSON(http.StatusOK, body)
-}
-
-// generateTokenPair returns unsigned access & refresh tokens
-func generateTokenPair() (*jwt.Token, *jwt.Token) {
-	// Access
-	access := jwt.New(jwt.SigningMethodHS256)
-	accessClaims := access.Claims.(jwt.MapClaims)
-	accessClaims["name"] = "El Hamza"
-	accessClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
-	// Refresh
-	refresh := jwt.New(jwt.SigningMethodHS256)
-	refreshClaims := refresh.Claims.(jwt.MapClaims)
-	refreshClaims["exp"] = time.Now().Add(time.Hour * 8).Unix()
-	return access, refresh
 }
