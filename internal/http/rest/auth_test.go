@@ -84,7 +84,7 @@ func TestLogin(t *testing.T) {
 				t.Fatalf("\nExpected Code: %d\nReturned Code: %d\nReturned Body: %s", test.expectedCode, rec.Code, body)
 			}
 			if rec.Code == http.StatusOK {
-				pat := `^{"at":".*"}`
+				pat := `^{"at":".*","rt":".*"}`
 				if match, err := regexp.Match(pat, []byte(body)); !match {
 					t.Fatal(body, err)
 				}

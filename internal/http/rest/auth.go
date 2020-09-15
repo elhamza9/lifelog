@@ -3,6 +3,7 @@ package rest
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
@@ -41,20 +42,42 @@ func (h *Handler) Login(c echo.Context) error {
 		code := errToHTTPCode(err, "auth")
 		return c.String(code, msg)
 	}
-	// Return JWT Token
+	// Sign and return Access and Refresh Tokens
+	access, refresh := generateTokenPair()
 	secret := JwtSecret()
-	token := jwt.New(jwt.SigningMethodHS256)
-	signed, err := token.SignedString(secret)
-	if err != nil {
+	signedAccess, errSignAccess := access.SignedString(secret)
+	signedRefresh, errSignRefresh := refresh.SignedString(secret)
+	if errSignAccess != nil || errSignRefresh != nil {
 		var (
 			msg  string = errSigningJwt.Error()
 			code int    = errToHTTPCode(errSigningJwt, "auth")
 		)
-		logger.Error(msg + " : " + err.Error())
+		var errMsg string
+		if errSignAccess != nil {
+			errMsg = errSignAccess.Error()
+		} else {
+			errMsg = errSignRefresh.Error()
+		}
+		logger.Error(msg + " : " + errMsg)
 		return c.String(code, msg)
 	}
 	body := map[string]string{
-		"at": signed,
+		"at": signedAccess,
+		"rt": signedRefresh,
 	}
 	return c.JSON(http.StatusOK, body)
+}
+
+// generateTokenPair returns unsigned access & refresh tokens
+func generateTokenPair() (*jwt.Token, *jwt.Token) {
+	// Access
+	access := jwt.New(jwt.SigningMethodHS256)
+	accessClaims := access.Claims.(jwt.MapClaims)
+	accessClaims["name"] = "El Hamza"
+	accessClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+	// Refresh
+	refresh := jwt.New(jwt.SigningMethodHS256)
+	refreshClaims := refresh.Claims.(jwt.MapClaims)
+	refreshClaims["exp"] = time.Now().Add(time.Hour * 8).Unix()
+	return access, refresh
 }
