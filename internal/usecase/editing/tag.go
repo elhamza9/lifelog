@@ -1,7 +1,10 @@
 package editing
 
 import (
+	"errors"
+
 	"github.com/elhamza90/lifelog/internal/domain"
+	"github.com/elhamza90/lifelog/internal/store"
 )
 
 // EditTag calls repo to edit the provided tag
@@ -15,7 +18,7 @@ func (srv Service) EditTag(t domain.Tag) error {
 		return err
 	}
 	// Check tag name is not duplicate
-	if t, err := srv.repo.FindTagByName(t.Name); err != nil {
+	if t, err := srv.repo.FindTagByName(t.Name); (err != nil) && !errors.Is(err, store.ErrTagNotFound) {
 		return err
 	} else if len(t.Name) > 0 {
 		return domain.ErrTagNameDuplicate
