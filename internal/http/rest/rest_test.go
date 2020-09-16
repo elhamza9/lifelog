@@ -30,9 +30,7 @@ const hashEnvVarName string = "LFLG_TEST_PASS_HASH"
 func TestMain(m *testing.M) {
 	log.SetLevel(log.DebugLevel)
 	log.Debug("Setting Up Test router")
-
-	router = echo.New()
-
+	// Init Interactors and Repository
 	repo = memory.NewRepository()
 	lister := listing.NewService(&repo)
 	adder := adding.NewService(&repo)
@@ -40,12 +38,14 @@ func TestMain(m *testing.M) {
 	deletor := deleting.NewService(&repo)
 	authenticator := auth.NewService(hashEnvVarName)
 	hnd = rest.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
-
-	os.Setenv("LFLG_JWT_SECRET", "testsecret")
+	// Define and Save JWT Secrets in Env Vars
+	os.Setenv("LFLG_JWT_ACCESS_SECRET", "test-access-secret")
+	os.Setenv("LFLG_JWT_REFRESH_SECRET", "test-refresh-secret")
+	// Init Router
+	router = echo.New()
 	if err := rest.RegisterRoutes(router, hnd); err != nil {
 		os.Exit(1)
 	}
-
 	os.Exit(m.Run())
 }
 

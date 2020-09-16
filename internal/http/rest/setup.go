@@ -36,15 +36,23 @@ func NewHandler(lister *listing.Service, adder *adding.Service, editor *editing.
 	}
 }
 
-// JwtSecret returns a byte array containing Jwt Signing Key
-func JwtSecret() []byte {
-	secret := os.Getenv("LFLG_JWT_SECRET")
+// jwtAccessSecret returns a byte array containing
+// Jwt Signing Key for Access Tokens
+func jwtAccessSecret() []byte {
+	secret := os.Getenv("LFLG_JWT_ACCESS_SECRET")
+	return []byte(secret)
+}
+
+// jwtRefreshSecret returns a byte array containing
+// Jwt Signing Key for Refresh Tokens
+func jwtRefreshSecret() []byte {
+	secret := os.Getenv("LFLG_JWT_REFRESH_SECRET")
 	return []byte(secret)
 }
 
 // RegisterRoutes registers routes with handlers.
 func RegisterRoutes(r *echo.Echo, hnd *Handler) error {
-	secret := JwtSecret()
+	secret := jwtAccessSecret()
 	if len(secret) == 0 {
 		msg := "No JWT Secret was found in system"
 		log.Fatal(msg)

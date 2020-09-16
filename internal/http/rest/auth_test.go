@@ -96,12 +96,12 @@ func TestLogin(t *testing.T) {
 }
 
 func TestRefreshToken(t *testing.T) {
+	correctSecret := os.Getenv("LFLG_JWT_REFRESH_SECRET")
 	// Create a new token
-	genToken := func(exp time.Time) string {
+	genToken := func(secret string, exp time.Time) string {
 		token := jwt.New(jwt.SigningMethodHS256)
 		claims := token.Claims.(jwt.MapClaims)
 		claims["exp"] = exp.Unix()
-		secret := os.Getenv("LFLG_JWT_SECRET")
 		signed, err := token.SignedString([]byte(secret))
 		if err != nil {
 			t.Log(err)
@@ -117,19 +117,19 @@ func TestRefreshToken(t *testing.T) {
 		expectedCode int
 	}{
 		"Correct": {
-			json:         fmt.Sprintf("{\"refresh\":\"%s\"}", genToken(now.Add(time.Duration(time.Hour)))),
+			json:         fmt.Sprintf("{\"refresh\":\"%s\"}", genToken(correctSecret, now.Add(time.Duration(time.Hour)))),
 			expectedCode: http.StatusOK,
 		},
 		"Expired Token": {
-			json:         fmt.Sprintf("{\"refresh\":\"%s\"}", genToken(now.Add(time.Duration(-1*time.Hour)))),
+			json:         fmt.Sprintf("{\"refresh\":\"%s\"}", genToken(correctSecret, now.Add(time.Duration(-1*time.Hour)))),
 			expectedCode: http.StatusUnprocessableEntity,
 		},
 		"Token Signed with wrong secret": {
-			json:         `{"refresh":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ._kgewreaeki8_kNXtPCbilKgvkocJxKodpmqer9YpMo"}`, // Token signed with secret "wrongsecret"
+			json:         fmt.Sprintf("{\"refresh\":\"%s\"}", genToken(os.Getenv("LFLG_JWT_ACCESS_SECRET"), now.Add(time.Duration(time.Hour)))),
 			expectedCode: http.StatusUnprocessableEntity,
 		},
 		"No Token in JSON": {
-			json:         `{"ref":"sdfdsf"}`,
+			json:         `{"what":"is this?"}`,
 			expectedCode: http.StatusBadRequest,
 		},
 	}

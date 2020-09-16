@@ -38,7 +38,7 @@ type jwtCustomClaims struct {
 
 // generateAccessToken return signed access token
 func generateAccessToken() (string, error) {
-	secret := JwtSecret()
+	secret := jwtAccessSecret()
 	now := time.Now()
 	claims := &jwtCustomClaims{
 		"El Hamza",
@@ -57,7 +57,7 @@ func generateAccessToken() (string, error) {
 
 // generateTokenPair returns signed refresh token
 func generateRefreshToken() (string, error) {
-	secret := JwtSecret()
+	secret := jwtRefreshSecret()
 	now := time.Now()
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
@@ -162,7 +162,7 @@ func (h *Handler) RefreshToken(c echo.Context) error {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return JwtSecret(), nil
+		return jwtRefreshSecret(), nil
 	})
 	if err != nil {
 		msg := "Token is Invalid"
