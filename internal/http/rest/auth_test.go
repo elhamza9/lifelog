@@ -124,6 +124,10 @@ func TestRefreshToken(t *testing.T) {
 			json:         fmt.Sprintf("{\"refresh\":\"%s\"}", genToken(now.Add(time.Duration(-1*time.Hour)))),
 			expectedCode: http.StatusUnprocessableEntity,
 		},
+		"Token Signed with wrong secret": {
+			json:         `{"refresh":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ._kgewreaeki8_kNXtPCbilKgvkocJxKodpmqer9YpMo"}`, // Token signed with secret "wrongsecret"
+			expectedCode: http.StatusUnprocessableEntity,
+		},
 		"No Token in JSON": {
 			json:         `{"ref":"sdfdsf"}`,
 			expectedCode: http.StatusBadRequest,
