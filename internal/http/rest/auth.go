@@ -24,27 +24,49 @@ type refreshRequest struct {
 // errSigningJwt represents the error returned when Token can not be signed
 var errSigningJwt error = errors.New("Could not sign JWT Token")
 
-// generateTokenPair returns signed access & refresh tokens
-func generateTokenPair() (string, string, error) {
+const (
+	accessTokenExpDuration  time.Duration = time.Duration(time.Minute * 15)
+	refreshTokenExpDuration time.Duration = time.Duration(time.Hour * 6)
+)
+
+// jwtCustomClaims used in Access Token
+type jwtCustomClaims struct {
+	Name  string `json:"name"`
+	Admin bool   `json:"admin"`
+	jwt.StandardClaims
+}
+
+// generateAccessToken return signed access token
+func generateAccessToken() (string, error) {
 	secret := JwtSecret()
-	// Access
-	access := jwt.New(jwt.SigningMethodHS256)
-	accessClaims := access.Claims.(jwt.MapClaims)
-	accessClaims["name"] = "El Hamza"
-	accessClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
-	signedAccess, err := access.SignedString(secret)
-	if err != nil {
-		return "", "", err
+	now := time.Now()
+	claims := &jwtCustomClaims{
+		"El Hamza",
+		true,
+		jwt.StandardClaims{
+			ExpiresAt: now.Add(accessTokenExpDuration).Unix(),
+		},
 	}
-	// Refresh
-	refresh := jwt.New(jwt.SigningMethodHS256)
-	refreshClaims := refresh.Claims.(jwt.MapClaims)
-	refreshClaims["exp"] = time.Now().Add(time.Hour * 8).Unix()
-	signedRefresh, err := refresh.SignedString(secret)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := token.SignedString(secret)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
-	return signedAccess, signedRefresh, nil
+	return signed, nil
+}
+
+// generateTokenPair returns signed refresh token
+func generateRefreshToken() (string, error) {
+	secret := JwtSecret()
+	now := time.Now()
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["exp"] = now.Add(refreshTokenExpDuration).Unix()
+	signed, err := token.SignedString(secret)
+	if err != nil {
+		return "", err
+	}
+	return signed, nil
 }
 
 // tokenPairToJSON returns the JSON Body containing
@@ -54,6 +76,18 @@ func tokenPairToJSON(access string, refresh string) map[string]string {
 		"at": access,
 		"rt": refresh,
 	}
+}
+
+// jwtSignErrHandler accepts the error returned when signing a JWT Token
+// and returns:
+//	- Http Code to be returned to the client
+//	- Msg body to be returned to the client
+//	- Log message to be logged
+func jwtSignErrHandler(err error) (code int, respMsg string, logMsg string) {
+	code = errToHTTPCode(errSigningJwt, "auth")
+	respMsg = errSigningJwt.Error()
+	logMsg = respMsg + " : " + err.Error()
+	return code, respMsg, logMsg
 }
 
 // Login handler authenticates user and returns a JWT Token
@@ -80,17 +114,23 @@ func (h *Handler) Login(c echo.Context) error {
 		code := errToHTTPCode(err, "auth")
 		return c.String(code, msg)
 	}
-	// Sign and return Access and Refresh Tokens
-	access, refresh, errSign := generateTokenPair()
-	if errSign != nil {
-		var (
-			msg  string = errSigningJwt.Error()
-			code int    = errToHTTPCode(errSigningJwt, "auth")
-		)
-		logger.Error(msg + " : " + errSign.Error())
+	// Generate and return Access/Refresh Tokens
+	access, err := generateAccessToken()
+	if err != nil {
+		code, msg, logMsg := jwtSignErrHandler(err)
+		logger.Error(logMsg)
 		return c.String(code, msg)
 	}
-	body := tokenPairToJSON(access, refresh)
+	refresh, err := generateRefreshToken()
+	if err != nil {
+		code, msg, logMsg := jwtSignErrHandler(err)
+		logger.Error(logMsg)
+		return c.String(code, msg)
+	}
+	body := map[string]string{
+		"at": access,
+		"rt": refresh,
+	}
 	return c.JSON(http.StatusOK, body)
 }
 
@@ -129,16 +169,15 @@ func (h *Handler) RefreshToken(c echo.Context) error {
 		logger.Error(msg + " = " + err.Error())
 		return c.String(http.StatusUnprocessableEntity, msg)
 	}
-	// Generate and return new token pair
-	access, refresh, errSign := generateTokenPair()
-	if errSign != nil {
-		var (
-			msg  string = errSigningJwt.Error()
-			code int    = errToHTTPCode(errSigningJwt, "auth")
-		)
-		logger.Error(msg + " : " + errSign.Error())
+	// Generate and return new Access Token
+	access, err := generateAccessToken()
+	if err != nil {
+		code, msg, logMsg := jwtSignErrHandler(err)
+		logger.Error(logMsg)
 		return c.String(code, msg)
 	}
-	body := tokenPairToJSON(access, refresh)
+	body := map[string]string{
+		"at": access,
+	}
 	return c.JSON(http.StatusOK, body)
 }
