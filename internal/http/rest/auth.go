@@ -4,15 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
 
-// authenticationRequest specifies the structure of json when authenticating
-type authenticationRequest struct {
+// loginRequest specifies the structure of json when authenticating
+type loginRequest struct {
 	Password string `json:"password"`
 }
 
@@ -23,60 +22,6 @@ type refreshRequest struct {
 
 // errSigningJwt represents the error returned when Token can not be signed
 var errSigningJwt error = errors.New("Could not sign JWT Token")
-
-const (
-	accessTokenExpDuration  time.Duration = time.Duration(time.Minute * 15)
-	refreshTokenExpDuration time.Duration = time.Duration(time.Hour * 6)
-)
-
-// jwtCustomClaims used in Access Token
-type jwtCustomClaims struct {
-	Name  string `json:"name"`
-	Admin bool   `json:"admin"`
-	jwt.StandardClaims
-}
-
-// generateAccessToken return signed access token
-func generateAccessToken() (string, error) {
-	secret := jwtAccessSecret()
-	now := time.Now()
-	claims := &jwtCustomClaims{
-		"El Hamza",
-		true,
-		jwt.StandardClaims{
-			ExpiresAt: now.Add(accessTokenExpDuration).Unix(),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := token.SignedString(secret)
-	if err != nil {
-		return "", err
-	}
-	return signed, nil
-}
-
-// generateTokenPair returns signed refresh token
-func generateRefreshToken() (string, error) {
-	secret := jwtRefreshSecret()
-	now := time.Now()
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = now.Add(refreshTokenExpDuration).Unix()
-	signed, err := token.SignedString(secret)
-	if err != nil {
-		return "", err
-	}
-	return signed, nil
-}
-
-// tokenPairToJSON returns the JSON Body containing
-// the given access and refresh token strings
-func tokenPairToJSON(access string, refresh string) map[string]string {
-	return map[string]string{
-		"at": access,
-		"rt": refresh,
-	}
-}
 
 // jwtSignErrHandler accepts the error returned when signing a JWT Token
 // and returns:
@@ -97,7 +42,7 @@ func (h *Handler) Login(c echo.Context) error {
 		"remote_ip": c.RealIP(),
 	})
 	// Unmarshal JSON
-	var req authenticationRequest
+	var req loginRequest
 	if err := c.Bind(&req); err != nil {
 		var (
 			msg     string = errInvalidJSON.Error()
