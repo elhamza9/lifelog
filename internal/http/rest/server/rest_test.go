@@ -1,4 +1,4 @@
-package rest_test
+package server_test
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/elhamza90/lifelog/internal/http/rest"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/elhamza90/lifelog/internal/store/memory"
 	"github.com/elhamza90/lifelog/internal/usecase/adding"
 	"github.com/elhamza90/lifelog/internal/usecase/auth"
@@ -19,7 +19,7 @@ import (
 
 var (
 	router *echo.Echo
-	hnd    *rest.Handler
+	hnd    *server.Handler
 	repo   memory.Repository
 )
 
@@ -37,13 +37,13 @@ func TestMain(m *testing.M) {
 	editor := editing.NewService(&repo)
 	deletor := deleting.NewService(&repo)
 	authenticator := auth.NewService(hashEnvVarName)
-	hnd = rest.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
+	hnd = server.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
 	// Define and Save JWT Secrets in Env Vars
 	os.Setenv("LFLG_JWT_ACCESS_SECRET", "test-access-secret")
 	os.Setenv("LFLG_JWT_REFRESH_SECRET", "test-refresh-secret")
 	// Init Router
 	router = echo.New()
-	if err := rest.RegisterRoutes(router, hnd); err != nil {
+	if err := server.RegisterRoutes(router, hnd); err != nil {
 		os.Exit(1)
 	}
 	os.Exit(m.Run())
@@ -55,7 +55,7 @@ func TestHealthCheck(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := router.NewContext(req, rec)
 	c.SetPath(path)
-	if err := rest.HealthCheck(c); err != nil {
+	if err := server.HealthCheck(c); err != nil {
 		t.Fatalf("\nUnexpected Error: %v", err)
 	}
 }

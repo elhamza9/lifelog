@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/elhamza90/lifelog/internal/http/rest"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/elhamza90/lifelog/internal/store/db"
 	"github.com/elhamza90/lifelog/internal/usecase/adding"
 	"github.com/elhamza90/lifelog/internal/usecase/auth"
@@ -32,10 +32,10 @@ func main() {
 	deletor := deleting.NewService(&repo)
 	authenticator := auth.NewService("LFLG_PASS_HASH")
 
-	hnd := rest.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
+	hnd := server.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
 
 	router := echo.New()
-	if err := rest.RegisterRoutes(router, hnd); err != nil {
+	if err := server.RegisterRoutes(router, hnd); err != nil {
 		os.Exit(1)
 	}
 
