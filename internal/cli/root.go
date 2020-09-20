@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -15,16 +16,36 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "lifelog",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Short: "Lifelog is an Application to manage life activities",
+	// Always check if Access token and config file exist before every command.
+	// If necessary authenticate.
+	Run: func(cmd *cobra.Command, args []string) {
+		if viper.ConfigFileUsed() == "" {
+			fmt.Println("No Config File Found !")
+			return
+		}
+		// If Access Token was fetched and saved previously don't login
+		if viper.Get("Access") == nil {
+			fmt.Println("Loging in ...\n")
+			pass, err := loginPrompt()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			access, refresh, err := client.Login(pass)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Authentication Successful !\n")
+			fmt.Println("Saving Token Pair ...\n")
+			viper.Set("Access", access)
+			viper.Set("Refresh", refresh)
+			//log.Printf("Access Token: %s\nRefresh Token: %s\n", access, refresh)
+			viper.WriteConfig()
+			return
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
