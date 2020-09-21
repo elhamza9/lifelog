@@ -69,9 +69,41 @@ var newActivityCmd = &cobra.Command{
 	},
 }
 
+var newExpenseCmd = &cobra.Command{
+	Use:   "expense",
+	Short: "Create a new Expense",
+	Run: func(cmd *cobra.Command, args []string) {
+		token := viper.Get("Access").(string)
+		tags, err := client.FetchTags(token)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defaultExp := domain.Expense{
+			Label: "",
+			Value: 0,
+			Unit:  "dhs",
+			Time:  time.Now().Add(time.Duration(-1 * time.Hour)),
+		}
+		exp, err := expensePrompt(defaultExp, tags)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(exp)
+		id, err := client.PostExpense(exp, token)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("\tSuccess: \n\tID: %d\n", id)
+	},
+}
+
 func init() {
 	newCmd.AddCommand(newTagCmd)
 	newCmd.AddCommand(newActivityCmd)
+	newCmd.AddCommand(newExpenseCmd)
 	rootCmd.AddCommand(newCmd)
 
 	// Here you will define your flags and configuration settings.
