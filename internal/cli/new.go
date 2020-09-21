@@ -3,25 +3,41 @@ package cli
 import (
 	"fmt"
 
+	"github.com/elhamza90/lifelog/internal/domain"
+	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // newCmd represents the new command
 var newCmd = &cobra.Command{
 	Use:   "new",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Create a new entity",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("new called")
+	},
+}
+
+var newTagCmd = &cobra.Command{
+	Use:   "tag",
+	Short: "Create a new Tag",
+	Run: func(cmd *cobra.Command, args []string) {
+		tagToCreate, err := tagPrompt(domain.Tag{})
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		token := viper.Get("Access").(string)
+		id, err := client.PostTag(tagToCreate, token)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("\tSuccess: \n\tID: %d\n", id)
 	},
 }
 
 func init() {
+	newCmd.AddCommand(newTagCmd)
 	rootCmd.AddCommand(newCmd)
 
 	// Here you will define your flags and configuration settings.
