@@ -51,7 +51,8 @@ func activityPrompt(defaultActivity domain.Activity, tags []domain.Tag) (a domai
 	if err != nil {
 		return a, err
 	}
-	actTime, err := time.Parse("2006-01-02 15:04", actTimeStr)
+	zone, _ := time.Now().Zone()
+	actTime, err := time.Parse("2006-01-02 15:04 MST", actTimeStr+" "+zone)
 	if err != nil {
 		return a, err
 	}
