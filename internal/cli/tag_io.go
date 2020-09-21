@@ -36,3 +36,39 @@ func tagNameValidator(input string) error {
 		return nil
 	}
 }
+
+// tagSelect list given tags and asks user to select one.
+func tagSelect(tags []domain.Tag) (selectedTagIndex int, err error) {
+	/*
+		var idMaxLen int = 0
+		for _, t := range tags {
+			idStr := strconv.Itoa(int(t.ID))
+			if len(idStr) > idMaxLen {
+				idMaxLen = len(idStr)
+			}
+		}
+	*/
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Inactive: "\t - " + `{{ printf "[%d] " .ID | white }}` + `| {{ .Name | white }}`,
+		Active: "\t → " +
+			`{{ printf "[%d] " .ID | cyan | bold }}` +
+			`| {{ .Name | cyan | bold }}`,
+		Selected: "\t → " +
+			`{{ printf "[%d] " .ID | green | bold }}` +
+			`| {{ .Name | green | bold }}`,
+	}
+	tagPrompt := promptui.Select{
+		Label:     "Choose Tag:",
+		Items:     tags,
+		Templates: templates,
+		Size:      len(tags),
+		/*Searcher: func(input string, index int) bool {
+			name := strings.ToLower((tags)[index].Name)
+			input = strings.ToLower(input)
+			return strings.Contains(name, input)
+		},*/
+	}
+	selectedTagIndex, _, err = tagPrompt.Run()
+	return selectedTagIndex, err
+}

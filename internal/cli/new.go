@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
@@ -36,8 +37,41 @@ var newTagCmd = &cobra.Command{
 	},
 }
 
+var newActivityCmd = &cobra.Command{
+	Use:   "activity",
+	Short: "Create a new Activity",
+	Run: func(cmd *cobra.Command, args []string) {
+		token := viper.Get("Access").(string)
+		tags, err := client.FetchTags(token)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defaultAct := domain.Activity{
+			Label:    "",
+			Place:    "",
+			Desc:     "",
+			Time:     time.Now().Add(time.Duration(-1 * time.Hour)),
+			Duration: time.Duration(time.Hour - (time.Minute * 15)),
+		}
+		act, err := activityPrompt(defaultAct, tags)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(act)
+		id, err := client.PostActivity(act, token)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("\tSuccess: \n\tID: %d\n", id)
+	},
+}
+
 func init() {
 	newCmd.AddCommand(newTagCmd)
+	newCmd.AddCommand(newActivityCmd)
 	rootCmd.AddCommand(newCmd)
 
 	// Here you will define your flags and configuration settings.

@@ -58,3 +58,37 @@ func PostTag(tag domain.Tag, token string) (int, error) {
 	}
 	return respObj.ID, nil
 }
+
+// FetchTags sends a GET request to fetch all tags
+func FetchTags(token string) ([]domain.Tag, error) {
+	// Send HTTP Request
+	const path string = url + "/tags"
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return []domain.Tag{}, err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return []domain.Tag{}, err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return []domain.Tag{}, err
+	}
+	// Check Response Code
+	if responseCode != http.StatusOK {
+		return []domain.Tag{}, fmt.Errorf("error posting new tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+	}
+	// Extract Tags
+	var tags []domain.Tag
+	if err := json.Unmarshal(responseBody, &tags); err != nil {
+		return []domain.Tag{}, err
+	}
+	return tags, nil
+}
