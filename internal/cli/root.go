@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Short: "Lifelog is an Application to manage life activities",
 	// Always check if Access token and config file exist before every command.
 	// If necessary authenticate.
-	Run: func(cmd *cobra.Command, args []string) {
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if viper.ConfigFileUsed() == "" {
 			fmt.Println("No Config File Found !")
 			return
