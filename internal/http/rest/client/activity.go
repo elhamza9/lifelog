@@ -73,3 +73,37 @@ func PostActivity(act domain.Activity, token string) (int, error) {
 	}
 	return respObj.ID, nil
 }
+
+// FetchActivities sends a GET request to fetch all activities
+func FetchActivities(token string) ([]domain.Activity, error) {
+	// Send HTTP Request
+	const path string = url + "/activities"
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return []domain.Activity{}, err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return []domain.Activity{}, err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return []domain.Activity{}, err
+	}
+	// Check Response Code
+	if responseCode != http.StatusOK {
+		return []domain.Activity{}, fmt.Errorf("error fetching activities:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+	}
+	// Extract Activities
+	var activities []domain.Activity
+	if err := json.Unmarshal(responseBody, &activities); err != nil {
+		return []domain.Activity{}, err
+	}
+	return activities, nil
+}
