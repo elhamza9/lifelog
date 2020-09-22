@@ -88,11 +88,11 @@ func tagSelect(tags []domain.Tag) (selectedTagIndex int, err error) {
 		Items:     tags,
 		Templates: templates,
 		Size:      len(tags),
-		/*Searcher: func(input string, index int) bool {
+		Searcher: func(input string, index int) bool {
 			name := strings.ToLower((tags)[index].Name)
 			input = strings.ToLower(input)
 			return strings.Contains(name, input)
-		},*/
+		},
 	}
 	selectedTagIndex, _, err = tagPrompt.Run()
 	return selectedTagIndex, err
