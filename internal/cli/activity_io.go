@@ -174,9 +174,9 @@ func activitySelect(activities []domain.Activity) (selectedActivityIndex int, er
 	}
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
-		Inactive: "\t - " + `{{ printf "[%d] " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Label | white }}`,
-		Active:   "\t → " + `{{ printf "[%d]  " .ID|cyan|bold}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Label | cyan | bold }}`,
-		Selected: "\t → " + `{{ printf "[%d] " .ID| green | bold }}` + ` | {{ .Label | green | bold }}`,
+		Inactive: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | white }}` + ` | {{ .Label | white }}`,
+		Active:   "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | cyan | bold }}` + ` | {{ .Label | cyan | bold }}`,
+		Selected: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | green | bold }}` + ` | {{ .Label | green | bold }}`,
 		FuncMap: template.FuncMap{
 			"fixSpaces": func(id domain.ActivityID, maxLen int) string {
 				times := maxLen - len(strconv.Itoa(int(id)))
