@@ -3,6 +3,9 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+	"text/template"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
@@ -158,4 +161,60 @@ func activityDurationValidator(input string) error {
 		return errors.New("Activity Duration can not be negative")
 	}
 	return nil
+}
+
+// activitySelect list given activities and asks user to select one.
+func activitySelect(activities []domain.Activity) (selectedActivityIndex int, err error) {
+	var idMaxLen int = 0
+	for _, act := range activities {
+		idStr := strconv.Itoa(int(act.ID))
+		if len(idStr) > idMaxLen {
+			idMaxLen = len(idStr)
+		}
+	}
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Inactive: "\t - " + `{{ printf "[%d] " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Label | white }}`,
+		Active:   "\t → " + `{{ printf "[%d]  " .ID|cyan|bold}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Label | cyan | bold }}`,
+		Selected: "\t → " + `{{ printf "[%d] " .ID| green | bold }}` + ` | {{ .Label | green | bold }}`,
+		FuncMap: template.FuncMap{
+			"fixSpaces": func(id domain.ActivityID, maxLen int) string {
+				times := maxLen - len(strconv.Itoa(int(id)))
+				return strings.Repeat(" ", times)
+			},
+			"black":     promptui.Styler(promptui.FGBlack),
+			"red":       promptui.Styler(promptui.FGRed),
+			"green":     promptui.Styler(promptui.FGGreen),
+			"yellow":    promptui.Styler(promptui.FGYellow),
+			"blue":      promptui.Styler(promptui.FGBlue),
+			"magenta":   promptui.Styler(promptui.FGMagenta),
+			"cyan":      promptui.Styler(promptui.FGCyan),
+			"white":     promptui.Styler(promptui.FGWhite),
+			"bgBlack":   promptui.Styler(promptui.BGBlack),
+			"bgRed":     promptui.Styler(promptui.BGRed),
+			"bgGreen":   promptui.Styler(promptui.BGGreen),
+			"bgYellow":  promptui.Styler(promptui.BGYellow),
+			"bgBlue":    promptui.Styler(promptui.BGBlue),
+			"bgMagenta": promptui.Styler(promptui.BGMagenta),
+			"bgCyan":    promptui.Styler(promptui.BGCyan),
+			"bgWhite":   promptui.Styler(promptui.BGWhite),
+			"bold":      promptui.Styler(promptui.FGBold),
+			"faint":     promptui.Styler(promptui.FGFaint),
+			"italic":    promptui.Styler(promptui.FGItalic),
+			"underline": promptui.Styler(promptui.FGUnderline),
+		},
+	}
+	activityPrompt := promptui.Select{
+		Label:     "Choose Activity:",
+		Items:     activities,
+		Templates: templates,
+		Size:      len(activities),
+		Searcher: func(input string, index int) bool {
+			label := strings.ToLower(activities[index].Label)
+			input = strings.ToLower(input)
+			return strings.Contains(label, input)
+		},
+	}
+	selectedActivityIndex, _, err = activityPrompt.Run()
+	return selectedActivityIndex, err
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -12,11 +11,12 @@ import (
 )
 
 type postExpenseReqPayload struct {
-	Label string       `json:"label"`
-	Time  time.Time    `json:"time"`
-	Value float32      `json:"value"`
-	Unit  string       `json:"unit"`
-	Tags  []domain.Tag `json:"tags"`
+	Label      string            `json:"label"`
+	Time       time.Time         `json:"time"`
+	Value      float32           `json:"value"`
+	Unit       string            `json:"unit"`
+	ActivityID domain.ActivityID `json:"activityId"`
+	Tags       []domain.Tag      `json:"tags"`
 }
 
 type postExpenseRespPayload struct {
@@ -28,13 +28,14 @@ type postExpenseRespPayload struct {
 func PostExpense(exp domain.Expense, token string) (int, error) {
 	// Marshall Expense to JSON
 	payload := postExpenseReqPayload{
-		Label: exp.Label,
-		Value: exp.Value,
-		Unit:  exp.Unit,
-		Time:  exp.Time,
-		Tags:  exp.Tags,
+		Label:      exp.Label,
+		Value:      exp.Value,
+		Unit:       exp.Unit,
+		Time:       exp.Time,
+		ActivityID: exp.ActivityID,
+		Tags:       exp.Tags,
 	}
-	log.Println(payload)
+	//log.Println(payload)
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return 0, err

@@ -3,6 +3,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -10,33 +11,29 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func expensePrompt(defaultExpense domain.Expense, tags []domain.Tag) (t domain.Expense, err error) {
-	/*
-		// Activity
-		var yesNoPromptQuestion string
-		if defaultExpense.ActivityID > 0 {
-			yesNoPromptQuestion = fmt.Sprintf("Change Activity [%d] ?", defaultExpense.ActivityID)
-		} else {
-			yesNoPromptQuestion = "Select an Activity ?"
-		}
-		selectActivity, err := yesNoPrompt(yesNoPromptQuestion, "N")
+func expensePrompt(defaultExpense domain.Expense, tags []domain.Tag, activities []domain.Activity) (t domain.Expense, err error) {
+	// Activity
+	var yesNoPromptQuestion string
+	if defaultExpense.ActivityID > 0 {
+		yesNoPromptQuestion = fmt.Sprintf("Change Activity [%d] ?", defaultExpense.ActivityID)
+	} else {
+		yesNoPromptQuestion = "Select an Activity ?"
+	}
+	selectActivity, err := yesNoPrompt(yesNoPromptQuestion, "N")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	activityID := defaultExpense.ActivityID
+	if selectActivity {
+		selectedActivityIndex, err := activitySelect(activities)
 		if err != nil {
-			fmt.Println(err)
-			return
+			return t, err
 		}
-		activityID := defaultExpense.ActivityID
-		if selectActivity {
-			activities, err := store.FetchActivities(time.Now().AddDate(0, -3, 0).Format("2006-01-02"))
-			if err != nil {
-				return t, err
-			}
-			selectedActivityIndex, err := activitySelect(&activities)
-			if err != nil {
-				return t, err
-			}
-			activityID = activities[selectedActivityIndex].ID
-		}
-	*/
+		activityID = activities[selectedActivityIndex].ID
+	}
+	log.Printf("Selected Activity ID: %d\n", activityID)
+	// Label
 	prompt := promptui.Prompt{
 		Label:    "Label",
 		Validate: expenseLabelValidator,
@@ -100,15 +97,15 @@ func expensePrompt(defaultExpense domain.Expense, tags []domain.Tag) (t domain.E
 			tags = append(tags[:selectedTagIndex], tags[selectedTagIndex+1:]...)
 		}
 	}
-	t = domain.Expense{
-		Label: name,
-		Value: float32(value),
-		Unit:  unit,
-		Time:  time,
-		//		ActivityID: activityID,
-		Tags: selectedTags,
+	exp := domain.Expense{
+		Label:      name,
+		Value:      float32(value),
+		Unit:       unit,
+		Time:       time,
+		ActivityID: activityID,
+		Tags:       selectedTags,
 	}
-	return t, nil
+	return exp, nil
 }
 
 // expenseLabelValidator validates the expense name inputed by the user

@@ -79,18 +79,22 @@ var newExpenseCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
+		activities, err := client.FetchActivities(token)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 		defaultExp := domain.Expense{
 			Label: "",
 			Value: 0,
 			Unit:  "dhs",
 			Time:  time.Now().Add(time.Duration(-1 * time.Hour)),
 		}
-		exp, err := expensePrompt(defaultExp, tags)
+		exp, err := expensePrompt(defaultExp, tags, activities)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(exp)
 		id, err := client.PostExpense(exp, token)
 		if err != nil {
 			fmt.Println(err)
