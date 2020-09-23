@@ -161,9 +161,9 @@ func expenseSelect(expenses []domain.Expense) (selectedExpenseIndex int, err err
 	}
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
-		Inactive: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | white }}` + ` | {{ .Label | white }}`,
-		Active:   "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | cyan | bold }}` + ` | {{ .Label | cyan | bold }}`,
-		Selected: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | green | bold }}` + ` | {{ .Label | green | bold }}`,
+		Inactive: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | white }}` + ` | {{ .Label | white }}` + ` {{ printf "(%.2f %s )" .Value .Unit | white}}`,
+		Active:   "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | cyan | bold }}` + ` | {{ .Label | cyan | bold }}` + ` {{ printf "(%.2f %s )" .Value .Unit | cyan | bold}}`,
+		Selected: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | green | bold }}` + ` | {{ .Label | green | bold }}` + ` {{ printf "(%.2f %s )" .Value .Unit | green | bold}}`,
 		FuncMap: template.FuncMap{
 			"fixSpaces": func(id domain.ExpenseID, maxLen int) string {
 				times := maxLen - len(strconv.Itoa(int(id)))
