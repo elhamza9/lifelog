@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
@@ -106,4 +107,33 @@ func FetchActivities(token string, minTime time.Time) ([]domain.Activity, error)
 		return []domain.Activity{}, err
 	}
 	return activities, nil
+}
+
+// DeleteActivity sends a POST request with refresh token and
+// gets a new Jwt Access Token
+func DeleteActivity(id domain.ActivityID, token string) error {
+	// Send HTTP Request
+	path := url + "/activities/" + strconv.Itoa(int(id))
+	req, err := http.NewRequest("DELETE", path, nil)
+	if err != nil {
+		return err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return err
+	}
+	// Check Response Code
+	if responseCode != http.StatusNoContent {
+		return fmt.Errorf("error deleting tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+	}
+	return nil
 }

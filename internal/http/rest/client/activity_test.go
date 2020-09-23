@@ -31,3 +31,24 @@ func TestFetchActivities(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDeleteActivity(t *testing.T) {
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o"
+	// Create Test Activity
+	testAct := domain.Activity{
+		Label:    "Do smth",
+		Place:    "Somewhere",
+		Desc:     "With Details",
+		Time:     time.Now().Add(time.Duration(-1 * time.Hour)),
+		Duration: time.Duration(time.Minute * 20),
+		Tags:     []domain.Tag{},
+	}
+	id, err := client.PostActivity(testAct, token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Test Delete
+	if err = client.DeleteActivity(domain.ActivityID(id), token); err != nil {
+		t.Fatal(err)
+	}
+}

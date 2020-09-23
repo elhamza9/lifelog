@@ -59,6 +59,7 @@ var listActivitiesCmd = &cobra.Command{
 	Use:   "activities",
 	Short: "List All Activities",
 	Run: func(cmd *cobra.Command, args []string) {
+		// Parse Flag
 		nbrMonths, err := strconv.Atoi(activitiesMonthsFlag)
 		if err != nil {
 			fmt.Println(err)
@@ -71,13 +72,27 @@ var listActivitiesCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		// Display
+		// Select
 		selectedIndex, err := activitySelect(activities)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("Selected Activities: %v\n", activities[selectedIndex])
+		activity := activities[selectedIndex]
+		// Action
+		action, err := actionPrompt()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		switch action {
+		case actionDelete:
+			if err := client.DeleteActivity(activity.ID, token); err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Activity deleted successfully")
+		}
 		return
 	},
 }
