@@ -2,6 +2,10 @@ package cli
 
 import (
 	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/spf13/cobra"
@@ -40,12 +44,28 @@ var listActivitiesCmd = &cobra.Command{
 	Use:   "activities",
 	Short: "List All Activities",
 	Run: func(cmd *cobra.Command, args []string) {
+		// Parse Argument if exists
+		var nbrMonths int = 3 // List activities up to ~ months
+		if len(args) == 1 {
+			if match, _ := regexp.Match(`^months=\d$`, []byte(args[0])); !match {
+				fmt.Println("expecting argument to be: months=<number>")
+				return
+			}
+			res := strings.Split(args[0], "=")
+			var err error
+			if nbrMonths, err = strconv.Atoi(res[1]); err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
+		// Fetch
 		token := viper.Get("Access").(string)
-		activities, err := client.FetchActivities(token)
+		activities, err := client.FetchActivities(token, time.Now().AddDate(0, -nbrMonths, 0))
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		// Display
 		selectedIndex, err := activitySelect(activities)
 		if err != nil {
 			fmt.Println(err)

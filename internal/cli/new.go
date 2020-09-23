@@ -79,7 +79,7 @@ var newExpenseCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		activities, err := client.FetchActivities(token)
+		activities, err := client.FetchActivities(token, time.Now().AddDate(0, -3, 0))
 		if err != nil {
 			fmt.Println(err)
 			return

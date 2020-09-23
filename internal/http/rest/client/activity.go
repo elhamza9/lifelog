@@ -75,9 +75,9 @@ func PostActivity(act domain.Activity, token string) (int, error) {
 }
 
 // FetchActivities sends a GET request to fetch all activities
-func FetchActivities(token string) ([]domain.Activity, error) {
+func FetchActivities(token string, minTime time.Time) ([]domain.Activity, error) {
 	// Send HTTP Request
-	const path string = url + "/activities"
+	path := url + "/activities?from=" + minTime.Format("01-02-2006")
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
 		return []domain.Activity{}, err
