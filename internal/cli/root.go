@@ -3,7 +3,9 @@ package cli
 import (
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/spf13/cobra"
 
@@ -24,9 +26,10 @@ var rootCmd = &cobra.Command{
 			fmt.Println("No Config File Found !")
 			return
 		}
+		existingAccessToken := viper.Get("Access")
 		// If Access Token was fetched and saved previously don't login
-		if viper.Get("Access") == nil {
-			fmt.Println("Loging in ...\n")
+		if existingAccessToken == nil {
+			fmt.Println("Logging in ...\n")
 			pass, err := loginPrompt()
 			if err != nil {
 				fmt.Println(err)
@@ -41,9 +44,25 @@ var rootCmd = &cobra.Command{
 			fmt.Println("Saving Token Pair ...\n")
 			viper.Set("Access", access)
 			viper.Set("Refresh", refresh)
-			//log.Printf("Access Token: %s\nRefresh Token: %s\n", access, refresh)
 			viper.WriteConfig()
 			return
+		}
+		token, err := jwt.Parse(existingAccessToken.(string), nil)
+		if token == nil {
+			fmt.Println(err)
+			return
+		}
+		claims, _ := token.Claims.(jwt.MapClaims)
+		if expTime := time.Unix(int64(claims["exp"].(float64)), 0); !expTime.After(time.Now()) {
+			refreshToken := viper.Get("Refresh").(string)
+			newAccessToken, err := client.RefreshToken(refreshToken)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Refresh Token Successful")
+			viper.Set("Access", newAccessToken)
+			viper.WriteConfig()
 		}
 	},
 }
