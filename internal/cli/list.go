@@ -36,8 +36,29 @@ var listTagCmd = &cobra.Command{
 	},
 }
 
+var listActivitiesCmd = &cobra.Command{
+	Use:   "activities",
+	Short: "List All Activities",
+	Run: func(cmd *cobra.Command, args []string) {
+		token := viper.Get("Access").(string)
+		activities, err := client.FetchActivities(token)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		selectedIndex, err := activitySelect(activities)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("Selected Activities: %v\n", activities[selectedIndex])
+		return
+	},
+}
+
 func init() {
 	listCmd.AddCommand(listTagCmd)
+	listCmd.AddCommand(listActivitiesCmd)
 	rootCmd.AddCommand(listCmd)
 
 	// Here you will define your flags and configuration settings.
