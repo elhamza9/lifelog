@@ -26,7 +26,7 @@ func TestPostActivity(t *testing.T) {
 
 func TestFetchActivities(t *testing.T) {
 	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o"
-	_, err := client.FetchActivities(token)
+	_, err := client.FetchActivities(token, time.Now().AddDate(0, -3, 0))
 	if err != nil {
 		t.Fatal(err)
 	}
