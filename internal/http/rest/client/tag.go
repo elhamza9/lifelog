@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/elhamza90/lifelog/internal/domain"
 )
@@ -57,6 +58,35 @@ func PostTag(tag domain.Tag, token string) (int, error) {
 		return 0, err
 	}
 	return respObj.ID, nil
+}
+
+// DeleteTag sends a POST request with refresh token and
+// gets a new Jwt Access Token
+func DeleteTag(id domain.TagID, token string) error {
+	// Send HTTP Request
+	path := url + "/tags/" + strconv.Itoa(int(id))
+	req, err := http.NewRequest("DELETE", path, nil)
+	if err != nil {
+		return err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return err
+	}
+	// Check Response Code
+	if responseCode != http.StatusNoContent {
+		return fmt.Errorf("error deleting tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+	}
+	return nil
 }
 
 // FetchTags sends a GET request to fetch all tags

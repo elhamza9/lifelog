@@ -22,3 +22,16 @@ func TestFetchTags(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDeleteTag(t *testing.T) {
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o"
+	// Create Test Tag
+	id, err := client.PostTag(domain.Tag{Name: "my-test-tag-3123"}, token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Test Delete
+	if err = client.DeleteTag(domain.TagID(id), token); err != nil {
+		t.Fatal(err)
+	}
+}

@@ -22,18 +22,34 @@ var listTagCmd = &cobra.Command{
 	Use:   "tags",
 	Short: "List All Tags",
 	Run: func(cmd *cobra.Command, args []string) {
+		// Fetch
 		token := viper.Get("Access").(string)
 		tags, err := client.FetchTags(token)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		// Select
 		selectedTagIndex, err := tagSelect(tags)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("Selected Tag: %v\n", tags[selectedTagIndex])
+		tag := tags[selectedTagIndex]
+		// Action
+		action, err := actionPrompt()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		switch action {
+		case actionDelete:
+			if err := client.DeleteTag(tag.ID, token); err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Tag deleted successfully")
+		}
 		return
 	},
 }
