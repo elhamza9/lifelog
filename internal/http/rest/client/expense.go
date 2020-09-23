@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
@@ -105,4 +106,33 @@ func FetchExpenses(token string, minTime time.Time) ([]domain.Expense, error) {
 		return []domain.Expense{}, err
 	}
 	return expenses, nil
+}
+
+// DeleteExpense sends a POST request with refresh token and
+// gets a new Jwt Access Token
+func DeleteExpense(id domain.ExpenseID, token string) error {
+	// Send HTTP Request
+	path := url + "/expenses/" + strconv.Itoa(int(id))
+	req, err := http.NewRequest("DELETE", path, nil)
+	if err != nil {
+		return err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return err
+	}
+	// Check Response Code
+	if responseCode != http.StatusNoContent {
+		return fmt.Errorf("error deleting expense:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+	}
+	return nil
 }

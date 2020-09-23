@@ -115,13 +115,27 @@ var listExpensesCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		// Display
+		// Select
 		selectedIndex, err := expenseSelect(expenses)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("Selected Expenses: %v\n", expenses[selectedIndex])
+		// Action
+		action, err := actionPrompt()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		expense := expenses[selectedIndex]
+		switch action {
+		case actionDelete:
+			if err := client.DeleteExpense(expense.ID, token); err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Expense deleted successfully")
+		}
 		return
 	},
 }
