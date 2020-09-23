@@ -2,9 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
@@ -40,23 +38,15 @@ var listTagCmd = &cobra.Command{
 	},
 }
 
+var activitiesMonthsFlag string
 var listActivitiesCmd = &cobra.Command{
 	Use:   "activities",
 	Short: "List All Activities",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Parse Argument if exists
-		var nbrMonths int = 3 // List activities up to ~ months
-		if len(args) == 1 {
-			if match, _ := regexp.Match(`^months=\d$`, []byte(args[0])); !match {
-				fmt.Println("expecting argument to be: months=<number>")
-				return
-			}
-			res := strings.Split(args[0], "=")
-			var err error
-			if nbrMonths, err = strconv.Atoi(res[1]); err != nil {
-				fmt.Println(err)
-				return
-			}
+		nbrMonths, err := strconv.Atoi(activitiesMonthsFlag)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
 		// Fetch
 		token := viper.Get("Access").(string)
@@ -76,23 +66,16 @@ var listActivitiesCmd = &cobra.Command{
 	},
 }
 
+var expensesMonthsFlag string
 var listExpensesCmd = &cobra.Command{
 	Use:   "expenses",
 	Short: "List All Expenses",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Parse Argument if exists
-		var nbrMonths int = 3 // List expenses up to ~ months
-		if len(args) == 1 {
-			if match, _ := regexp.Match(`^months=\d$`, []byte(args[0])); !match {
-				fmt.Println("expecting argument to be: months=<number>")
-				return
-			}
-			res := strings.Split(args[0], "=")
-			var err error
-			if nbrMonths, err = strconv.Atoi(res[1]); err != nil {
-				fmt.Println(err)
-				return
-			}
+		nbrMonths, err := strconv.Atoi(expensesMonthsFlag)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
 		// Fetch
 		token := viper.Get("Access").(string)
@@ -114,7 +97,9 @@ var listExpensesCmd = &cobra.Command{
 
 func init() {
 	listCmd.AddCommand(listTagCmd)
+	listActivitiesCmd.Flags().StringVarP(&activitiesMonthsFlag, "months", "m", "3", "List activities occured in the last n months")
 	listCmd.AddCommand(listActivitiesCmd)
+	listExpensesCmd.Flags().StringVarP(&expensesMonthsFlag, "months", "m", "3", "List expenses occured in the last n months")
 	listCmd.AddCommand(listExpensesCmd)
 	rootCmd.AddCommand(listCmd)
 
