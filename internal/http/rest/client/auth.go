@@ -31,7 +31,7 @@ type refreshReqPayload struct {
 // refreshRespPayload is used to unmarshall JSON Response
 // when refreshing token is successful
 type refreshRespPayload struct {
-	Refresh string `json:"rt"`
+	Access string `json:"at"`
 }
 
 // Login sends a POST request with password and
@@ -99,5 +99,5 @@ func RefreshToken(token string) (string, error) {
 	if err := json.Unmarshal(responseBody, &respObj); err != nil {
 		return "", err
 	}
-	return respObj.Refresh, nil
+	return respObj.Access, nil
 }
