@@ -76,9 +76,46 @@ var listActivitiesCmd = &cobra.Command{
 	},
 }
 
+var listExpensesCmd = &cobra.Command{
+	Use:   "expenses",
+	Short: "List All Expenses",
+	Run: func(cmd *cobra.Command, args []string) {
+		// Parse Argument if exists
+		var nbrMonths int = 3 // List expenses up to ~ months
+		if len(args) == 1 {
+			if match, _ := regexp.Match(`^months=\d$`, []byte(args[0])); !match {
+				fmt.Println("expecting argument to be: months=<number>")
+				return
+			}
+			res := strings.Split(args[0], "=")
+			var err error
+			if nbrMonths, err = strconv.Atoi(res[1]); err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
+		// Fetch
+		token := viper.Get("Access").(string)
+		expenses, err := client.FetchExpenses(token, time.Now().AddDate(0, -nbrMonths, 0))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		// Display
+		selectedIndex, err := expenseSelect(expenses)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("Selected Expenses: %v\n", expenses[selectedIndex])
+		return
+	},
+}
+
 func init() {
 	listCmd.AddCommand(listTagCmd)
 	listCmd.AddCommand(listActivitiesCmd)
+	listCmd.AddCommand(listExpensesCmd)
 	rootCmd.AddCommand(listCmd)
 
 	// Here you will define your flags and configuration settings.

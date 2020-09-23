@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
+	"text/template"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
@@ -146,4 +148,60 @@ func expenseTimeValidator(input string) error {
 		return errors.New("Expense Time can not be future")
 	}
 	return err
+}
+
+// expenseSelect list given expenses and asks user to select one.
+func expenseSelect(expenses []domain.Expense) (selectedExpenseIndex int, err error) {
+	var idMaxLen int = 0
+	for _, act := range expenses {
+		idStr := strconv.Itoa(int(act.ID))
+		if len(idStr) > idMaxLen {
+			idMaxLen = len(idStr)
+		}
+	}
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Inactive: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | white }}` + ` | {{ .Label | white }}`,
+		Active:   "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | cyan | bold }}` + ` | {{ .Label | cyan | bold }}`,
+		Selected: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | green | bold }}` + ` | {{ .Label | green | bold }}`,
+		FuncMap: template.FuncMap{
+			"fixSpaces": func(id domain.ExpenseID, maxLen int) string {
+				times := maxLen - len(strconv.Itoa(int(id)))
+				return strings.Repeat(" ", times)
+			},
+			"black":     promptui.Styler(promptui.FGBlack),
+			"red":       promptui.Styler(promptui.FGRed),
+			"green":     promptui.Styler(promptui.FGGreen),
+			"yellow":    promptui.Styler(promptui.FGYellow),
+			"blue":      promptui.Styler(promptui.FGBlue),
+			"magenta":   promptui.Styler(promptui.FGMagenta),
+			"cyan":      promptui.Styler(promptui.FGCyan),
+			"white":     promptui.Styler(promptui.FGWhite),
+			"bgBlack":   promptui.Styler(promptui.BGBlack),
+			"bgRed":     promptui.Styler(promptui.BGRed),
+			"bgGreen":   promptui.Styler(promptui.BGGreen),
+			"bgYellow":  promptui.Styler(promptui.BGYellow),
+			"bgBlue":    promptui.Styler(promptui.BGBlue),
+			"bgMagenta": promptui.Styler(promptui.BGMagenta),
+			"bgCyan":    promptui.Styler(promptui.BGCyan),
+			"bgWhite":   promptui.Styler(promptui.BGWhite),
+			"bold":      promptui.Styler(promptui.FGBold),
+			"faint":     promptui.Styler(promptui.FGFaint),
+			"italic":    promptui.Styler(promptui.FGItalic),
+			"underline": promptui.Styler(promptui.FGUnderline),
+		},
+	}
+	expensePrompt := promptui.Select{
+		Label:     "Choose Expense:",
+		Items:     expenses,
+		Templates: templates,
+		Size:      len(expenses),
+		Searcher: func(input string, index int) bool {
+			label := strings.ToLower(expenses[index].Label)
+			input = strings.ToLower(input)
+			return strings.Contains(label, input)
+		},
+	}
+	selectedExpenseIndex, _, err = expensePrompt.Run()
+	return selectedExpenseIndex, err
 }
