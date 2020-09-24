@@ -167,6 +167,31 @@ var listExpensesCmd = &cobra.Command{
 				return
 			}
 			fmt.Println("Expense deleted successfully")
+		case actionEdit:
+			// Prompt
+			tags, err := client.FetchTags(token)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			activities, err := client.FetchActivities(token, time.Now().AddDate(0, -2, 0))
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			edited, err := expensePrompt(expense, tags, activities)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			// Update
+			edited.ID = expense.ID
+			if err := client.UpdateExpense(edited, token); err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Expense updated successfully")
+
 		}
 		return
 	},

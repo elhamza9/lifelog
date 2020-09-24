@@ -74,6 +74,50 @@ func PostExpense(exp domain.Expense, token string) (int, error) {
 	return respObj.ID, nil
 }
 
+// UpdateExpense sends a PUT request to update given expense
+func UpdateExpense(exp domain.Expense, token string) error {
+	// Marshall Expense to JSON
+	payload := postExpenseReqPayload{
+		Label:      exp.Label,
+		Value:      exp.Value,
+		Unit:       exp.Unit,
+		Time:       exp.Time,
+		ActivityID: exp.ActivityID,
+		Tags:       exp.Tags,
+	}
+	//log.Println(payload)
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	// Send HTTP Request
+	path := url + "/expenses/" + strconv.Itoa(int(exp.ID))
+	requestBody := bytes.NewBuffer(jsonPayload)
+	req, err := http.NewRequest("PUT", path, requestBody)
+	if err != nil {
+		return err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	req.Header.Add("Content-type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return err
+	}
+	// Check Response Code
+	if responseCode != http.StatusOK {
+		return fmt.Errorf("error updating expense:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+	}
+	return nil
+}
+
 // FetchExpenses sends a GET request to fetch all expenses
 func FetchExpenses(token string, minTime time.Time) ([]domain.Expense, error) {
 	// Send HTTP Request
