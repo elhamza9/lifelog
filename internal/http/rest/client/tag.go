@@ -159,3 +159,71 @@ func FetchTags(token string) ([]domain.Tag, error) {
 	}
 	return tags, nil
 }
+
+// FetchTagExpenses sends a GET request to fetch expenses with given tag id
+func FetchTagExpenses(id domain.TagID, token string) ([]domain.Expense, error) {
+	// Send HTTP Request
+	path := url + "/tags/" + strconv.Itoa(int(id)) + "/expenses"
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return []domain.Expense{}, err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return []domain.Expense{}, err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return []domain.Expense{}, err
+	}
+	// Check Response Code
+	if responseCode != http.StatusOK {
+		return []domain.Expense{}, fmt.Errorf("error fetching expenses:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+	}
+	// Extract Expenses
+	var expenses []domain.Expense
+	if err := json.Unmarshal(responseBody, &expenses); err != nil {
+		return []domain.Expense{}, err
+	}
+	return expenses, nil
+}
+
+// FetchTagActivities sends a GET request to fetch activities with given tag id
+func FetchTagActivities(id domain.TagID, token string) ([]domain.Activity, error) {
+	// Send HTTP Request
+	path := url + "/tags/" + strconv.Itoa(int(id)) + "/activities"
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return []domain.Activity{}, err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return []domain.Activity{}, err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return []domain.Activity{}, err
+	}
+	// Check Response Code
+	if responseCode != http.StatusOK {
+		return []domain.Activity{}, fmt.Errorf("error fetching activities:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+	}
+	// Extract Activities
+	var activities []domain.Activity
+	if err := json.Unmarshal(responseBody, &activities); err != nil {
+		return []domain.Activity{}, err
+	}
+	return activities, nil
+}

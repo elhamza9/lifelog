@@ -10,12 +10,17 @@ const (
 	ActionExit    string = "Exit"
 )
 
-// ActionPrompt asks user what action does he want to perform on selected entity
-func ActionPrompt() (string, error) {
+// CustomPrompt asks user to select an option out of given options
+func CustomPrompt(question string, options []string) (string, error) {
 	prompt := promptui.Select{
-		Label: "What do you want to do ?",
-		Items: []string{ActionDetails, ActionEdit, ActionDelete, ActionExit},
+		Label: question,
+		Items: options,
 	}
 	_, op, err := prompt.Run()
 	return op, err
+}
+
+// ActionPrompt asks user what action does he want to perform on selected entity
+func ActionPrompt() (string, error) {
+	return CustomPrompt("What do you want to do ?", []string{ActionDetails, ActionEdit, ActionDelete, ActionExit})
 }

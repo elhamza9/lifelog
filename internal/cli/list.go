@@ -60,8 +60,34 @@ var listTagCmd = &cobra.Command{
 				return
 			}
 			fmt.Println("Tag updated successfully")
+		case io.ActionDetails:
+			var (
+				showExpenses   string = "Show Expenses"
+				showActivities string = "Show Activities"
+			)
+			action, err := io.CustomPrompt("What do you want to do", []string{showActivities, showExpenses, "Exit"})
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			if action == showActivities {
+				activities, err := client.FetchTagActivities(tag.ID, token)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				fmt.Println(activities)
+			} else if action == showExpenses {
+				expenses, err := client.FetchTagExpenses(tag.ID, token)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				fmt.Println(expenses)
+			} else {
+				return
+			}
 		}
-
 		return
 	},
 }
