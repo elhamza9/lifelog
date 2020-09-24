@@ -11,7 +11,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/domain"
 )
 
-type postExpenseReqPayload struct {
+type expenseReqPayload struct {
 	Label      string            `json:"label"`
 	Time       time.Time         `json:"time"`
 	Value      float32           `json:"value"`
@@ -28,7 +28,7 @@ type postExpenseRespPayload struct {
 // gets a new Jwt Access Token
 func PostExpense(exp domain.Expense, token string) (int, error) {
 	// Marshall Expense to JSON
-	payload := postExpenseReqPayload{
+	payload := expenseReqPayload{
 		Label:      exp.Label,
 		Value:      exp.Value,
 		Unit:       exp.Unit,
@@ -64,7 +64,7 @@ func PostExpense(exp domain.Expense, token string) (int, error) {
 	}
 	// Check Response Code
 	if responseCode != http.StatusCreated {
-		return 0, fmt.Errorf("error posting new expense:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return 0, fmt.Errorf("error posting new expense:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extrexp ID created Expense
 	respObj := postExpenseRespPayload{}
@@ -77,7 +77,7 @@ func PostExpense(exp domain.Expense, token string) (int, error) {
 // UpdateExpense sends a PUT request to update given expense
 func UpdateExpense(exp domain.Expense, token string) error {
 	// Marshall Expense to JSON
-	payload := postExpenseReqPayload{
+	payload := expenseReqPayload{
 		Label:      exp.Label,
 		Value:      exp.Value,
 		Unit:       exp.Unit,
@@ -113,7 +113,7 @@ func UpdateExpense(exp domain.Expense, token string) error {
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return fmt.Errorf("error updating expense:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return fmt.Errorf("error updating expense:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	return nil
 }
@@ -142,7 +142,7 @@ func FetchExpenses(token string, minTime time.Time) ([]domain.Expense, error) {
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return []domain.Expense{}, fmt.Errorf("error fetching expenses:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return []domain.Expense{}, fmt.Errorf("error fetching expenses:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract Expenses
 	var expenses []domain.Expense
@@ -176,7 +176,7 @@ func DeleteExpense(id domain.ExpenseID, token string) error {
 	}
 	// Check Response Code
 	if responseCode != http.StatusNoContent {
-		return fmt.Errorf("error deleting expense:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return fmt.Errorf("error deleting expense:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	return nil
 }

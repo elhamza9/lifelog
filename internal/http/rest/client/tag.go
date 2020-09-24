@@ -10,7 +10,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/domain"
 )
 
-type postTagReqPayload struct {
+type tagReqPayload struct {
 	Name string `json:"name"`
 }
 
@@ -18,20 +18,11 @@ type postTagRespPayload struct {
 	ID int `json:"id"`
 }
 
-type updateTagReqPayload struct {
-	Name string `json:"name"`
-}
-
-type updateTagRespPayload struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 // PostTag sends a POST request with refresh token and
 // gets a new Jwt Access Token
 func PostTag(tag domain.Tag, token string) (int, error) {
 	// Marshall Tag to JSON
-	payload := postTagReqPayload{Name: tag.Name}
+	payload := tagReqPayload{Name: tag.Name}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return 0, err
@@ -59,7 +50,7 @@ func PostTag(tag domain.Tag, token string) (int, error) {
 	}
 	// Check Response Code
 	if responseCode != http.StatusCreated {
-		return 0, fmt.Errorf("error posting new tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return 0, fmt.Errorf("error posting new tag:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract ID created Tag
 	respObj := postTagRespPayload{}
@@ -73,7 +64,7 @@ func PostTag(tag domain.Tag, token string) (int, error) {
 // gets a new Jwt Access Token
 func UpdateTag(tag domain.Tag, token string) error {
 	// Marshall Tag to JSON
-	payload := updateTagReqPayload{Name: tag.Name}
+	payload := tagReqPayload{Name: tag.Name}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -101,12 +92,7 @@ func UpdateTag(tag domain.Tag, token string) error {
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return fmt.Errorf("error updating tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
-	}
-	// Extract ID created Tag
-	respObj := updateTagRespPayload{}
-	if err := json.Unmarshal(responseBody, &respObj); err != nil {
-		return err
+		return fmt.Errorf("error updating tag:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	return nil
 }
@@ -135,7 +121,7 @@ func DeleteTag(id domain.TagID, token string) error {
 	}
 	// Check Response Code
 	if responseCode != http.StatusNoContent {
-		return fmt.Errorf("error deleting tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return fmt.Errorf("error deleting tag:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	return nil
 }
@@ -164,7 +150,7 @@ func FetchTags(token string) ([]domain.Tag, error) {
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return []domain.Tag{}, fmt.Errorf("error posting new tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return []domain.Tag{}, fmt.Errorf("error posting new tag:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract Tags
 	var tags []domain.Tag

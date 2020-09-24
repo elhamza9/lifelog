@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,7 +11,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/domain"
 )
 
-type postActivityReqPayload struct {
+type activityReqPayload struct {
 	Label    string        `json:"label"`
 	Place    string        `json:"place"`
 	Desc     string        `json:"desc"`
@@ -29,7 +28,7 @@ type postActivityRespPayload struct {
 // gets a new Jwt Access Token
 func PostActivity(act domain.Activity, token string) (int, error) {
 	// Marshall Activity to JSON
-	payload := postActivityReqPayload{
+	payload := activityReqPayload{
 		Label:    act.Label,
 		Place:    act.Place,
 		Desc:     act.Desc,
@@ -37,7 +36,6 @@ func PostActivity(act domain.Activity, token string) (int, error) {
 		Duration: act.Duration,
 		Tags:     act.Tags,
 	}
-	log.Println(payload)
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return 0, err
@@ -65,7 +63,7 @@ func PostActivity(act domain.Activity, token string) (int, error) {
 	}
 	// Check Response Code
 	if responseCode != http.StatusCreated {
-		return 0, fmt.Errorf("error posting new activity:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return 0, fmt.Errorf("error posting new activity:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract ID created Activity
 	respObj := postActivityRespPayload{}
@@ -78,7 +76,7 @@ func PostActivity(act domain.Activity, token string) (int, error) {
 // UpdateActivity sends a PUT request to update given activity
 func UpdateActivity(act domain.Activity, token string) error {
 	// Marshall Activity to JSON
-	payload := postActivityReqPayload{
+	payload := activityReqPayload{
 		Label:    act.Label,
 		Place:    act.Place,
 		Desc:     act.Desc,
@@ -86,7 +84,6 @@ func UpdateActivity(act domain.Activity, token string) error {
 		Duration: act.Duration,
 		Tags:     act.Tags,
 	}
-	log.Println(payload)
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -114,7 +111,7 @@ func UpdateActivity(act domain.Activity, token string) error {
 	}
 	// Check Response Code
 	if responseCode != http.StatusCreated {
-		return fmt.Errorf("error updating activity:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return fmt.Errorf("error updating activity:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	return nil
 }
@@ -143,7 +140,7 @@ func FetchActivities(token string, minTime time.Time) ([]domain.Activity, error)
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return []domain.Activity{}, fmt.Errorf("error fetching activities:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return []domain.Activity{}, fmt.Errorf("error fetching activities:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract Activities
 	var activities []domain.Activity
@@ -177,7 +174,7 @@ func DeleteActivity(id domain.ActivityID, token string) error {
 	}
 	// Check Response Code
 	if responseCode != http.StatusNoContent {
-		return fmt.Errorf("error deleting tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+		return fmt.Errorf("error deleting tag:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	return nil
 }
