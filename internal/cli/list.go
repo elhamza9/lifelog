@@ -121,6 +121,13 @@ var listActivitiesCmd = &cobra.Command{
 				return
 			}
 			fmt.Println("Activity updated successfully")
+		case io.ActionDetails:
+			res, err := client.FetchActivityDetails(activity.ID, token)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println(res)
 		}
 		return
 	},

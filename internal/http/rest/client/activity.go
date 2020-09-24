@@ -150,6 +150,40 @@ func FetchActivities(token string, minTime time.Time) ([]domain.Activity, error)
 	return activities, nil
 }
 
+// FetchActivityDetails sends a GET request to fetch activity with given id
+func FetchActivityDetails(id domain.ActivityID, token string) (domain.Activity, error) {
+	// Send HTTP Request
+	path := url + "/activities/" + strconv.Itoa(int(id))
+	req, err := http.NewRequest("GET", path, nil)
+	if err != nil {
+		return domain.Activity{}, err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return domain.Activity{}, err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return domain.Activity{}, err
+	}
+	// Check Response Code
+	if responseCode != http.StatusOK {
+		return domain.Activity{}, fmt.Errorf("error fetching activity details:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+	}
+	// Extract Activity
+	var activity domain.Activity
+	if err := json.Unmarshal(responseBody, &activity); err != nil {
+		return domain.Activity{}, err
+	}
+	return activity, nil
+}
+
 // DeleteActivity sends a POST request with refresh token and
 // gets a new Jwt Access Token
 func DeleteActivity(id domain.ActivityID, token string) error {
