@@ -18,6 +18,15 @@ type postTagRespPayload struct {
 	ID int `json:"id"`
 }
 
+type updateTagReqPayload struct {
+	Name string `json:"name"`
+}
+
+type updateTagRespPayload struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 // PostTag sends a POST request with refresh token and
 // gets a new Jwt Access Token
 func PostTag(tag domain.Tag, token string) (int, error) {
@@ -58,6 +67,48 @@ func PostTag(tag domain.Tag, token string) (int, error) {
 		return 0, err
 	}
 	return respObj.ID, nil
+}
+
+// UpdateTag sends a POST request with refresh token and
+// gets a new Jwt Access Token
+func UpdateTag(tag domain.Tag, token string) error {
+	// Marshall Tag to JSON
+	payload := updateTagReqPayload{Name: tag.Name}
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	// Send HTTP Request
+	path := url + "/tags/" + strconv.Itoa(int(tag.ID))
+	requestBody := bytes.NewBuffer(jsonPayload)
+	req, err := http.NewRequest("PUT", path, requestBody)
+	if err != nil {
+		return err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	req.Header.Add("Content-type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return err
+	}
+	// Check Response Code
+	if responseCode != http.StatusOK {
+		return fmt.Errorf("error updating tag:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+	}
+	// Extract ID created Tag
+	respObj := updateTagRespPayload{}
+	if err := json.Unmarshal(responseBody, &respObj); err != nil {
+		return err
+	}
+	return nil
 }
 
 // DeleteTag sends a POST request with refresh token and

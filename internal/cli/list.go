@@ -49,7 +49,20 @@ var listTagCmd = &cobra.Command{
 				return
 			}
 			fmt.Println("Tag deleted successfully")
+		case actionEdit:
+			edited, err := tagPrompt(tag)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			edited.ID = tag.ID
+			if err := client.UpdateTag(edited, token); err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Tag updated successfully")
 		}
+
 		return
 	},
 }
