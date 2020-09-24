@@ -1,4 +1,4 @@
-package cli
+package io
 
 import (
 	"errors"
@@ -8,8 +8,8 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-// yesNoPrompt asks user a Yes or No question and returns boolean result
-func yesNoPrompt(question string, defaultAction string) (res bool, err error) {
+// YesNoPrompt asks user a Yes or No question and returns boolean result
+func YesNoPrompt(question string, defaultAction string) (res bool, err error) {
 	defaultActionSmallCase := strings.ToLower(defaultAction)
 	if defaultActionSmallCase != "y" && defaultActionSmallCase != "n" {
 		return res, fmt.Errorf("Expecting values(Small&Upper case): \"y\"/\"n\"/\"\". But %s given", defaultAction)

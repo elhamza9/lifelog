@@ -1,4 +1,4 @@
-package cli
+package io
 
 import (
 	"errors"
@@ -12,7 +12,8 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func tagPrompt(tag *domain.Tag) error {
+// TagPrompt asks user to fill tag fields
+func TagPrompt(tag *domain.Tag) error {
 	prompt := promptui.Prompt{
 		Label:    "Name",
 		Validate: tagNameValidator,
@@ -39,8 +40,8 @@ func tagNameValidator(input string) error {
 	}
 }
 
-// tagSelect list given tags and asks user to select one.
-func tagSelect(tags []domain.Tag) (selectedTagIndex int, err error) {
+// TagSelect lists given tags and asks user to select one.
+func TagSelect(tags []domain.Tag) (selectedTagIndex int, err error) {
 	var idMaxLen int = 0
 	for _, t := range tags {
 		idStr := strconv.Itoa(int(t.ID))

@@ -1,4 +1,4 @@
-package cli
+package io
 
 import (
 	"errors"
@@ -6,7 +6,8 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func loginPrompt() (string, error) {
+// LoginPrompt asks user for credentials
+func LoginPrompt() (string, error) {
 	prompt := promptui.Prompt{
 		Label: "Password",
 		Validate: func(input string) error {

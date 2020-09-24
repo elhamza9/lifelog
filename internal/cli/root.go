@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/elhamza90/lifelog/internal/cli/io"
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/spf13/cobra"
 
@@ -30,7 +31,7 @@ var rootCmd = &cobra.Command{
 		// If Access Token was fetched and saved previously don't login
 		if existingAccessToken == nil {
 			fmt.Println("Logging in ...\n")
-			pass, err := loginPrompt()
+			pass, err := io.LoginPrompt()
 			if err != nil {
 				fmt.Println(err)
 				return

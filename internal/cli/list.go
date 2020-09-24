@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/elhamza90/lifelog/internal/cli/io"
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -30,27 +31,27 @@ var listTagCmd = &cobra.Command{
 			return
 		}
 		// Select
-		selectedTagIndex, err := tagSelect(tags)
+		selectedTagIndex, err := io.TagSelect(tags)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		tag := tags[selectedTagIndex]
 		// Action
-		action, err := actionPrompt()
+		action, err := io.ActionPrompt()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		switch action {
-		case actionDelete:
+		case io.ActionDelete:
 			if err := client.DeleteTag(tag.ID, token); err != nil {
 				fmt.Println(err)
 				return
 			}
 			fmt.Println("Tag deleted successfully")
-		case actionEdit:
-			if err := tagPrompt(&tag); err != nil {
+		case io.ActionEdit:
+			if err := io.TagPrompt(&tag); err != nil {
 				fmt.Println(err)
 				return
 			}
@@ -84,33 +85,33 @@ var listActivitiesCmd = &cobra.Command{
 			return
 		}
 		// Select
-		selectedIndex, err := activitySelect(activities)
+		selectedIndex, err := io.ActivitySelect(activities)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		activity := activities[selectedIndex]
 		// Action
-		action, err := actionPrompt()
+		action, err := io.ActionPrompt()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		switch action {
-		case actionDelete:
+		case io.ActionDelete:
 			if err := client.DeleteActivity(activity.ID, token); err != nil {
 				fmt.Println(err)
 				return
 			}
 			fmt.Println("Activity deleted successfully")
-		case actionEdit:
+		case io.ActionEdit:
 			// Prompt
 			tags, err := client.FetchTags(token)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			if err := activityPrompt(&activity, tags); err != nil {
+			if err := io.ActivityPrompt(&activity, tags); err != nil {
 				fmt.Println(err)
 				return
 			}
@@ -144,26 +145,26 @@ var listExpensesCmd = &cobra.Command{
 			return
 		}
 		// Select
-		selectedIndex, err := expenseSelect(expenses)
+		selectedIndex, err := io.ExpenseSelect(expenses)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		// Action
-		action, err := actionPrompt()
+		action, err := io.ActionPrompt()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		expense := expenses[selectedIndex]
 		switch action {
-		case actionDelete:
+		case io.ActionDelete:
 			if err := client.DeleteExpense(expense.ID, token); err != nil {
 				fmt.Println(err)
 				return
 			}
 			fmt.Println("Expense deleted successfully")
-		case actionEdit:
+		case io.ActionEdit:
 			// Prompt
 			tags, err := client.FetchTags(token)
 			if err != nil {
@@ -175,7 +176,7 @@ var listExpensesCmd = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			if err := expensePrompt(&expense, tags, activities); err != nil {
+			if err := io.ExpensePrompt(&expense, tags, activities); err != nil {
 				fmt.Println(err)
 				return
 			}

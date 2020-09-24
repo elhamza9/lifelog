@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/elhamza90/lifelog/internal/cli/io"
 	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/spf13/cobra"
@@ -23,7 +24,7 @@ var newTagCmd = &cobra.Command{
 	Short: "Create a new Tag",
 	Run: func(cmd *cobra.Command, args []string) {
 		var tag domain.Tag
-		if err := tagPrompt(&tag); err != nil {
+		if err := io.TagPrompt(&tag); err != nil {
 			fmt.Println(err)
 			return
 		}
@@ -54,7 +55,7 @@ var newActivityCmd = &cobra.Command{
 			Time:     time.Now().Add(time.Duration(-1 * time.Hour)),
 			Duration: time.Duration(time.Hour - (time.Minute * 15)),
 		}
-		if err := activityPrompt(&activity, tags); err != nil {
+		if err := io.ActivityPrompt(&activity, tags); err != nil {
 			fmt.Println(err)
 			return
 		}
@@ -88,7 +89,7 @@ var newExpenseCmd = &cobra.Command{
 			Unit:  "dhs",
 			Time:  time.Now().Add(time.Duration(-1 * time.Hour)),
 		}
-		if err := expensePrompt(&expense, tags, activities); err != nil {
+		if err := io.ExpensePrompt(&expense, tags, activities); err != nil {
 			fmt.Println(err)
 			return
 		}

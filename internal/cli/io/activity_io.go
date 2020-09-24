@@ -1,4 +1,4 @@
-package cli
+package io
 
 import (
 	"errors"
@@ -12,8 +12,8 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-// activityInput gets activity fields from user and returns a new activity with filled fields
-func activityPrompt(activity *domain.Activity, tags []domain.Tag) error {
+// ActivityPrompt asks user to fill activity fields
+func ActivityPrompt(activity *domain.Activity, tags []domain.Tag) error {
 	// Label Prompt
 	prompt := promptui.Prompt{
 		Label:    "Label",
@@ -79,7 +79,7 @@ func activityPrompt(activity *domain.Activity, tags []domain.Tag) error {
 	selectedTags := []domain.Tag{}
 	// Run infinite loop. Break when Tag noTag is selected
 	for {
-		selectedTagIndex, err := tagSelect(tags)
+		selectedTagIndex, err := TagSelect(tags)
 		if err != nil {
 			return err
 		}
@@ -161,8 +161,8 @@ func activityDurationValidator(input string) error {
 	return nil
 }
 
-// activitySelect list given activities and asks user to select one.
-func activitySelect(activities []domain.Activity) (selectedActivityIndex int, err error) {
+// ActivitySelect lists given activities and asks user to select one.
+func ActivitySelect(activities []domain.Activity) (selectedActivityIndex int, err error) {
 	var idMaxLen int = 0
 	for _, act := range activities {
 		idStr := strconv.Itoa(int(act.ID))

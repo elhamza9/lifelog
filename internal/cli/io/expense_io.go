@@ -1,4 +1,4 @@
-package cli
+package io
 
 import (
 	"errors"
@@ -13,21 +13,22 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func expensePrompt(expense *domain.Expense, tags []domain.Tag, activities []domain.Activity) error {
+// ExpensePrompt asks user to fill expense fields
+func ExpensePrompt(expense *domain.Expense, tags []domain.Tag, activities []domain.Activity) error {
 	// Activity
-	var yesNoPromptQuestion string
+	var YesNoPromptQuestion string
 	if (*expense).ActivityID > 0 {
-		yesNoPromptQuestion = fmt.Sprintf("Change Activity [%d] ?", (*expense).ActivityID)
+		YesNoPromptQuestion = fmt.Sprintf("Change Activity [%d] ?", (*expense).ActivityID)
 	} else {
-		yesNoPromptQuestion = "Select an Activity ?"
+		YesNoPromptQuestion = "Select an Activity ?"
 	}
-	selectActivity, err := yesNoPrompt(yesNoPromptQuestion, "N")
+	selectActivity, err := YesNoPrompt(YesNoPromptQuestion, "N")
 	if err != nil {
 		return err
 	}
 	activityID := (*expense).ActivityID
 	if selectActivity {
-		selectedActivityIndex, err := activitySelect(activities)
+		selectedActivityIndex, err := ActivitySelect(activities)
 		if err != nil {
 			return err
 		}
@@ -85,7 +86,7 @@ func expensePrompt(expense *domain.Expense, tags []domain.Tag, activities []doma
 	selectedTags := []domain.Tag{}
 	// Run infinite loop. Break when Tag noTag is selected
 	for {
-		selectedTagIndex, err := tagSelect(tags)
+		selectedTagIndex, err := TagSelect(tags)
 		if err != nil {
 			return err
 		}
@@ -147,8 +148,8 @@ func expenseTimeValidator(input string) error {
 	return err
 }
 
-// expenseSelect list given expenses and asks user to select one.
-func expenseSelect(expenses []domain.Expense) (selectedExpenseIndex int, err error) {
+// ExpenseSelect lists given expenses and asks user to select one.
+func ExpenseSelect(expenses []domain.Expense) (selectedExpenseIndex int, err error) {
 	var idMaxLen int = 0
 	for _, act := range expenses {
 		idStr := strconv.Itoa(int(act.ID))
