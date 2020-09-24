@@ -75,6 +75,50 @@ func PostActivity(act domain.Activity, token string) (int, error) {
 	return respObj.ID, nil
 }
 
+// UpdateActivity sends a PUT request to update given activity
+func UpdateActivity(act domain.Activity, token string) error {
+	// Marshall Activity to JSON
+	payload := postActivityReqPayload{
+		Label:    act.Label,
+		Place:    act.Place,
+		Desc:     act.Desc,
+		Time:     act.Time,
+		Duration: act.Duration,
+		Tags:     act.Tags,
+	}
+	log.Println(payload)
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	// Send HTTP Request
+	path := url + "/activities/" + strconv.Itoa(int(act.ID))
+	requestBody := bytes.NewBuffer(jsonPayload)
+	req, err := http.NewRequest("PUT", path, requestBody)
+	if err != nil {
+		return err
+	}
+	bearer := "Bearer " + token
+	req.Header.Set("Authorization", bearer)
+	req.Header.Add("Content-type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	// Read Response
+	responseCode := resp.StatusCode
+	responseBody, err := readResponseBody(resp.Body)
+	if err != nil {
+		return err
+	}
+	// Check Response Code
+	if responseCode != http.StatusCreated {
+		return fmt.Errorf("error updating activity:\n\t- code: %d\n\t- body: %s\n", responseCode, responseBody)
+	}
+	return nil
+}
+
 // FetchActivities sends a GET request to fetch all activities
 func FetchActivities(token string, minTime time.Time) ([]domain.Activity, error) {
 	// Send HTTP Request

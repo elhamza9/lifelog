@@ -105,6 +105,25 @@ var listActivitiesCmd = &cobra.Command{
 				return
 			}
 			fmt.Println("Activity deleted successfully")
+		case actionEdit:
+			// Prompt
+			tags, err := client.FetchTags(token)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			edited, err := activityPrompt(activity, tags)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			// Update
+			edited.ID = activity.ID
+			if err := client.UpdateActivity(edited, token); err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println("Activity updated successfully")
 		}
 		return
 	},
