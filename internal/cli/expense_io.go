@@ -13,24 +13,23 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func expensePrompt(defaultExpense domain.Expense, tags []domain.Tag, activities []domain.Activity) (t domain.Expense, err error) {
+func expensePrompt(expense *domain.Expense, tags []domain.Tag, activities []domain.Activity) error {
 	// Activity
 	var yesNoPromptQuestion string
-	if defaultExpense.ActivityID > 0 {
-		yesNoPromptQuestion = fmt.Sprintf("Change Activity [%d] ?", defaultExpense.ActivityID)
+	if (*expense).ActivityID > 0 {
+		yesNoPromptQuestion = fmt.Sprintf("Change Activity [%d] ?", (*expense).ActivityID)
 	} else {
 		yesNoPromptQuestion = "Select an Activity ?"
 	}
 	selectActivity, err := yesNoPrompt(yesNoPromptQuestion, "N")
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
-	activityID := defaultExpense.ActivityID
+	activityID := (*expense).ActivityID
 	if selectActivity {
 		selectedActivityIndex, err := activitySelect(activities)
 		if err != nil {
-			return t, err
+			return err
 		}
 		activityID = activities[selectedActivityIndex].ID
 	}
@@ -39,45 +38,45 @@ func expensePrompt(defaultExpense domain.Expense, tags []domain.Tag, activities 
 	prompt := promptui.Prompt{
 		Label:    "Label",
 		Validate: expenseLabelValidator,
-		Default:  defaultExpense.Label,
+		Default:  (*expense).Label,
 	}
 	name, err := prompt.Run()
 	if err != nil {
-		return t, err
+		return err
 	}
 	// Value
 	prompt = promptui.Prompt{
 		Label:    "Value",
 		Validate: expenseValueValidator,
-		Default:  fmt.Sprintf("%.2f", defaultExpense.Value),
+		Default:  fmt.Sprintf("%.2f", (*expense).Value),
 	}
 	valueStr, err := prompt.Run()
 	if err != nil {
-		return t, err
+		return err
 	}
 	value, _ := strconv.ParseFloat(valueStr, 32)
 	// Unit
 	prompt = promptui.Prompt{
 		Label:    "Unit",
 		Validate: expenseUnitValidator,
-		Default:  defaultExpense.Unit,
+		Default:  (*expense).Unit,
 	}
 	unit, err := prompt.Run()
 	if err != nil {
-		return t, err
+		return err
 	}
 	// Time
-	if defaultExpense.Time.IsZero() {
-		defaultExpense.Time = time.Now()
+	if (*expense).Time.IsZero() {
+		(*expense).Time = time.Now()
 	}
 	prompt = promptui.Prompt{
 		Label:    "Time",
 		Validate: expenseTimeValidator,
-		Default:  defaultExpense.Time.Format("2006-01-02"),
+		Default:  (*expense).Time.Format("2006-01-02"),
 	}
 	timeStr, err := prompt.Run()
 	if err != nil {
-		return t, err
+		return err
 	}
 	time, _ := time.Parse("2006-01-02", timeStr)
 	// Tags
@@ -88,7 +87,7 @@ func expensePrompt(defaultExpense domain.Expense, tags []domain.Tag, activities 
 	for {
 		selectedTagIndex, err := tagSelect(tags)
 		if err != nil {
-			return domain.Expense{}, err
+			return err
 		}
 		selectedTag := tags[selectedTagIndex]
 		if selectedTag.ID == noTag.ID {
@@ -99,15 +98,13 @@ func expensePrompt(defaultExpense domain.Expense, tags []domain.Tag, activities 
 			tags = append(tags[:selectedTagIndex], tags[selectedTagIndex+1:]...)
 		}
 	}
-	exp := domain.Expense{
-		Label:      name,
-		Value:      float32(value),
-		Unit:       unit,
-		Time:       time,
-		ActivityID: activityID,
-		Tags:       selectedTags,
-	}
-	return exp, nil
+	(*expense).Label = name
+	(*expense).Value = float32(value)
+	(*expense).Unit = unit
+	(*expense).Time = time
+	(*expense).ActivityID = activityID
+	(*expense).Tags = selectedTags
+	return nil
 }
 
 // expenseLabelValidator validates the expense name inputed by the user

@@ -12,20 +12,18 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func tagPrompt(defaultTag domain.Tag) (t domain.Tag, err error) {
+func tagPrompt(tag *domain.Tag) error {
 	prompt := promptui.Prompt{
 		Label:    "Name",
 		Validate: tagNameValidator,
-		Default:  defaultTag.Name,
+		Default:  (*tag).Name,
 	}
 	name, err := prompt.Run()
 	if err != nil {
-		return t, err
+		return err
 	}
-	t = domain.Tag{
-		Name: name,
-	}
-	return t, nil
+	(*tag).Name = name
+	return nil
 }
 
 // tagNameValidator validates the tag name inputed by the user

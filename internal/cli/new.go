@@ -22,13 +22,13 @@ var newTagCmd = &cobra.Command{
 	Use:   "tag",
 	Short: "Create a new Tag",
 	Run: func(cmd *cobra.Command, args []string) {
-		tagToCreate, err := tagPrompt(domain.Tag{})
-		if err != nil {
+		var tag domain.Tag
+		if err := tagPrompt(&tag); err != nil {
 			fmt.Println(err)
 			return
 		}
 		token := viper.Get("Access").(string)
-		id, err := client.PostTag(tagToCreate, token)
+		id, err := client.PostTag(tag, token)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -47,20 +47,18 @@ var newActivityCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		defaultAct := domain.Activity{
+		activity := domain.Activity{
 			Label:    "",
 			Place:    "",
 			Desc:     "",
 			Time:     time.Now().Add(time.Duration(-1 * time.Hour)),
 			Duration: time.Duration(time.Hour - (time.Minute * 15)),
 		}
-		act, err := activityPrompt(defaultAct, tags)
-		if err != nil {
+		if err := activityPrompt(&activity, tags); err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(act)
-		id, err := client.PostActivity(act, token)
+		id, err := client.PostActivity(activity, token)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -84,18 +82,17 @@ var newExpenseCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		defaultExp := domain.Expense{
+		expense := domain.Expense{
 			Label: "",
 			Value: 0,
 			Unit:  "dhs",
 			Time:  time.Now().Add(time.Duration(-1 * time.Hour)),
 		}
-		exp, err := expensePrompt(defaultExp, tags, activities)
-		if err != nil {
+		if err := expensePrompt(&expense, tags, activities); err != nil {
 			fmt.Println(err)
 			return
 		}
-		id, err := client.PostExpense(exp, token)
+		id, err := client.PostExpense(expense, token)
 		if err != nil {
 			fmt.Println(err)
 			return

@@ -50,13 +50,11 @@ var listTagCmd = &cobra.Command{
 			}
 			fmt.Println("Tag deleted successfully")
 		case actionEdit:
-			edited, err := tagPrompt(tag)
-			if err != nil {
+			if err := tagPrompt(&tag); err != nil {
 				fmt.Println(err)
 				return
 			}
-			edited.ID = tag.ID
-			if err := client.UpdateTag(edited, token); err != nil {
+			if err := client.UpdateTag(tag, token); err != nil {
 				fmt.Println(err)
 				return
 			}
@@ -112,14 +110,12 @@ var listActivitiesCmd = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			edited, err := activityPrompt(activity, tags)
-			if err != nil {
+			if err := activityPrompt(&activity, tags); err != nil {
 				fmt.Println(err)
 				return
 			}
 			// Update
-			edited.ID = activity.ID
-			if err := client.UpdateActivity(edited, token); err != nil {
+			if err := client.UpdateActivity(activity, token); err != nil {
 				fmt.Println(err)
 				return
 			}
@@ -179,19 +175,16 @@ var listExpensesCmd = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			edited, err := expensePrompt(expense, tags, activities)
-			if err != nil {
+			if err := expensePrompt(&expense, tags, activities); err != nil {
 				fmt.Println(err)
 				return
 			}
 			// Update
-			edited.ID = expense.ID
-			if err := client.UpdateExpense(edited, token); err != nil {
+			if err := client.UpdateExpense(expense, token); err != nil {
 				fmt.Println(err)
 				return
 			}
 			fmt.Println("Expense updated successfully")
-
 		}
 		return
 	},

@@ -13,65 +13,65 @@ import (
 )
 
 // activityInput gets activity fields from user and returns a new activity with filled fields
-func activityPrompt(defaultActivity domain.Activity, tags []domain.Tag) (a domain.Activity, err error) {
+func activityPrompt(activity *domain.Activity, tags []domain.Tag) error {
 	// Label Prompt
 	prompt := promptui.Prompt{
 		Label:    "Label",
 		Validate: activityLabelValidator,
-		Default:  defaultActivity.Label,
+		Default:  (*activity).Label,
 	}
 	label, err := prompt.Run()
 	if err != nil {
-		return a, err
+		return err
 	}
 	// Place Prompt
 	prompt = promptui.Prompt{
 		Label:    "Place",
 		Validate: activityPlaceValidator,
-		Default:  defaultActivity.Place,
+		Default:  (*activity).Place,
 	}
 	place, err := prompt.Run()
 	if err != nil {
-		return a, err
+		return err
 	}
 	// Description Prompt
 	prompt = promptui.Prompt{
 		Label:    "Description",
 		Validate: activityDescValidator,
-		Default:  defaultActivity.Desc,
+		Default:  (*activity).Desc,
 	}
 	desc, err := prompt.Run()
 	if err != nil {
-		return a, err
+		return err
 	}
 	// Time Start Prompt
 	prompt = promptui.Prompt{
 		Label:    "Time Start",
 		Validate: activityTimeValidator,
-		Default:  defaultActivity.Time.Format("2006-01-02 15:04"),
+		Default:  (*activity).Time.Format("2006-01-02 15:04"),
 	}
 	actTimeStr, err := prompt.Run()
 	if err != nil {
-		return a, err
+		return err
 	}
 	zone, _ := time.Now().Zone()
 	actTime, err := time.Parse("2006-01-02 15:04 MST", actTimeStr+" "+zone)
 	if err != nil {
-		return a, err
+		return err
 	}
 	// Duration Prompt
 	prompt = promptui.Prompt{
 		Label:    "Duration",
 		Validate: activityDurationValidator,
-		Default:  defaultActivity.Duration.String(),
+		Default:  (*activity).Duration.String(),
 	}
 	durationStr, err := prompt.Run()
 	if err != nil {
-		return a, err
+		return err
 	}
 	duration, err := time.ParseDuration(durationStr)
 	if err != nil {
-		return a, err
+		return err
 	}
 	// Tags
 	noTag := domain.Tag{ID: 0, Name: "OK"}
@@ -81,7 +81,7 @@ func activityPrompt(defaultActivity domain.Activity, tags []domain.Tag) (a domai
 	for {
 		selectedTagIndex, err := tagSelect(tags)
 		if err != nil {
-			return a, err
+			return err
 		}
 		selectedTag := tags[selectedTagIndex]
 		if selectedTag.ID == noTag.ID {
@@ -92,15 +92,13 @@ func activityPrompt(defaultActivity domain.Activity, tags []domain.Tag) (a domai
 			tags = append(tags[:selectedTagIndex], tags[selectedTagIndex+1:]...)
 		}
 	}
-	a = domain.Activity{
-		Label:    label,
-		Place:    place,
-		Desc:     desc,
-		Time:     actTime,
-		Duration: duration,
-		Tags:     selectedTags,
-	}
-	return a, nil
+	(*activity).Label = label
+	(*activity).Place = place
+	(*activity).Desc = desc
+	(*activity).Time = actTime
+	(*activity).Duration = duration
+	(*activity).Tags = selectedTags
+	return nil
 }
 
 // Validators
