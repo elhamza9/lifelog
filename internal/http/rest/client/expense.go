@@ -17,7 +17,7 @@ type expenseReqPayload struct {
 	Value      float32           `json:"value"`
 	Unit       string            `json:"unit"`
 	ActivityID domain.ActivityID `json:"activityId"`
-	Tags       []domain.Tag      `json:"tags"`
+	TagIds     []domain.TagID    `json:"tagIds"`
 }
 
 type postExpenseRespPayload struct {
@@ -34,9 +34,8 @@ func PostExpense(exp domain.Expense, token string) (int, error) {
 		Unit:       exp.Unit,
 		Time:       exp.Time,
 		ActivityID: exp.ActivityID,
-		Tags:       exp.Tags,
+		TagIds:     getIdsFromTags(exp.Tags),
 	}
-	//log.Println(payload)
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return 0, err
@@ -83,7 +82,7 @@ func UpdateExpense(exp domain.Expense, token string) error {
 		Unit:       exp.Unit,
 		Time:       exp.Time,
 		ActivityID: exp.ActivityID,
-		Tags:       exp.Tags,
+		TagIds:     getIdsFromTags(exp.Tags),
 	}
 	//log.Println(payload)
 	jsonPayload, err := json.Marshal(payload)

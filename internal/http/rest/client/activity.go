@@ -12,12 +12,12 @@ import (
 )
 
 type activityReqPayload struct {
-	Label    string        `json:"label"`
-	Place    string        `json:"place"`
-	Desc     string        `json:"desc"`
-	Time     time.Time     `json:"time"`
-	Duration time.Duration `json:"duration"`
-	Tags     []domain.Tag  `json:"tags"`
+	Label    string         `json:"label"`
+	Place    string         `json:"place"`
+	Desc     string         `json:"desc"`
+	Time     time.Time      `json:"time"`
+	Duration time.Duration  `json:"duration"`
+	TagIds   []domain.TagID `json:"tagIds"`
 }
 
 type postActivityRespPayload struct {
@@ -34,7 +34,7 @@ func PostActivity(act domain.Activity, token string) (int, error) {
 		Desc:     act.Desc,
 		Time:     act.Time,
 		Duration: act.Duration,
-		Tags:     act.Tags,
+		TagIds:   getIdsFromTags(act.Tags),
 	}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
@@ -82,7 +82,7 @@ func UpdateActivity(act domain.Activity, token string) error {
 		Desc:     act.Desc,
 		Time:     act.Time,
 		Duration: act.Duration,
-		Tags:     act.Tags,
+		TagIds:   getIdsFromTags(act.Tags),
 	}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
@@ -110,7 +110,7 @@ func UpdateActivity(act domain.Activity, token string) error {
 		return err
 	}
 	// Check Response Code
-	if responseCode != http.StatusCreated {
+	if responseCode != http.StatusOK {
 		return fmt.Errorf("error updating activity:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	return nil
