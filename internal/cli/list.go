@@ -61,7 +61,7 @@ var listTagCmd = &cobra.Command{
 			}
 			fmt.Println("Tag updated successfully")
 		case io.ActionDetails:
-			var (
+			const (
 				showExpenses   string = "Show Expenses"
 				showActivities string = "Show Activities"
 			)
@@ -76,14 +76,17 @@ var listTagCmd = &cobra.Command{
 					fmt.Println(err)
 					return
 				}
-				fmt.Println(activities)
+				if _, err = io.ActivitySelect(activities); err != nil {
+					fmt.Println(err)
+					return
+				}
 			} else if action == showExpenses {
 				expenses, err := client.FetchTagExpenses(tag.ID, token)
 				if err != nil {
 					fmt.Println(err)
 					return
 				}
-				fmt.Println(expenses)
+				io.ExpenseSelect(expenses)
 			} else {
 				return
 			}
