@@ -71,6 +71,11 @@ func (repo Repository) FindActivitiesByTag(tid domain.TagID) ([]domain.Activity,
 
 // DeleteActivity removes activity with provided ID from memory
 func (repo Repository) DeleteActivity(id domain.ActivityID) error {
+	// Clear Tags Association
+	if err := repo.db.Model(&Activity{ID: id}).Association("Tags").Clear(); err != nil {
+		return err
+	}
+	// Delete Activity
 	res := repo.db.Delete(&Activity{ID: id})
 	if res.Error != nil {
 		return res.Error
