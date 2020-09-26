@@ -7,6 +7,7 @@ import (
 
 	"github.com/elhamza90/lifelog/internal/cli/io"
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -119,7 +120,7 @@ var listActivitiesCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		activity := activities[selectedIndex]
+		selected := activities[selectedIndex]
 		// Action
 		action, err := io.ActionPrompt()
 		if err != nil {
@@ -128,7 +129,7 @@ var listActivitiesCmd = &cobra.Command{
 		}
 		switch action {
 		case io.ActionDelete:
-			if err := client.DeleteActivity(activity.ID, token); err != nil {
+			if err := client.DeleteActivity(selected.ID, token); err != nil {
 				fmt.Println(err)
 				return
 			}
@@ -139,6 +140,14 @@ var listActivitiesCmd = &cobra.Command{
 			if err != nil {
 				fmt.Println(err)
 				return
+			}
+			activity := server.JSONReqActivity{
+				ID:       selected.ID,
+				Label:    selected.Label,
+				Place:    selected.Place,
+				Desc:     selected.Desc,
+				Time:     selected.Time,
+				Duration: selected.Duration,
 			}
 			if err := io.ActivityPrompt(&activity, tags); err != nil {
 				fmt.Println(err)
@@ -151,7 +160,7 @@ var listActivitiesCmd = &cobra.Command{
 			}
 			fmt.Println("Activity updated successfully")
 		case io.ActionDetails:
-			res, err := client.FetchActivityDetails(activity.ID, token)
+			res, err := client.FetchActivityDetails(selected.ID, token)
 			if err != nil {
 				fmt.Println(err)
 				return

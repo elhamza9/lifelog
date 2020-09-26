@@ -9,16 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// jsonActivity is used to unmarshal a json activity
-type jsonActivity struct {
-	Label    string         `json:"label"`
-	Desc     string         `json:"desc"`
-	Place    string         `json:"place"`
-	Time     time.Time      `json:"time"`
-	Duration time.Duration  `json:"duration"`
-	TagIds   []domain.TagID `json:"tagIds"`
-}
-
 // defaultActivitiesMinDate specifies default date filter when listing activities
 // and no filter was provided
 func defaultActivitiesDateFilter() time.Time {
@@ -41,11 +31,19 @@ func (h *Handler) ActivitiesByDate(c echo.Context) error {
 			return c.String(http.StatusBadRequest, err.Error())
 		}
 	}
+	// Fetch Activities
 	activities, err := h.lister.ActivitiesByTime(date)
 	if err != nil {
 		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
-	return c.JSON(http.StatusOK, activities)
+	// Construct respActivities from fetched activities
+	respActivities := make([]JSONRespListActivity, len(activities))
+	var respAct JSONRespListActivity
+	for i, act := range activities {
+		respAct.From(act)
+		respActivities[i] = respAct
+	}
+	return c.JSON(http.StatusOK, respActivities)
 }
 
 // ActivityDetails handler returns details of activity with given ID
@@ -62,30 +60,19 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
-	return c.JSON(http.StatusOK, act)
+	var actResp JSONRespDetailActivity
+	actResp.From(act)
+	return c.JSON(http.StatusOK, actResp)
 }
 
 // AddActivity handler adds an activity
 func (h *Handler) AddActivity(c echo.Context) error {
 	// Json unmarshall
-	var jsAct jsonActivity
+	var jsAct JSONReqActivity
 	if err := c.Bind(&jsAct); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	// Construct Tags slice from ids ( don't fetch anything )
-	tags := []domain.Tag{}
-	for _, id := range jsAct.TagIds {
-		tags = append(tags, domain.Tag{ID: id})
-	}
-	// Call adding service
-	act := domain.Activity{
-		Label:    jsAct.Label,
-		Desc:     jsAct.Desc,
-		Place:    jsAct.Place,
-		Time:     jsAct.Time,
-		Duration: jsAct.Duration,
-		Tags:     tags,
-	}
+	act := jsAct.ToDomain()
 	id, err := h.adder.NewActivity(act)
 	if err != nil {
 		return c.String(errToHTTPCode(err, "activities"), err.Error())
@@ -113,23 +100,12 @@ func (h *Handler) EditActivity(c echo.Context) error {
 		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
 	// Json unmarshall
-	var jsAct jsonActivity
+	var jsAct JSONReqActivity
 	if err := c.Bind(&jsAct); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	// Construct Tags slice from ids ( don't fetch anything )
-	tags := []domain.Tag{}
-	for _, id := range jsAct.TagIds {
-		tags = append(tags, domain.Tag{ID: id})
-	}
-	// Edit Activity
-	act.Label = jsAct.Label
-	act.Desc = jsAct.Desc
-	act.Place = jsAct.Place
-	act.Time = jsAct.Time
-	act.Duration = jsAct.Duration
-	act.Tags = tags
-	err = h.editor.EditActivity(act)
+	updated := jsAct.ToDomain()
+	err = h.editor.EditActivity(updated)
 	if err != nil {
 		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}

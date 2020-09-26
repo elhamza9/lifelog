@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/elhamza90/lifelog/internal/domain"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 )
 
 type tagReqPayload struct {
@@ -195,12 +196,12 @@ func FetchTagExpenses(id domain.TagID, token string) ([]domain.Expense, error) {
 }
 
 // FetchTagActivities sends a GET request to fetch activities with given tag id
-func FetchTagActivities(id domain.TagID, token string) ([]domain.Activity, error) {
+func FetchTagActivities(id domain.TagID, token string) ([]server.JSONRespListActivity, error) {
 	// Send HTTP Request
 	path := url + "/tags/" + strconv.Itoa(int(id)) + "/activities"
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
-		return []domain.Activity{}, err
+		return []server.JSONRespListActivity{}, err
 	}
 	bearer := "Bearer " + token
 	req.Header.Set("Authorization", bearer)
@@ -208,22 +209,22 @@ func FetchTagActivities(id domain.TagID, token string) ([]domain.Activity, error
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return []domain.Activity{}, err
+		return []server.JSONRespListActivity{}, err
 	}
 	// Read Response
 	responseCode := resp.StatusCode
 	responseBody, err := readResponseBody(resp.Body)
 	if err != nil {
-		return []domain.Activity{}, err
+		return []server.JSONRespListActivity{}, err
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return []domain.Activity{}, fmt.Errorf("error fetching activities:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+		return []server.JSONRespListActivity{}, fmt.Errorf("error fetching activities:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract Activities
-	var activities []domain.Activity
+	var activities []server.JSONRespListActivity
 	if err := json.Unmarshal(responseBody, &activities); err != nil {
-		return []domain.Activity{}, err
+		return []server.JSONRespListActivity{}, err
 	}
 	return activities, nil
 }

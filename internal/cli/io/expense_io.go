@@ -10,11 +10,12 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/manifoldco/promptui"
 )
 
 // ExpensePrompt asks user to fill expense fields
-func ExpensePrompt(expense *domain.Expense, tags []domain.Tag, activities []domain.Activity) error {
+func ExpensePrompt(expense *domain.Expense, tags []domain.Tag, activities []server.JSONRespListActivity) error {
 	// Activity
 	var YesNoPromptQuestion string
 	if (*expense).ActivityID > 0 {

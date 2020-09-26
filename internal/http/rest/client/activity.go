@@ -9,16 +9,8 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 )
-
-type activityReqPayload struct {
-	Label    string         `json:"label"`
-	Place    string         `json:"place"`
-	Desc     string         `json:"desc"`
-	Time     time.Time      `json:"time"`
-	Duration time.Duration  `json:"duration"`
-	TagIds   []domain.TagID `json:"tagIds"`
-}
 
 type postActivityRespPayload struct {
 	ID int `json:"id"`
@@ -26,16 +18,8 @@ type postActivityRespPayload struct {
 
 // PostActivity sends a POST request with refresh token and
 // gets a new Jwt Access Token
-func PostActivity(act domain.Activity, token string) (int, error) {
+func PostActivity(payload server.JSONReqActivity, token string) (int, error) {
 	// Marshall Activity to JSON
-	payload := activityReqPayload{
-		Label:    act.Label,
-		Place:    act.Place,
-		Desc:     act.Desc,
-		Time:     act.Time,
-		Duration: act.Duration,
-		TagIds:   getIdsFromTags(act.Tags),
-	}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return 0, err
@@ -74,22 +58,14 @@ func PostActivity(act domain.Activity, token string) (int, error) {
 }
 
 // UpdateActivity sends a PUT request to update given activity
-func UpdateActivity(act domain.Activity, token string) error {
+func UpdateActivity(payload server.JSONReqActivity, token string) error {
 	// Marshall Activity to JSON
-	payload := activityReqPayload{
-		Label:    act.Label,
-		Place:    act.Place,
-		Desc:     act.Desc,
-		Time:     act.Time,
-		Duration: act.Duration,
-		TagIds:   getIdsFromTags(act.Tags),
-	}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
 	// Send HTTP Request
-	path := url + "/activities/" + strconv.Itoa(int(act.ID))
+	path := url + "/activities/" + strconv.Itoa(int(payload.ID))
 	requestBody := bytes.NewBuffer(jsonPayload)
 	req, err := http.NewRequest("PUT", path, requestBody)
 	if err != nil {
@@ -117,12 +93,12 @@ func UpdateActivity(act domain.Activity, token string) error {
 }
 
 // FetchActivities sends a GET request to fetch all activities
-func FetchActivities(token string, minTime time.Time) ([]domain.Activity, error) {
+func FetchActivities(token string, minTime time.Time) ([]server.JSONRespListActivity, error) {
 	// Send HTTP Request
 	path := url + "/activities?from=" + minTime.Format("01-02-2006")
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
-		return []domain.Activity{}, err
+		return []server.JSONRespListActivity{}, err
 	}
 	bearer := "Bearer " + token
 	req.Header.Set("Authorization", bearer)
@@ -130,33 +106,33 @@ func FetchActivities(token string, minTime time.Time) ([]domain.Activity, error)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return []domain.Activity{}, err
+		return []server.JSONRespListActivity{}, err
 	}
 	// Read Response
 	responseCode := resp.StatusCode
 	responseBody, err := readResponseBody(resp.Body)
 	if err != nil {
-		return []domain.Activity{}, err
+		return []server.JSONRespListActivity{}, err
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return []domain.Activity{}, fmt.Errorf("error fetching activities:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+		return []server.JSONRespListActivity{}, fmt.Errorf("error fetching activities:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract Activities
-	var activities []domain.Activity
+	var activities []server.JSONRespListActivity
 	if err := json.Unmarshal(responseBody, &activities); err != nil {
-		return []domain.Activity{}, err
+		return []server.JSONRespListActivity{}, err
 	}
 	return activities, nil
 }
 
 // FetchActivityDetails sends a GET request to fetch activity with given id
-func FetchActivityDetails(id domain.ActivityID, token string) (domain.Activity, error) {
+func FetchActivityDetails(id domain.ActivityID, token string) (server.JSONRespDetailActivity, error) {
 	// Send HTTP Request
 	path := url + "/activities/" + strconv.Itoa(int(id))
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
-		return domain.Activity{}, err
+		return server.JSONRespDetailActivity{}, err
 	}
 	bearer := "Bearer " + token
 	req.Header.Set("Authorization", bearer)
@@ -164,22 +140,22 @@ func FetchActivityDetails(id domain.ActivityID, token string) (domain.Activity, 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return domain.Activity{}, err
+		return server.JSONRespDetailActivity{}, err
 	}
 	// Read Response
 	responseCode := resp.StatusCode
 	responseBody, err := readResponseBody(resp.Body)
 	if err != nil {
-		return domain.Activity{}, err
+		return server.JSONRespDetailActivity{}, err
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return domain.Activity{}, fmt.Errorf("error fetching activity details:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+		return server.JSONRespDetailActivity{}, fmt.Errorf("error fetching activity details:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract Activity
-	var activity domain.Activity
+	var activity server.JSONRespDetailActivity
 	if err := json.Unmarshal(responseBody, &activity); err != nil {
-		return domain.Activity{}, err
+		return server.JSONRespDetailActivity{}, err
 	}
 	return activity, nil
 }

@@ -9,11 +9,12 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/manifoldco/promptui"
 )
 
 // ActivityPrompt asks user to fill activity fields
-func ActivityPrompt(activity *domain.Activity, tags []domain.Tag) error {
+func ActivityPrompt(activity *server.JSONReqActivity, tags []domain.Tag) error {
 	// Label Prompt
 	prompt := promptui.Prompt{
 		Label:    "Label",
@@ -76,7 +77,7 @@ func ActivityPrompt(activity *domain.Activity, tags []domain.Tag) error {
 	// Tags
 	noTag := domain.Tag{ID: 0, Name: "OK"}
 	tags = append(tags, noTag)
-	selectedTags := []domain.Tag{}
+	selectedIds := []domain.TagID{}
 	// Run infinite loop. Break when Tag noTag is selected
 	for {
 		selectedTagIndex, err := TagSelect(tags)
@@ -87,7 +88,7 @@ func ActivityPrompt(activity *domain.Activity, tags []domain.Tag) error {
 		if selectedTag.ID == noTag.ID {
 			break
 		} else {
-			selectedTags = append(selectedTags, selectedTag)
+			selectedIds = append(selectedIds, selectedTag.ID)
 			// Remove selected Tag from list
 			tags = append(tags[:selectedTagIndex], tags[selectedTagIndex+1:]...)
 		}
@@ -97,7 +98,7 @@ func ActivityPrompt(activity *domain.Activity, tags []domain.Tag) error {
 	(*activity).Desc = desc
 	(*activity).Time = actTime
 	(*activity).Duration = duration
-	(*activity).Tags = selectedTags
+	(*activity).TagIds = selectedIds
 	return nil
 }
 
@@ -162,7 +163,7 @@ func activityDurationValidator(input string) error {
 }
 
 // ActivitySelect lists given activities and asks user to select one.
-func ActivitySelect(activities []domain.Activity) (selectedActivityIndex int, err error) {
+func ActivitySelect(activities []server.JSONRespListActivity) (selectedActivityIndex int, err error) {
 	var idMaxLen int = 0
 	for _, act := range activities {
 		idStr := strconv.Itoa(int(act.ID))

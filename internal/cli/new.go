@@ -7,6 +7,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/cli/io"
 	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -48,7 +49,7 @@ var newActivityCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		activity := domain.Activity{
+		activity := server.JSONReqActivity{
 			Label:    "",
 			Place:    "",
 			Desc:     "",
