@@ -14,7 +14,7 @@ import (
 // If none is found, returns error
 func (repo Repository) FindActivityByID(id domain.ActivityID) (domain.Activity, error) {
 	var act Activity
-	err := repo.db.First(&act, id).Error
+	err := repo.db.Preload("Tags").First(&act, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = store.ErrActivityNotFound
 	}
@@ -89,10 +89,7 @@ func (repo Repository) EditActivity(act domain.Activity) error {
 		}
 		return err
 	}
-	tags := make([]Tag, len(act.Tags))
-	for i, t := range act.Tags {
-		tags[i] = Tag{ID: t.ID, Name: t.Name}
-	}
+	// Update primary fields
 	res := repo.db.Save(&Activity{
 		ID:       act.ID,
 		Label:    act.Label,
@@ -100,10 +97,18 @@ func (repo Repository) EditActivity(act domain.Activity) error {
 		Desc:     act.Desc,
 		Time:     act.Time,
 		Duration: act.Duration,
-		Tags:     tags,
 	})
 	if res.RowsAffected != 1 {
 		return fmt.Errorf("%d Rows were affected", res.RowsAffected)
 	}
-	return res.Error
+	if res.Error != nil {
+		return res.Error
+	}
+	// Update Tags
+	tags := make([]Tag, len(act.Tags))
+	for i, t := range act.Tags {
+		tags[i] = Tag{ID: t.ID, Name: t.Name}
+	}
+	err := repo.db.Model(&Activity{ID: act.ID}).Association("Tags").Replace(tags)
+	return err
 }

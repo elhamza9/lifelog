@@ -243,6 +243,10 @@ func TestEditActivity(t *testing.T) {
 	t.Run("Existing Activity", func(t *testing.T) {
 		// Create test activity and tags
 		defer clearDB()
+		oldTag := db.Tag{Name: "test-tag-old"}
+		if err := grmDb.Create(&oldTag).Error; err != nil {
+			t.Fatalf("\nUnexpected Error while creating test tag:\n  %v", err)
+		}
 		act := db.Activity{
 			ID:       123,
 			Label:    "Test Activity",
@@ -250,13 +254,13 @@ func TestEditActivity(t *testing.T) {
 			Desc:     "Details",
 			Time:     time.Now().AddDate(0, 0, -1),
 			Duration: time.Duration(time.Hour),
-			Tags:     []db.Tag{},
+			Tags:     []db.Tag{oldTag},
 		}
 		if err := grmDb.Create(&act).Error; err != nil {
 			t.Fatalf("\nUnexpected Error while creating test activity:\n  %v", err)
 		}
-		tag := db.Tag{Name: "test-tag"}
-		if err := grmDb.Create(&tag).Error; err != nil {
+		newTag := db.Tag{Name: "test-tag-new"}
+		if err := grmDb.Create(&newTag).Error; err != nil {
 			t.Fatalf("\nUnexpected Error while creating test tag:\n  %v", err)
 		}
 		// Test Edit returned error
@@ -265,7 +269,7 @@ func TestEditActivity(t *testing.T) {
 		act.Desc = "Edited Description"
 		act.Time = act.Time.Add(time.Hour)
 		act.Duration = time.Duration(time.Hour * 2)
-		act.Tags = []db.Tag{tag}
+		act.Tags = []db.Tag{newTag}
 		if err := testFunc(act, nil); err != "" {
 			t.Fatal(err)
 		}
@@ -273,8 +277,19 @@ func TestEditActivity(t *testing.T) {
 		if err := grmDb.Preload("Tags").First(&res, act.ID).Error; err != nil {
 			t.Fatalf("Unexpected Error while retrieving edited activity:\n  %v", err)
 		}
-		if res.Label != act.Label || !res.Time.Equal(act.Time) || res.Duration != act.Duration || res.Place != act.Place || res.Desc != act.Desc || len(res.Tags) != len(act.Tags) {
+		// Check basic fields were updated
+		if res.Label != act.Label || !res.Time.Equal(act.Time) || res.Duration != act.Duration || res.Place != act.Place || res.Desc != act.Desc {
 			t.Fatalf("\nField values of edited activity were not fully updated:\n\t%v\n\t%v", res, act)
+		}
+		// Check associations were updated
+		errMsg := fmt.Sprintf("Tags were not updated:\n\tExpected: %v\n\tReturned: %v", act.Tags, res.Tags)
+		if len(res.Tags) != len(act.Tags) {
+			t.Fatal(errMsg)
+		}
+		for i, expectedTag := range act.Tags {
+			if res.Tags[i].Name != expectedTag.Name {
+				t.Fatal(errMsg)
+			}
 		}
 	})
 }
