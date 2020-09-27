@@ -36,7 +36,14 @@ func (h *Handler) GetTagExpenses(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "tags"), err.Error())
 	}
-	return c.JSON(http.StatusOK, expenses)
+	// Construct response expenses from fetched expenses
+	respExpenses := make([]JSONRespListExpense, len(expenses))
+	var respExp JSONRespListExpense
+	for i, exp := range expenses {
+		respExp.From(exp)
+		respExpenses[i] = respExp
+	}
+	return c.JSON(http.StatusOK, respExpenses)
 }
 
 // GetTagActivities handler returns activities of a given tag
@@ -52,7 +59,14 @@ func (h *Handler) GetTagActivities(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "tags"), err.Error())
 	}
-	return c.JSON(http.StatusOK, activities)
+	// Construct respActivities from fetched activities
+	respActivities := make([]JSONRespListActivity, len(activities))
+	var respAct JSONRespListActivity
+	for i, act := range activities {
+		respAct.From(act)
+		respActivities[i] = respAct
+	}
+	return c.JSON(http.StatusOK, respActivities)
 }
 
 // AddTag handler calls adding service to create a tag
