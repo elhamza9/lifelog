@@ -9,16 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// jsonExpense is used to unmarshal a json expense
-type jsonExpense struct {
-	Label      string            `json:"label"`
-	Time       time.Time         `json:"time"`
-	Value      float32           `json:"value"`
-	Unit       string            `json:"unit"`
-	ActivityID domain.ActivityID `json:"activityId"`
-	TagIds     []domain.TagID    `json:"tagIds"`
-}
-
 // defaultExpensesMinDate specifies default date filter when listing expenses
 // and no filter was provided
 func defaultExpensesDateFilter() time.Time {
@@ -44,7 +34,14 @@ func (h *Handler) ExpensesByDate(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
-	return c.JSON(http.StatusOK, expenses)
+	// Construct response expenses from fetched expenses
+	respExpenses := make([]JSONRespListExpense, len(expenses))
+	var respExp JSONRespListExpense
+	for i, exp := range expenses {
+		respExp.From(exp)
+		respExpenses[i] = respExp
+	}
+	return c.JSON(http.StatusOK, respExpenses)
 }
 
 // ExpenseDetails handler returns details of expense with given ID
@@ -57,34 +54,24 @@ func (h *Handler) ExpenseDetails(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Get Expense
-	act, err := h.lister.Expense(domain.ExpenseID(id))
+	exp, err := h.lister.Expense(domain.ExpenseID(id))
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
-	return c.JSON(http.StatusOK, act)
+	var respExp JSONRespDetailExpense
+	respExp.From(exp)
+	return c.JSON(http.StatusOK, respExp)
 }
 
 // AddExpense handler adds an expense
 func (h *Handler) AddExpense(c echo.Context) error {
 	// Json unmarshall
-	var jsExp jsonExpense
+	var jsExp JSONReqExpense
 	if err := c.Bind(&jsExp); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	// Construct Tags slice from ids ( don't fetch anything )
-	tags := []domain.Tag{}
-	for _, id := range jsExp.TagIds {
-		tags = append(tags, domain.Tag{ID: id})
-	}
 	// Call adding service
-	exp := domain.Expense{
-		Label:      jsExp.Label,
-		Value:      jsExp.Value,
-		Unit:       jsExp.Unit,
-		Time:       jsExp.Time,
-		ActivityID: jsExp.ActivityID,
-		Tags:       tags,
-	}
+	exp := jsExp.ToDomain()
 	id, err := h.adder.NewExpense(exp)
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
@@ -94,7 +81,9 @@ func (h *Handler) AddExpense(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
-	return c.JSON(http.StatusCreated, created)
+	var respExp JSONRespDetailExpense
+	respExp.From(created)
+	return c.JSON(http.StatusCreated, respExp)
 }
 
 // EditExpense handler edits an expense with given ID
@@ -106,28 +95,18 @@ func (h *Handler) EditExpense(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	// Retrieve Expense with given ID
-	exp, err := h.lister.Expense(domain.ExpenseID(id))
+	// Check Expense with given ID exists
+	_, err = h.lister.Expense(domain.ExpenseID(id))
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
 	// Json unmarshall
-	var jsExp jsonExpense
+	var jsExp JSONReqExpense
 	if err := c.Bind(&jsExp); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	// Construct Tags slice from ids ( don't fetch anything )
-	tags := []domain.Tag{}
-	for _, id := range jsExp.TagIds {
-		tags = append(tags, domain.Tag{ID: id})
-	}
-	// Edit Expense
-	exp.Label = jsExp.Label
-	exp.Value = jsExp.Value
-	exp.Unit = jsExp.Unit
-	exp.Time = jsExp.Time
-	exp.ActivityID = jsExp.ActivityID
-	exp.Tags = tags
+	// Update
+	exp := jsExp.ToDomain()
 	err = h.editor.EditExpense(exp)
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
@@ -137,7 +116,9 @@ func (h *Handler) EditExpense(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
-	return c.JSON(http.StatusOK, edited)
+	var respExp JSONRespDetailExpense
+	respExp.From(edited)
+	return c.JSON(http.StatusOK, respExp)
 }
 
 // DeleteExpense handler deletes an expense with given ID
