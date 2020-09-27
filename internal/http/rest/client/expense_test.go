@@ -30,6 +30,30 @@ func TestFetchExpenses(t *testing.T) {
 	}
 }
 
+func TestUpdateExpense(t *testing.T) {
+	// Create Test Expense
+	payload := server.JSONReqExpense{
+		Label:  "Do smth",
+		Value:  100,
+		Unit:   "eu",
+		Time:   time.Now().Add(time.Duration(-1 * time.Hour)),
+		TagIds: []domain.TagID{},
+	}
+	id, err := client.PostExpense(payload, token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Test Update
+	payload.ID = id
+	payload.Label = "Updated Label"
+	payload.Value = payload.Value * 2
+	payload.Unit = "dollar"
+	payload.Time = time.Now().Add(time.Duration(-2 * time.Hour))
+	if err = client.UpdateExpense(payload, token); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestDeleteExpense(t *testing.T) {
 	// Create Test Expense
 	payload := server.JSONReqExpense{
