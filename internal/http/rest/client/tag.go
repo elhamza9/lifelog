@@ -162,12 +162,12 @@ func FetchTags(token string) ([]domain.Tag, error) {
 }
 
 // FetchTagExpenses sends a GET request to fetch expenses with given tag id
-func FetchTagExpenses(id domain.TagID, token string) ([]domain.Expense, error) {
+func FetchTagExpenses(id domain.TagID, token string) ([]server.JSONRespListExpense, error) {
 	// Send HTTP Request
 	path := url + "/tags/" + strconv.Itoa(int(id)) + "/expenses"
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
-		return []domain.Expense{}, err
+		return []server.JSONRespListExpense{}, err
 	}
 	bearer := "Bearer " + token
 	req.Header.Set("Authorization", bearer)
@@ -175,22 +175,22 @@ func FetchTagExpenses(id domain.TagID, token string) ([]domain.Expense, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return []domain.Expense{}, err
+		return []server.JSONRespListExpense{}, err
 	}
 	// Read Response
 	responseCode := resp.StatusCode
 	responseBody, err := readResponseBody(resp.Body)
 	if err != nil {
-		return []domain.Expense{}, err
+		return []server.JSONRespListExpense{}, err
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return []domain.Expense{}, fmt.Errorf("error fetching expenses:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+		return []server.JSONRespListExpense{}, fmt.Errorf("error fetching expenses:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract Expenses
-	var expenses []domain.Expense
+	var expenses []server.JSONRespListExpense
 	if err := json.Unmarshal(responseBody, &expenses); err != nil {
-		return []domain.Expense{}, err
+		return []server.JSONRespListExpense{}, err
 	}
 	return expenses, nil
 }
