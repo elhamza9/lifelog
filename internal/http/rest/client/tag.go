@@ -11,19 +11,10 @@ import (
 	"github.com/elhamza90/lifelog/internal/http/rest/server"
 )
 
-type tagReqPayload struct {
-	Name string `json:"name"`
-}
-
-type postTagRespPayload struct {
-	ID int `json:"id"`
-}
-
 // PostTag sends a POST request with refresh token and
 // gets a new Jwt Access Token
-func PostTag(tag domain.Tag, token string) (int, error) {
+func PostTag(payload server.JSONReqTag, token string) (domain.TagID, error) {
 	// Marshall Tag to JSON
-	payload := tagReqPayload{Name: tag.Name}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return 0, err
@@ -54,7 +45,9 @@ func PostTag(tag domain.Tag, token string) (int, error) {
 		return 0, fmt.Errorf("error posting new tag:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract ID created Tag
-	respObj := postTagRespPayload{}
+	respObj := struct {
+		ID domain.TagID `json:"id"`
+	}{}
 	if err := json.Unmarshal(responseBody, &respObj); err != nil {
 		return 0, err
 	}
@@ -63,15 +56,14 @@ func PostTag(tag domain.Tag, token string) (int, error) {
 
 // UpdateTag sends a POST request with refresh token and
 // gets a new Jwt Access Token
-func UpdateTag(tag domain.Tag, token string) error {
+func UpdateTag(payload server.JSONReqTag, token string) error {
 	// Marshall Tag to JSON
-	payload := tagReqPayload{Name: tag.Name}
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
 	// Send HTTP Request
-	path := url + "/tags/" + strconv.Itoa(int(tag.ID))
+	path := url + "/tags/" + strconv.Itoa(int(payload.ID))
 	requestBody := bytes.NewBuffer(jsonPayload)
 	req, err := http.NewRequest("PUT", path, requestBody)
 	if err != nil {
@@ -128,12 +120,12 @@ func DeleteTag(id domain.TagID, token string) error {
 }
 
 // FetchTags sends a GET request to fetch all tags
-func FetchTags(token string) ([]domain.Tag, error) {
+func FetchTags(token string) ([]server.JSONRespListTag, error) {
 	// Send HTTP Request
 	const path string = url + "/tags"
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
-		return []domain.Tag{}, err
+		return []server.JSONRespListTag{}, err
 	}
 	bearer := "Bearer " + token
 	req.Header.Set("Authorization", bearer)
@@ -141,22 +133,22 @@ func FetchTags(token string) ([]domain.Tag, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return []domain.Tag{}, err
+		return []server.JSONRespListTag{}, err
 	}
 	// Read Response
 	responseCode := resp.StatusCode
 	responseBody, err := readResponseBody(resp.Body)
 	if err != nil {
-		return []domain.Tag{}, err
+		return []server.JSONRespListTag{}, err
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return []domain.Tag{}, fmt.Errorf("error posting new tag:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+		return []server.JSONRespListTag{}, fmt.Errorf("error posting new tag:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
 	// Extract Tags
-	var tags []domain.Tag
+	var tags []server.JSONRespListTag
 	if err := json.Unmarshal(responseBody, &tags); err != nil {
-		return []domain.Tag{}, err
+		return []server.JSONRespListTag{}, err
 	}
 	return tags, nil
 }

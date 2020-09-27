@@ -8,16 +8,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// jsonTag is used to unmarshal a json tag
-type jsonTag struct {
-	Name string `json:"name"`
-}
-
 // GetAllTags handler returns a list of all tags
 func (h *Handler) GetAllTags(c echo.Context) error {
 	tags, err := h.lister.AllTags()
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	respTags := make([]JSONRespListTag, len(tags))
+	var respTag JSONRespListTag
+	for i, t := range tags {
+		respTag.From(t)
+		respTags[i] = respTag
 	}
 	return c.JSON(http.StatusOK, tags)
 }
@@ -58,14 +59,12 @@ func (h *Handler) GetTagActivities(c echo.Context) error {
 // with given name and returns the created tag
 func (h *Handler) AddTag(c echo.Context) error {
 	// Json unmarshall
-	var jsTag jsonTag
+	var jsTag JSONReqTag
 	if err := c.Bind(&jsTag); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Create Tag
-	tag := domain.Tag{
-		Name: jsTag.Name,
-	}
+	tag := jsTag.ToDomain()
 	id, err := h.adder.NewTag(tag)
 	if err != nil {
 		return c.String(errToHTTPCode(err, "tags"), err.Error())
@@ -85,15 +84,13 @@ func (h *Handler) EditTag(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Json unmarshall
-	var jsTag jsonTag
+	var jsTag JSONReqTag
 	if err := c.Bind(&jsTag); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	// Edit Tag
-	var tag domain.Tag = domain.Tag{
-		ID:   domain.TagID(id),
-		Name: jsTag.Name,
-	}
+	tag := jsTag.ToDomain()
+	tag.ID = domain.TagID(id)
 	if err := h.editor.EditTag(tag); err != nil {
 		return c.String(errToHTTPCode(err, "tags"), err.Error())
 	}
