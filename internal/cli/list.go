@@ -37,7 +37,7 @@ var listTagCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		tag := tags[selectedTagIndex]
+		selected := tags[selectedTagIndex]
 		// Action
 		action, err := io.ActionPrompt()
 		if err != nil {
@@ -46,12 +46,16 @@ var listTagCmd = &cobra.Command{
 		}
 		switch action {
 		case io.ActionDelete:
-			if err := client.DeleteTag(tag.ID, token); err != nil {
+			if err := client.DeleteTag(selected.ID, token); err != nil {
 				fmt.Println(err)
 				return
 			}
 			fmt.Println("Tag deleted successfully")
 		case io.ActionEdit:
+			tag := server.JSONReqTag{
+				ID:   selected.ID,
+				Name: selected.Name,
+			}
 			if err := io.TagPrompt(&tag); err != nil {
 				fmt.Println(err)
 				return
@@ -72,7 +76,7 @@ var listTagCmd = &cobra.Command{
 				return
 			}
 			if action == showActivities {
-				activities, err := client.FetchTagActivities(tag.ID, token)
+				activities, err := client.FetchTagActivities(selected.ID, token)
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -82,12 +86,15 @@ var listTagCmd = &cobra.Command{
 					return
 				}
 			} else if action == showExpenses {
-				expenses, err := client.FetchTagExpenses(tag.ID, token)
+				expenses, err := client.FetchTagExpenses(selected.ID, token)
 				if err != nil {
 					fmt.Println(err)
 					return
 				}
-				io.ExpenseSelect(expenses)
+				if _, err = io.ExpenseSelect(expenses); err != nil {
+					fmt.Println(err)
+					return
+				}
 			} else {
 				return
 			}

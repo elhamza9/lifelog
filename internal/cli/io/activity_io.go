@@ -14,7 +14,7 @@ import (
 )
 
 // ActivityPrompt asks user to fill activity fields
-func ActivityPrompt(activity *server.JSONReqActivity, tags []domain.Tag) error {
+func ActivityPrompt(activity *server.JSONReqActivity, tags []server.JSONRespListTag) error {
 	// Label Prompt
 	prompt := promptui.Prompt{
 		Label:    "Label",
@@ -75,7 +75,7 @@ func ActivityPrompt(activity *server.JSONReqActivity, tags []domain.Tag) error {
 		return err
 	}
 	// Tags
-	noTag := domain.Tag{ID: 0, Name: "OK"}
+	noTag := server.JSONRespListTag{ID: 0, Name: "OK"}
 	tags = append(tags, noTag)
 	selectedIds := []domain.TagID{}
 	// Run infinite loop. Break when Tag noTag is selected

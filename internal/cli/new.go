@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/cli/io"
-	"github.com/elhamza90/lifelog/internal/domain"
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/spf13/cobra"
@@ -24,7 +23,7 @@ var newTagCmd = &cobra.Command{
 	Use:   "tag",
 	Short: "Create a new Tag",
 	Run: func(cmd *cobra.Command, args []string) {
-		var tag domain.Tag
+		var tag server.JSONReqTag
 		if err := io.TagPrompt(&tag); err != nil {
 			fmt.Println(err)
 			return

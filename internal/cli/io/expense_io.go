@@ -15,7 +15,7 @@ import (
 )
 
 // ExpensePrompt asks user to fill expense fields
-func ExpensePrompt(expense *server.JSONReqExpense, tags []domain.Tag, activities []server.JSONRespListActivity) error {
+func ExpensePrompt(expense *server.JSONReqExpense, tags []server.JSONRespListTag, activities []server.JSONRespListActivity) error {
 	// Activity
 	var YesNoPromptQuestion string
 	if (*expense).ActivityID > 0 {
@@ -82,7 +82,7 @@ func ExpensePrompt(expense *server.JSONReqExpense, tags []domain.Tag, activities
 	}
 	time, _ := time.Parse("2006-01-02", timeStr)
 	// Tags
-	noTag := domain.Tag{ID: 0, Name: "OK"}
+	noTag := server.JSONRespListTag{ID: 0, Name: "OK"}
 	tags = append(tags, noTag)
 	selectedIds := []domain.TagID{}
 	// Run infinite loop. Break when Tag noTag is selected

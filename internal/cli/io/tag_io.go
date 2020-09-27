@@ -9,11 +9,12 @@ import (
 	"text/template"
 
 	"github.com/elhamza90/lifelog/internal/domain"
+	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/manifoldco/promptui"
 )
 
 // TagPrompt asks user to fill tag fields
-func TagPrompt(tag *domain.Tag) error {
+func TagPrompt(tag *server.JSONReqTag) error {
 	prompt := promptui.Prompt{
 		Label:    "Name",
 		Validate: tagNameValidator,
@@ -41,7 +42,7 @@ func tagNameValidator(input string) error {
 }
 
 // TagSelect lists given tags and asks user to select one.
-func TagSelect(tags []domain.Tag) (selectedTagIndex int, err error) {
+func TagSelect(tags []server.JSONRespListTag) (selectedTagIndex int, err error) {
 	var idMaxLen int = 0
 	for _, t := range tags {
 		idStr := strconv.Itoa(int(t.ID))
