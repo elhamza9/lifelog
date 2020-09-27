@@ -172,7 +172,12 @@ var listActivitiesCmd = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			fmt.Println(res)
+			fmt.Printf("Activity:\n\t- ID: %d\n\t- Label: %s\n\t- Time: %s\n\t- Place: %s\n\t- Duration: %s\n", res.ID, res.Label, res.Time.Format("2006-01-02 15:04"), res.Place, res.Duration)
+			fmt.Printf("\t- Tags: ")
+			for _, t := range res.Tags {
+				fmt.Printf("- %s ", t.Name)
+			}
+			fmt.Println()
 		}
 		return
 	},

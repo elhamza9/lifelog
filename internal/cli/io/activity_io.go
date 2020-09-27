@@ -174,8 +174,8 @@ func ActivitySelect(activities []server.JSONRespListActivity) (selectedActivityI
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Inactive: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | white }}` + ` | {{ .Label | white }}`,
-		Active:   "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | cyan | bold }}` + ` | {{ .Label | cyan | bold }}`,
-		Selected: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | green | bold }}` + ` | {{ .Label | green | bold }}`,
+		Active:   "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006 15:04" | cyan | bold }}` + ` | {{ .Label | cyan | bold }}` + ` {{ printf "(%s)" .Duration | cyan | bold }}`,
+		Selected: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006 15:04" | green | bold }}` + ` | {{ .Label | green | bold }}` + ` | {{ .Place | green | bold }}` + ` | {{ .Duration | green | bold }}`,
 		FuncMap: template.FuncMap{
 			"fixSpaces": func(id domain.ActivityID, maxLen int) string {
 				times := maxLen - len(strconv.Itoa(int(id)))
