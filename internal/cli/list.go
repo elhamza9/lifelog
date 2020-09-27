@@ -201,10 +201,10 @@ var listExpensesCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		expense := expenses[selectedIndex]
+		selected := expenses[selectedIndex]
 		switch action {
 		case io.ActionDelete:
-			if err := client.DeleteExpense(expense.ID, token); err != nil {
+			if err := client.DeleteExpense(selected.ID, token); err != nil {
 				fmt.Println(err)
 				return
 			}
@@ -221,6 +221,13 @@ var listExpensesCmd = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
+			expense := server.JSONReqExpense{
+				ID:    selected.ID,
+				Label: selected.Label,
+				Time:  selected.Time,
+				Value: selected.Value,
+				Unit:  selected.Unit,
+			}
 			if err := io.ExpensePrompt(&expense, tags, activities); err != nil {
 				fmt.Println(err)
 				return
@@ -232,7 +239,7 @@ var listExpensesCmd = &cobra.Command{
 			}
 			fmt.Println("Expense updated successfully")
 		case io.ActionDetails:
-			res, err := client.FetchExpenseDetails(expense.ID, token)
+			res, err := client.FetchExpenseDetails(selected.ID, token)
 			if err != nil {
 				fmt.Println(err)
 				return

@@ -15,7 +15,7 @@ import (
 )
 
 // ExpensePrompt asks user to fill expense fields
-func ExpensePrompt(expense *domain.Expense, tags []domain.Tag, activities []server.JSONRespListActivity) error {
+func ExpensePrompt(expense *server.JSONReqExpense, tags []domain.Tag, activities []server.JSONRespListActivity) error {
 	// Activity
 	var YesNoPromptQuestion string
 	if (*expense).ActivityID > 0 {
@@ -84,7 +84,7 @@ func ExpensePrompt(expense *domain.Expense, tags []domain.Tag, activities []serv
 	// Tags
 	noTag := domain.Tag{ID: 0, Name: "OK"}
 	tags = append(tags, noTag)
-	selectedTags := []domain.Tag{}
+	selectedIds := []domain.TagID{}
 	// Run infinite loop. Break when Tag noTag is selected
 	for {
 		selectedTagIndex, err := TagSelect(tags)
@@ -95,7 +95,7 @@ func ExpensePrompt(expense *domain.Expense, tags []domain.Tag, activities []serv
 		if selectedTag.ID == noTag.ID {
 			break
 		} else {
-			selectedTags = append(selectedTags, selectedTag)
+			selectedIds = append(selectedIds, selectedTag.ID)
 			// Remove selected Tag from list
 			tags = append(tags[:selectedTagIndex], tags[selectedTagIndex+1:]...)
 		}
@@ -105,7 +105,7 @@ func ExpensePrompt(expense *domain.Expense, tags []domain.Tag, activities []serv
 	(*expense).Unit = unit
 	(*expense).Time = time
 	(*expense).ActivityID = activityID
-	(*expense).Tags = selectedTags
+	(*expense).TagIds = selectedIds
 	return nil
 }
 
@@ -150,7 +150,7 @@ func expenseTimeValidator(input string) error {
 }
 
 // ExpenseSelect lists given expenses and asks user to select one.
-func ExpenseSelect(expenses []domain.Expense) (selectedExpenseIndex int, err error) {
+func ExpenseSelect(expenses []server.JSONRespListExpense) (selectedExpenseIndex int, err error) {
 	var idMaxLen int = 0
 	for _, act := range expenses {
 		idStr := strconv.Itoa(int(act.ID))

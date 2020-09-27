@@ -84,7 +84,7 @@ var newExpenseCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		expense := domain.Expense{
+		expense := server.JSONReqExpense{
 			Label: "",
 			Value: 0,
 			Unit:  "dhs",
