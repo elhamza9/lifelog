@@ -64,6 +64,7 @@ func (respExp *JSONRespDetailExpense) From(exp domain.Expense) {
 	(*respExp).Time = exp.Time
 	(*respExp).Value = exp.Value
 	(*respExp).Unit = exp.Unit
+	(*respExp).ActivityID = exp.ActivityID
 	(*respExp).Tags = exp.Tags
 }
 
@@ -74,5 +75,6 @@ func (respExp *JSONRespListExpense) From(exp domain.Expense) {
 	(*respExp).Time = exp.Time
 	(*respExp).Value = exp.Value
 	(*respExp).Unit = exp.Unit
+	(*respExp).ActivityID = exp.ActivityID
 	(*respExp).Tags = exp.Tags
 }
