@@ -60,8 +60,13 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "activities"), err.Error())
 	}
+	// Fetch Expenses
+	expenses, err := h.lister.ExpensesByActivity(act.ID)
+	if err != nil {
+		return c.String(errToHTTPCode(err, "activities"), err.Error())
+	}
 	var actResp JSONRespDetailActivity
-	actResp.From(act)
+	actResp.From(act, expenses)
 	return c.JSON(http.StatusOK, actResp)
 }
 
