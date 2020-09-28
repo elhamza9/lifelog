@@ -54,7 +54,6 @@ type JSONRespListExpense struct {
 	Value      float32           `json:"value"`
 	Unit       string            `json:"unit"`
 	ActivityID domain.ActivityID `json:"activityId"`
-	Tags       []domain.Tag      `json:"tags"`
 }
 
 // From constructs a JSONRespDetailExpense object from a domain.Expense object
@@ -76,5 +75,4 @@ func (respExp *JSONRespListExpense) From(exp domain.Expense) {
 	(*respExp).Value = exp.Value
 	(*respExp).Unit = exp.Unit
 	(*respExp).ActivityID = exp.ActivityID
-	(*respExp).Tags = exp.Tags
 }
