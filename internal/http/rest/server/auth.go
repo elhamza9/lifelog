@@ -38,8 +38,9 @@ func jwtSignErrHandler(err error) (code int, respMsg string, logMsg string) {
 // Login handler authenticates user and returns a JWT Token
 func (h *Handler) Login(c echo.Context) error {
 	logger := log.WithFields(log.Fields{
-		"handler":   "Login",
 		"remote_ip": c.RealIP(),
+		"method":    c.Request().Method,
+		"handler":   "Login",
 	})
 	// Unmarshal JSON
 	var req loginRequest
@@ -83,8 +84,9 @@ func (h *Handler) Login(c echo.Context) error {
 // and returns a new access/refresh token pair
 func (h *Handler) RefreshToken(c echo.Context) error {
 	logger := log.WithFields(log.Fields{
-		"handler":   "RefreshToken",
 		"remote_ip": c.RealIP(),
+		"method":    c.Request().Method,
+		"handler":   "Login",
 	})
 	// Unmarshal JSON
 	var req refreshRequest
