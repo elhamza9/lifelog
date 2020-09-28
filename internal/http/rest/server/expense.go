@@ -58,8 +58,16 @@ func (h *Handler) ExpenseDetails(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
+	// Get Expense Activity if exists
+	act := domain.Activity{}
+	if exp.ActivityID > 0 {
+		act, err = h.lister.Activity(exp.ActivityID)
+		if err != nil {
+			return c.String(errToHTTPCode(err, "expenses"), err.Error())
+		}
+	}
 	var respExp JSONRespDetailExpense
-	respExp.From(exp)
+	respExp.From(exp, act)
 	return c.JSON(http.StatusOK, respExp)
 }
 
@@ -81,8 +89,16 @@ func (h *Handler) AddExpense(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
+	// Get Expense Activity if exists
+	act := domain.Activity{Label: "No Activity"}
+	if exp.ActivityID > 0 {
+		act, err = h.lister.Activity(exp.ActivityID)
+		if err != nil {
+			return c.String(errToHTTPCode(err, "expenses"), err.Error())
+		}
+	}
 	var respExp JSONRespDetailExpense
-	respExp.From(created)
+	respExp.From(created, act)
 	return c.JSON(http.StatusCreated, respExp)
 }
 
@@ -116,8 +132,16 @@ func (h *Handler) EditExpense(c echo.Context) error {
 	if err != nil {
 		return c.String(errToHTTPCode(err, "expenses"), err.Error())
 	}
+	// Get Expense Activity if exists
+	act := domain.Activity{Label: "No Activity"}
+	if exp.ActivityID > 0 {
+		act, err = h.lister.Activity(exp.ActivityID)
+		if err != nil {
+			return c.String(errToHTTPCode(err, "expenses"), err.Error())
+		}
+	}
 	var respExp JSONRespDetailExpense
-	respExp.From(edited)
+	respExp.From(edited, act)
 	return c.JSON(http.StatusOK, respExp)
 }
 

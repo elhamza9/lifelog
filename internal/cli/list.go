@@ -262,7 +262,7 @@ var listExpensesCmd = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			fmt.Printf("Expense:\n\t- ID: %d\n\t- Label: %s\n\t- Time: %s\n\t- Value: %.2f\n\t- Unit: %s\n\t- Activity ID: %d\n", res.ID, res.Label, res.Time.Format("2006-01-02 15:04"), res.Value, res.Unit, res.ActivityID)
+			fmt.Printf("Expense:\n\t- ID: %d\n\t- Label: %s\n\t- Time: %s\n\t- Value: %.2f\n\t- Unit: %s\n\t- Activity: [%d | %s]\n", res.ID, res.Label, res.Time.Format("2006-01-02 15:04"), res.Value, res.Unit, res.ActivityID, res.ActivityLabel)
 			fmt.Printf("\t- Tags: ")
 			for _, t := range res.Tags {
 				fmt.Printf("- %s ", t.Name)

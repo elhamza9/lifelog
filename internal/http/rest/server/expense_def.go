@@ -37,13 +37,14 @@ func (reqExp JSONReqExpense) ToDomain() domain.Expense {
 
 // JSONRespDetailExpense is used to marshal an expense to json
 type JSONRespDetailExpense struct {
-	ID         domain.ExpenseID  `json:"id"`
-	Label      string            `json:"label"`
-	Time       time.Time         `json:"time"`
-	Value      float32           `json:"value"`
-	Unit       string            `json:"unit"`
-	ActivityID domain.ActivityID `json:"activityId"`
-	Tags       []domain.Tag      `json:"tags"`
+	ID            domain.ExpenseID  `json:"id"`
+	Label         string            `json:"label"`
+	Time          time.Time         `json:"time"`
+	Value         float32           `json:"value"`
+	Unit          string            `json:"unit"`
+	ActivityID    domain.ActivityID `json:"activityId"`
+	ActivityLabel string            `json:"activityLabel"`
+	Tags          []domain.Tag      `json:"tags"`
 }
 
 // JSONRespListExpense is used to marshal an expense to json
@@ -57,13 +58,14 @@ type JSONRespListExpense struct {
 }
 
 // From constructs a JSONRespDetailExpense object from a domain.Expense object
-func (respExp *JSONRespDetailExpense) From(exp domain.Expense) {
+func (respExp *JSONRespDetailExpense) From(exp domain.Expense, act domain.Activity) {
 	(*respExp).ID = exp.ID
 	(*respExp).Label = exp.Label
 	(*respExp).Time = exp.Time
 	(*respExp).Value = exp.Value
 	(*respExp).Unit = exp.Unit
 	(*respExp).ActivityID = exp.ActivityID
+	(*respExp).ActivityLabel = act.Label
 	(*respExp).Tags = exp.Tags
 }
 
