@@ -124,12 +124,12 @@ func FetchExpenses(token string, minTime time.Time) ([]server.JSONRespListExpens
 }
 
 // FetchExpenseDetails sends a GET request to fetch expense with given id
-func FetchExpenseDetails(id domain.ExpenseID, token string) (domain.Expense, error) {
+func FetchExpenseDetails(id domain.ExpenseID, token string) (server.JSONRespDetailExpense, error) {
 	// Send HTTP Request
 	path := url + "/expenses/" + strconv.Itoa(int(id))
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
-		return domain.Expense{}, err
+		return server.JSONRespDetailExpense{}, err
 	}
 	bearer := "Bearer " + token
 	req.Header.Set("Authorization", bearer)
@@ -137,22 +137,22 @@ func FetchExpenseDetails(id domain.ExpenseID, token string) (domain.Expense, err
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return domain.Expense{}, err
+		return server.JSONRespDetailExpense{}, err
 	}
 	// Read Response
 	responseCode := resp.StatusCode
 	responseBody, err := readResponseBody(resp.Body)
 	if err != nil {
-		return domain.Expense{}, err
+		return server.JSONRespDetailExpense{}, err
 	}
 	// Check Response Code
 	if responseCode != http.StatusOK {
-		return domain.Expense{}, fmt.Errorf("error fetching expenses:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
+		return server.JSONRespDetailExpense{}, fmt.Errorf("error fetching expenses:\n\t- code: %d\n\t- body: %s", responseCode, responseBody)
 	}
-	// Extract Expenses
-	var expense domain.Expense
+	// Unmarshall Expense
+	var expense server.JSONRespDetailExpense
 	if err := json.Unmarshal(responseBody, &expense); err != nil {
-		return domain.Expense{}, err
+		return server.JSONRespDetailExpense{}, err
 	}
 	return expense, nil
 }
