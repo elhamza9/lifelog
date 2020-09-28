@@ -16,6 +16,16 @@ import (
 
 var cfgFile string
 
+// getAccessToken retrieves and returns access token
+func getAccessToken() string {
+	token, ok := viper.Get("Access").(string)
+	if !ok {
+		fmt.Println("Error Getting Access Token")
+		os.Exit(1)
+	}
+	return token
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "lifelog",
@@ -39,7 +49,7 @@ var rootCmd = &cobra.Command{
 			access, refresh, err := client.Login(pass)
 			if err != nil {
 				fmt.Println(err)
-				return
+				os.Exit(1)
 			}
 			fmt.Println("Authentication Successful !\n")
 			fmt.Println("Saving Token Pair ...\n")

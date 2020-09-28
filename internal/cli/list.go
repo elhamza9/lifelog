@@ -9,7 +9,6 @@ import (
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // listCmd represents the list command
@@ -25,7 +24,7 @@ var listTagCmd = &cobra.Command{
 	Short: "List All Tags",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Fetch
-		token := viper.Get("Access").(string)
+		token := getAccessToken()
 		tags, err := client.FetchTags(token)
 		if err != nil {
 			fmt.Println(err)
@@ -115,7 +114,7 @@ var listActivitiesCmd = &cobra.Command{
 			return
 		}
 		// Fetch
-		token := viper.Get("Access").(string)
+		token := getAccessToken()
 		activities, err := client.FetchActivities(token, time.Now().AddDate(0, -nbrMonths, 0))
 		if err != nil {
 			fmt.Println(err)
@@ -200,7 +199,7 @@ var listExpensesCmd = &cobra.Command{
 			return
 		}
 		// Fetch
-		token := viper.Get("Access").(string)
+		token := getAccessToken()
 		expenses, err := client.FetchExpenses(token, time.Now().AddDate(0, -nbrMonths, 0))
 		if err != nil {
 			fmt.Println(err)

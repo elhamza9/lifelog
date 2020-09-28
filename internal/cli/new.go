@@ -8,7 +8,6 @@ import (
 	"github.com/elhamza90/lifelog/internal/http/rest/client"
 	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // newCmd represents the new command
@@ -28,7 +27,7 @@ var newTagCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
-		token := viper.Get("Access").(string)
+		token := getAccessToken()
 		id, err := client.PostTag(tag, token)
 		if err != nil {
 			fmt.Println(err)
@@ -42,7 +41,7 @@ var newActivityCmd = &cobra.Command{
 	Use:   "activity",
 	Short: "Create a new Activity",
 	Run: func(cmd *cobra.Command, args []string) {
-		token := viper.Get("Access").(string)
+		token := getAccessToken()
 		tags, err := client.FetchTags(token)
 		if err != nil {
 			fmt.Println(err)
@@ -72,7 +71,7 @@ var newExpenseCmd = &cobra.Command{
 	Use:   "expense",
 	Short: "Create a new Expense",
 	Run: func(cmd *cobra.Command, args []string) {
-		token := viper.Get("Access").(string)
+		token := getAccessToken()
 		tags, err := client.FetchTags(token)
 		if err != nil {
 			fmt.Println(err)
