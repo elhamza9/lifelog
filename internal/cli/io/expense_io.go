@@ -3,7 +3,6 @@ package io
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"text/template"
@@ -13,6 +12,9 @@ import (
 	"github.com/elhamza90/lifelog/internal/http/rest/server"
 	"github.com/manifoldco/promptui"
 )
+
+// expenseTimeFormat defines the format the user should respect when entering expense time
+const expenseTimeFormat string = "2006-01-02 15:04"
 
 // ExpensePrompt asks user to fill expense fields
 func ExpensePrompt(expense *server.JSONReqExpense, tags []server.JSONRespListTag, activities []server.JSONRespListActivity) error {
@@ -35,7 +37,7 @@ func ExpensePrompt(expense *server.JSONReqExpense, tags []server.JSONRespListTag
 		}
 		activityID = activities[selectedActivityIndex].ID
 	}
-	log.Printf("Selected Activity ID: %d\n", activityID)
+	//log.Printf("Selected Activity ID: %d\n", activityID)
 	// Label
 	prompt := promptui.Prompt{
 		Label:    "Label",
@@ -74,13 +76,13 @@ func ExpensePrompt(expense *server.JSONReqExpense, tags []server.JSONRespListTag
 	prompt = promptui.Prompt{
 		Label:    "Time",
 		Validate: expenseTimeValidator,
-		Default:  (*expense).Time.Format("2006-01-02"),
+		Default:  (*expense).Time.Format(expenseTimeFormat),
 	}
 	timeStr, err := prompt.Run()
 	if err != nil {
 		return err
 	}
-	time, _ := time.Parse("2006-01-02", timeStr)
+	time, _ := time.Parse(expenseTimeFormat, timeStr)
 	// Tags
 	noTag := server.JSONRespListTag{ID: 0, Name: "OK"}
 	tags = append(tags, noTag)
@@ -142,7 +144,7 @@ func expenseUnitValidator(input string) error {
 
 // expenseTimeValidator validates the expense time inputed by the user
 func expenseTimeValidator(input string) error {
-	res, err := time.Parse("2006-01-02", input)
+	res, err := time.Parse(expenseTimeFormat, input)
 	if err == nil && res.After(time.Now()) {
 		return errors.New("Expense Time can not be future")
 	}
@@ -161,8 +163,8 @@ func ExpenseSelect(expenses []server.JSONRespListExpense) (selectedExpenseIndex 
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Inactive: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | white }}` + ` | {{ .Label | white }}` + ` {{ printf "(%.2f %s )" .Value .Unit | white}}`,
-		Active:   "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | cyan | bold }}` + ` | {{ .Label | cyan | bold }}` + ` {{ printf "(%.2f %s )" .Value .Unit | cyan | bold}}`,
-		Selected: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006" | green | bold }}` + ` | {{ .Label | green | bold }}` + ` {{ printf "(%.2f %s )" .Value .Unit | green | bold}}`,
+		Active:   "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006 15:04" | cyan | bold }}` + ` | {{ .Label | cyan | bold }}` + ` {{ printf "(%.2f %s )" .Value .Unit | cyan | bold}}`,
+		Selected: "\t → " + `{{ printf "[%d]  " .ID}} ` + fmt.Sprintf("{{ fixSpaces .ID %d}}", idMaxLen) + ` | {{ .Time.Format "Mon Jan 02 2006 15:04" | green | bold }}` + ` | {{ .Label | green | bold }}` + ` {{ printf "(%.2f %s )" .Value .Unit | green | bold}}`,
 		FuncMap: template.FuncMap{
 			"fixSpaces": func(id domain.ExpenseID, maxLen int) string {
 				times := maxLen - len(strconv.Itoa(int(id)))

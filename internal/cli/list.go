@@ -234,11 +234,12 @@ var listExpensesCmd = &cobra.Command{
 				return
 			}
 			expense := server.JSONReqExpense{
-				ID:    selected.ID,
-				Label: selected.Label,
-				Time:  selected.Time,
-				Value: selected.Value,
-				Unit:  selected.Unit,
+				ID:         selected.ID,
+				Label:      selected.Label,
+				Time:       selected.Time,
+				Value:      selected.Value,
+				Unit:       selected.Unit,
+				ActivityID: selected.ActivityID,
 			}
 			if err := io.ExpensePrompt(&expense, tags, activities); err != nil {
 				fmt.Println(err)
@@ -256,7 +257,12 @@ var listExpensesCmd = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			fmt.Println(res)
+			fmt.Printf("Expense:\n\t- ID: %d\n\t- Label: %s\n\t- Time: %s\n\t- Value: %.2f\n\t- Unit: %s\n\t- Activity ID: %d\n", res.ID, res.Label, res.Time.Format("2006-01-02 15:04"), res.Value, res.Unit, res.ActivityID)
+			fmt.Printf("\t- Tags: ")
+			for _, t := range res.Tags {
+				fmt.Printf("- %s ", t.Name)
+			}
+			fmt.Println()
 		}
 		return
 	},
