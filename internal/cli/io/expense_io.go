@@ -36,6 +36,8 @@ func ExpensePrompt(expense *server.JSONReqExpense, tags []server.JSONRespListTag
 			return err
 		}
 		activityID = activities[selectedActivityIndex].ID
+		// Set expense time to activity time
+		(*expense).Time = activities[selectedActivityIndex].Time
 	}
 	//log.Printf("Selected Activity ID: %d\n", activityID)
 	// Label
