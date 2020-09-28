@@ -3,6 +3,7 @@ package db
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/elhamza90/lifelog/internal/domain"
@@ -14,7 +15,7 @@ import (
 // It returns an error if expense not found
 func (repo Repository) FindExpenseByID(id domain.ExpenseID) (domain.Expense, error) {
 	var exp Expense
-	err := repo.db.First(&exp, id).Error
+	err := repo.db.Preload("Tags").First(&exp, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = store.ErrExpenseNotFound
 	}
@@ -112,10 +113,7 @@ func (repo Repository) EditExpense(exp domain.Expense) error {
 		}
 		return err
 	}
-	tags := make([]Tag, len(exp.Tags))
-	for i, t := range exp.Tags {
-		tags[i] = Tag{ID: t.ID, Name: t.Name}
-	}
+	// Update Primary fields
 	res := repo.db.Save(&Expense{
 		ID:         exp.ID,
 		Label:      exp.Label,
@@ -123,10 +121,19 @@ func (repo Repository) EditExpense(exp domain.Expense) error {
 		Value:      exp.Value,
 		Unit:       exp.Unit,
 		ActivityID: exp.ActivityID,
-		Tags:       tags,
 	})
 	if res.RowsAffected != 1 {
 		return fmt.Errorf("%d Rows were affected", res.RowsAffected)
 	}
-	return res.Error
+	if res.Error != nil {
+		return res.Error
+	}
+	// Tags
+	tags := make([]Tag, len(exp.Tags))
+	for i, t := range exp.Tags {
+		tags[i] = Tag{ID: t.ID, Name: t.Name}
+	}
+	log.Println(tags)
+	err := repo.db.Model(&Expense{ID: exp.ID}).Association("Tags").Replace(tags)
+	return err
 }
