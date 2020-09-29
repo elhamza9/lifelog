@@ -3,12 +3,18 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
 
 // ActivityID is an object-value representing ID of an activity
 type ActivityID uint
+
+// String returns a string representation of the id
+func (id ActivityID) String() string {
+	return strconv.Itoa(int(id))
+}
 
 // Activity Entity
 type Activity struct {
