@@ -12,6 +12,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/usecase/editing"
 	"github.com/elhamza90/lifelog/internal/usecase/listing"
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -35,6 +36,24 @@ func main() {
 	hnd := server.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
 
 	router := echo.New()
+	// Setup Logger
+	logrus.SetFormatter(&logrus.TextFormatter{
+		//DisableColors: true,
+		FullTimestamp: true,
+	})
+	router.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			logger := logrus.WithFields(logrus.Fields{
+				"remote_ip": c.RealIP(),
+				"path":      c.Request().URL.Path,
+				"method":    c.Request().Method,
+			})
+			c.Set("mylogger", logger)
+			return next(c)
+		}
+	})
+
+	// Setup Routes
 	if err := server.RegisterRoutes(router, hnd); err != nil {
 		os.Exit(1)
 	}

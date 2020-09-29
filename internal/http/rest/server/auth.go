@@ -7,7 +7,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 // loginRequest specifies the structure of json when authenticating
@@ -37,11 +37,7 @@ func jwtSignErrHandler(err error) (code int, respMsg string, logMsg string) {
 
 // Login handler authenticates user and returns a JWT Token
 func (h *Handler) Login(c echo.Context) error {
-	logger := log.WithFields(log.Fields{
-		"remote_ip": c.RealIP(),
-		"method":    c.Request().Method,
-		"handler":   "Login",
-	})
+	logger := c.Get("mylogger").(*logrus.Entry)
 	// Unmarshal JSON
 	var req loginRequest
 	if err := c.Bind(&req); err != nil {
@@ -56,10 +52,11 @@ func (h *Handler) Login(c echo.Context) error {
 	// Authenticate
 	if err := h.authenticator.Authenticate(req.Password); err != nil {
 		msg := err.Error()
-		logger.Info(msg)
+		logger.Error(msg)
 		code := errToHTTPCode(err, "auth")
 		return c.String(code, msg)
 	}
+	logger.Info("Authentication successful")
 	// Generate and return Access/Refresh Tokens
 	access, err := generateAccessToken()
 	if err != nil {
@@ -67,12 +64,14 @@ func (h *Handler) Login(c echo.Context) error {
 		logger.Error(logMsg)
 		return c.String(code, msg)
 	}
+	logger.Info("Generated Access Token")
 	refresh, err := generateRefreshToken()
 	if err != nil {
 		code, msg, logMsg := jwtSignErrHandler(err)
 		logger.Error(logMsg)
 		return c.String(code, msg)
 	}
+	logger.Info("Generated Refresh Token")
 	body := map[string]string{
 		"at": access,
 		"rt": refresh,
@@ -83,11 +82,7 @@ func (h *Handler) Login(c echo.Context) error {
 // RefreshToken handler accepts a refresh token
 // and returns a new access/refresh token pair
 func (h *Handler) RefreshToken(c echo.Context) error {
-	logger := log.WithFields(log.Fields{
-		"remote_ip": c.RealIP(),
-		"method":    c.Request().Method,
-		"handler":   "Login",
-	})
+	logger := c.Get("mylogger").(*logrus.Entry)
 	// Unmarshal JSON
 	var req refreshRequest
 	if err := c.Bind(&req); err != nil {
@@ -102,12 +97,15 @@ func (h *Handler) RefreshToken(c echo.Context) error {
 	if req.RefreshToken == "" {
 		code := errToHTTPCode(errInvalidJSON, "auth")
 		msg := "No Refresh Token Provided"
+		logger.Error(msg)
 		return c.String(code, msg)
 	}
 	// Parse Token
 	_, err := jwt.Parse(req.RefreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			msg := fmt.Sprintf("Unexpected signing method: %v", token.Header["alg"])
+			logger.Error(msg)
+			return nil, errors.New(msg)
 		}
 		return jwtRefreshSecret(), nil
 	})
@@ -116,6 +114,7 @@ func (h *Handler) RefreshToken(c echo.Context) error {
 		logger.Error(msg + " = " + err.Error())
 		return c.String(http.StatusUnprocessableEntity, msg)
 	}
+	logger.Info("Token validation successful")
 	// Generate and return new Access Token
 	access, err := generateAccessToken()
 	if err != nil {
@@ -123,6 +122,7 @@ func (h *Handler) RefreshToken(c echo.Context) error {
 		logger.Error(logMsg)
 		return c.String(code, msg)
 	}
+	logger.Info("Generated Access Token")
 	body := map[string]string{
 		"at": access,
 	}
