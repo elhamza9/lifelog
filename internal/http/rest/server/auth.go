@@ -37,7 +37,6 @@ func jwtSignErrHandler(err error) (code int, respMsg string, logMsg string) {
 
 // Login handler authenticates user and returns a JWT Token
 func (h *Handler) Login(c echo.Context) error {
-	logger := c.Get("mylogger").(*logrus.Entry)
 	// Unmarshal JSON
 	var req loginRequest
 	if err := c.Bind(&req); err != nil {
@@ -46,32 +45,32 @@ func (h *Handler) Login(c echo.Context) error {
 			details string = httpErrorMsg(err)
 			code    int    = errToHTTPCode(errInvalidJSON, "auth")
 		)
-		logger.Error(msg + " | " + details)
+		logrus.Error(msg + " | " + details)
 		return c.String(code, msg)
 	}
 	// Authenticate
 	if err := h.authenticator.Authenticate(req.Password); err != nil {
 		msg := err.Error()
-		logger.Error(msg)
+		logrus.Error(msg)
 		code := errToHTTPCode(err, "auth")
 		return c.String(code, msg)
 	}
-	logger.Info("Authentication successful")
+	logrus.Info("Authentication successful")
 	// Generate and return Access/Refresh Tokens
 	access, err := generateAccessToken()
 	if err != nil {
 		code, msg, logMsg := jwtSignErrHandler(err)
-		logger.Error(logMsg)
+		logrus.Error(logMsg)
 		return c.String(code, msg)
 	}
-	logger.Info("Generated Access Token")
+	logrus.Info("Generated Access Token")
 	refresh, err := generateRefreshToken()
 	if err != nil {
 		code, msg, logMsg := jwtSignErrHandler(err)
-		logger.Error(logMsg)
+		logrus.Error(logMsg)
 		return c.String(code, msg)
 	}
-	logger.Info("Generated Refresh Token")
+	logrus.Info("Generated Refresh Token")
 	body := map[string]string{
 		"at": access,
 		"rt": refresh,
@@ -82,7 +81,6 @@ func (h *Handler) Login(c echo.Context) error {
 // RefreshToken handler accepts a refresh token
 // and returns a new access/refresh token pair
 func (h *Handler) RefreshToken(c echo.Context) error {
-	logger := c.Get("mylogger").(*logrus.Entry)
 	// Unmarshal JSON
 	var req refreshRequest
 	if err := c.Bind(&req); err != nil {
@@ -91,38 +89,39 @@ func (h *Handler) RefreshToken(c echo.Context) error {
 			details string = httpErrorMsg(err)
 			code    int    = errToHTTPCode(errInvalidJSON, "auth")
 		)
-		logger.Error(msg + " | " + details)
+		logrus.Error(msg + " | " + details)
 		return c.String(code, msg)
 	}
 	if req.RefreshToken == "" {
 		code := errToHTTPCode(errInvalidJSON, "auth")
 		msg := "No Refresh Token Provided"
-		logger.Error(msg)
+		logrus.Error(msg)
 		return c.String(code, msg)
 	}
+	logrus.Info("Extracted refresh token successfully")
 	// Parse Token
 	_, err := jwt.Parse(req.RefreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			msg := fmt.Sprintf("Unexpected signing method: %v", token.Header["alg"])
-			logger.Error(msg)
+			logrus.Error(msg)
 			return nil, errors.New(msg)
 		}
 		return jwtRefreshSecret(), nil
 	})
 	if err != nil {
-		msg := "Token is Invalid"
-		logger.Error(msg + " = " + err.Error())
+		msg := "Refresh Token is Invalid"
+		logrus.Error(msg + " = " + err.Error())
 		return c.String(http.StatusUnprocessableEntity, msg)
 	}
-	logger.Info("Token validation successful")
+	logrus.Info("Refresh Token validation successful")
 	// Generate and return new Access Token
 	access, err := generateAccessToken()
 	if err != nil {
 		code, msg, logMsg := jwtSignErrHandler(err)
-		logger.Error(logMsg)
+		logrus.Error(logMsg)
 		return c.String(code, msg)
 	}
-	logger.Info("Generated Access Token")
+	logrus.Info("Generated Access Token")
 	body := map[string]string{
 		"at": access,
 	}

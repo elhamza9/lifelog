@@ -36,6 +36,12 @@ func main() {
 	hnd := server.NewHandler(&lister, &adder, &editor, &deletor, &authenticator)
 
 	router := echo.New()
+
+	// Setup Routes
+	if err := server.RegisterRoutes(router, hnd); err != nil {
+		os.Exit(1)
+	}
+
 	// Setup Logger
 	logrus.SetFormatter(&logrus.TextFormatter{
 		//DisableColors: true,
@@ -48,15 +54,10 @@ func main() {
 				"path":      c.Request().URL.Path,
 				"method":    c.Request().Method,
 			})
-			c.Set("mylogger", logger)
+			logger.Info("New Request")
 			return next(c)
 		}
 	})
-
-	// Setup Routes
-	if err := server.RegisterRoutes(router, hnd); err != nil {
-		os.Exit(1)
-	}
 
 	port := ":8080"
 	router.Start(port)
