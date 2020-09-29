@@ -40,15 +40,17 @@ func (h *Handler) GetTagExpenses(c echo.Context) error {
 		logrus.Error(msg + " | " + details)
 		return c.String(http.StatusBadRequest, msg)
 	}
+	tagID := domain.TagID(id)
+	logrus.Debugf("Extracted tag id from path param: %s", tagID)
 	// Get Expenses
-	expenses, err := h.lister.ExpensesByTag(domain.TagID(id))
+	expenses, err := h.lister.ExpensesByTag(tagID)
 	if err != nil {
-		msg := fmt.Sprintf("Internal Server Error while fetching expenses of tag %d", id)
+		msg := fmt.Sprintf("Internal Server Error while fetching expenses of tag %s", tagID)
 		details := err.Error()
 		logrus.Error(msg + " | " + details)
 		return c.String(errToHTTPCode(err, "tags"), msg)
 	}
-	logrus.Infof("Expenses of tag with ID %d fetched successfully", id)
+	logrus.Infof("Expenses of tag with ID %s fetched successfully", tagID)
 	// Construct response expenses from fetched expenses
 	respExpenses := make([]JSONRespListExpense, len(expenses))
 	var respExp JSONRespListExpense
@@ -70,15 +72,17 @@ func (h *Handler) GetTagActivities(c echo.Context) error {
 		logrus.Error(msg + " | " + details)
 		return c.String(http.StatusBadRequest, msg)
 	}
+	tagID := domain.TagID(id)
+	logrus.Debugf("Extracted tag id from path param: %s", tagID)
 	// Get Activities
 	activities, err := h.lister.ActivitiesByTag(domain.TagID(id))
 	if err != nil {
-		msg := "Internal Server Error while fetching tag activities"
+		msg := fmt.Sprintf("Internal Server Error while fetching activities of tag %s", tagID)
 		details := err.Error()
 		logrus.Error(msg + " | " + details)
 		return c.String(errToHTTPCode(err, "tags"), msg)
 	}
-	logrus.Info("Tag activities fetched successfully")
+	logrus.Infof("Activities of tag with ID %s fetched successfully", tagID)
 	// Construct respActivities from fetched activities
 	respActivities := make([]JSONRespListActivity, len(activities))
 	var respAct JSONRespListActivity
@@ -111,10 +115,10 @@ func (h *Handler) AddTag(c echo.Context) error {
 		logrus.Error(msg)
 		return c.String(errToHTTPCode(err, "tags"), msg)
 	}
-	logrus.Infof("Created Tag %d successfully", id)
+	logrus.Infof("Created Tag %s successfully", id)
 	// Get created Tag
 	created, err := h.lister.GetTagByID(id)
-	logrus.Infof("Retrieved Tag %d successfully", created.ID)
+	logrus.Infof("Retrieved Tag %s successfully", created.ID)
 	return c.JSON(http.StatusCreated, created)
 }
 
@@ -130,6 +134,8 @@ func (h *Handler) EditTag(c echo.Context) error {
 		logrus.Error(msg + " | " + details)
 		return c.String(http.StatusBadRequest, msg)
 	}
+	tagID := domain.TagID(id)
+	logrus.Debugf("Extracted tag id from path param: %s", tagID)
 	// Json unmarshall
 	var jsTag JSONReqTag
 	if err := c.Bind(&jsTag); err != nil {
@@ -141,25 +147,26 @@ func (h *Handler) EditTag(c echo.Context) error {
 		logrus.Error(msg + " | " + details)
 		return c.String(code, msg)
 	}
+	logrus.Debug("Unmarshalled JSON successfully")
 	// Edit Tag
 	tag := jsTag.ToDomain()
-	tag.ID = domain.TagID(id)
+	tag.ID = tagID
 	if err := h.editor.EditTag(tag); err != nil {
-		msg := fmt.Sprintf("error while updating tag %d", id)
+		msg := fmt.Sprintf("error while updating tag %s", tagID)
 		details := err.Error()
 		logrus.Error(msg + " | " + details)
 		return c.String(errToHTTPCode(err, "tags"), msg)
 	}
-	logrus.Infof("Updated Tag %d successfully", id)
+	logrus.Infof("Updated Tag %s successfully", tagID)
 	// Retrieve edited Tag
 	edited, err := h.lister.GetTagByID(tag.ID)
 	if err != nil {
-		msg := fmt.Sprintf("error while retrieving updated tag %d", id)
+		msg := fmt.Sprintf("error while retrieving updated tag %s", tagID)
 		details := err.Error()
 		logrus.Error(msg + " | " + details)
 		return c.String(errToHTTPCode(err, "tags"), msg)
 	}
-	logrus.Infof("Retrieved Tag %d successfully", id)
+	logrus.Infof("Retrieved Tag %s successfully", tagID)
 	return c.JSON(http.StatusOK, edited)
 }
 
@@ -174,14 +181,16 @@ func (h *Handler) DeleteTag(c echo.Context) error {
 		logrus.Error(msg + " | " + details)
 		return c.String(http.StatusBadRequest, msg)
 	}
+	tagID := domain.TagID(id)
+	logrus.Debugf("Extracted tag id from path param: %s", tagID)
 	// Delete Tag
 	err = h.deleter.Tag(domain.TagID(id))
 	if err != nil {
-		msg := fmt.Sprintf("error while deleting tag with ID: %d", id)
+		msg := fmt.Sprintf("error while deleting tag with ID: %s", tagID)
 		details := err.Error()
 		logrus.Error(msg + " | " + details)
 		return c.String(errToHTTPCode(err, "tags"), msg)
 	}
-	logrus.Infof("Deleted tag %d successfully", id)
+	logrus.Infof("Deleted tag %s successfully", tagID)
 	return c.String(http.StatusNoContent, "Tag Deleted Successfully")
 }

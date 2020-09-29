@@ -4,11 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 // TagID is a value-object representing Id of a Tag.
 type TagID uint
+
+// String returns a string representation of the id
+func (id TagID) String() string {
+	return strconv.Itoa(int(id))
+}
 
 // Tag Entity
 type Tag struct {
