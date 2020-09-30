@@ -3,12 +3,18 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
 
 // ExpenseID is a value-object representing Id of an expense
 type ExpenseID uint
+
+// String returns a string representation of the id
+func (id ExpenseID) String() string {
+	return strconv.Itoa(int(id))
+}
 
 // Expense entity
 type Expense struct {
