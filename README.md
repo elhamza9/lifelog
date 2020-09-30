@@ -6,5 +6,5 @@ Lifelog is an application to manage:
 
 It currently has :
 
-* A Web HTTP API (developed with **Echo Framework**).
-* A CLI Interface (developperd with Cobra) communicating with the HTTP server.
+* A HTTP Rest API (developed with **Echo Framework**).
+* A CLI Interface (developped with **Cobra**) communicating with the HTTP server.
