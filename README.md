@@ -4,4 +4,7 @@ Lifelog is an application to manage:
 * *Activities*
 * *Expenses*
 
-It has currently a Web HTTP API developed with **Echo Framework**.
+It currently has :
+
+	* A Web HTTP API (developed with **Echo Framework**).
+	* A CLI Interface (developperd with Cobra) communicating with the HTTP server.
