@@ -7,10 +7,6 @@ import (
 	"net/http"
 )
 
-const host string = "localhost"
-const port string = "8080"
-const url string = "http://" + host + ":" + port
-
 // loginReqPayload is used to marshall credentials to JSON when authenticating
 type loginReqPayload struct {
 	Password string `json:"password"`
@@ -44,7 +40,7 @@ func Login(pass string) (string, string, error) {
 		return "", "", err
 	}
 	// Send HTTP Request
-	const path string = url + "/auth/login"
+	path := url + "/auth/login"
 	requestBody := bytes.NewBuffer(jsonPayload)
 	resp, err := http.Post(path, "application/json", requestBody)
 	if err != nil {
@@ -78,7 +74,7 @@ func RefreshToken(token string) (string, error) {
 		return "", err
 	}
 	// Send HTTP Request
-	const path string = url + "/auth/refresh"
+	path := url + "/auth/refresh"
 	requestBody := bytes.NewBuffer(jsonPayload)
 	resp, err := http.Post(path, "application/json", requestBody)
 	if err != nil {

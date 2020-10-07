@@ -25,7 +25,7 @@ func PostActivity(payload server.JSONReqActivity, token string) (int, error) {
 		return 0, err
 	}
 	// Send HTTP Request
-	const path string = url + "/activities"
+	path := url + "/activities"
 	requestBody := bytes.NewBuffer(jsonPayload)
 	req, err := http.NewRequest("POST", path, requestBody)
 	if err != nil {

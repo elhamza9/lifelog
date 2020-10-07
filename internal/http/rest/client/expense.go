@@ -21,7 +21,7 @@ func PostExpense(payload server.JSONReqExpense, token string) (domain.ExpenseID,
 		return 0, err
 	}
 	// Send HTTP Request
-	const path string = url + "/expenses"
+	path := url + "/expenses"
 	requestBody := bytes.NewBuffer(jsonPayload)
 	req, err := http.NewRequest("POST", path, requestBody)
 	if err != nil {

@@ -20,7 +20,7 @@ func PostTag(payload server.JSONReqTag, token string) (domain.TagID, error) {
 		return 0, err
 	}
 	// Send HTTP Request
-	const path string = url + "/tags"
+	path := url + "/tags"
 	requestBody := bytes.NewBuffer(jsonPayload)
 	req, err := http.NewRequest("POST", path, requestBody)
 	if err != nil {
@@ -122,7 +122,7 @@ func DeleteTag(id domain.TagID, token string) error {
 // FetchTags sends a GET request to fetch all tags
 func FetchTags(token string) ([]server.JSONRespListTag, error) {
 	// Send HTTP Request
-	const path string = url + "/tags"
+	path := url + "/tags"
 	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
 		return []server.JSONRespListTag{}, err
