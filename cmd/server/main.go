@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	grmDb, err := gorm.Open(sqlite.Open("dev.db"), &gorm.Config{})
+	grmDb, err := gorm.Open(sqlite.Open("db/lifelog.db"), &gorm.Config{})
 	if err != nil {
 		fmt.Println("failed to connect database")
 		os.Exit(1)

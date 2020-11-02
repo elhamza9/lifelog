@@ -17,6 +17,7 @@ RUN go build -o server ./cmd/server/main.go
 WORKDIR /dist
 
 RUN cp /build/server .
+RUN mkdir db
 
 ENV LFLG_JWT_ACCESS_SECRET=$jwt_access_secret
 ENV LFLG_JWT_REFRESH_SECRET=$jwt_refresh_secret
