@@ -1,27 +1,26 @@
 FROM golang:alpine
 
-ARG jwt_access_secret
-ARG jwt_refresh_secret
-ARG pass_hash
-
-RUN apk add --update --no-cache build-base
-
+# Copy Source files to /build directory & download dependencies
 WORKDIR /build
-
 COPY . .
-
 RUN go mod download
 
+# Build Go Project & Copy Binary to /dist directory
 RUN go build -o server ./cmd/server/main.go
-
 WORKDIR /dist
-
 RUN cp /build/server .
-RUN mkdir db
 
-ENV LFLG_JWT_ACCESS_SECRET=$jwt_access_secret
-ENV LFLG_JWT_REFRESH_SECRET=$jwt_refresh_secret
-ENV LFLG_PASS_HASH=$pass_hash
+# JWT secrets
+ENV LFLG_JWT_ACCESS_SECRET=
+ENV LFLG_JWT_REFRESH_SECRE=
+# Password Hash
+ENV LFLG_PASS_HASH=
+# DB Params
+ENV LFLG_DB_HOST=
+ENV LFLG_DB_PORT=
+ENV LFLG_DB_NAME=
+ENV LFLG_DB_USER=
+ENV LFLG_DB_PASS=
 
 EXPOSE 8080
 

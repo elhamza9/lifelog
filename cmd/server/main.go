@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -13,23 +14,44 @@ import (
 	"github.com/elhamza90/lifelog/internal/usecase/listing"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// db_path specifies where the DB file is located
-const db_path string = "db/lifelog.db"
+// getDbConn retrieves DB params from environment, constructs & returns the DB connection
+func getDbConn() (string, error) {
+	var (
+		dbHost string = os.Getenv("LFLG_DB_HOST")
+		dbPort string = os.Getenv("LFLG_DB_PORT")
+		dbName string = os.Getenv("LFLG_DB_NAME")
+		dbUser string = os.Getenv("LFLG_DB_USER")
+		dbPass string = os.Getenv("LFLG_DB_PASS")
+	)
+	if dbHost == "" || dbPort == "" || dbName == "" || dbUser == "" || dbPass == "" {
+		return "", errors.New("Db parameter missing in environment")
+	}
+	conn := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable", dbHost, dbPort, dbName, dbUser, dbPass)
+	return conn, nil
+}
 
 // hash_var_name specifies the name of the environment variable where the password bcrypt hash is stored
 const hash_var_name string = "LFLG_PASS_HASH"
 
 func main() {
-	grmDb, err := gorm.Open(sqlite.Open(db_path), &gorm.Config{})
+	dbConn, err := getDbConn()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("failed to connect database: %s\n", db_path))
+		fmt.Printf("could not construct Db connection string: %s\n", err)
 		os.Exit(1)
 	}
-	grmDb.AutoMigrate(&db.Tag{}, &db.Expense{}, &db.Activity{})
+	grmDb, err := gorm.Open(postgres.Open(dbConn), &gorm.Config{})
+	if err != nil {
+		fmt.Println("failed to connect database")
+		os.Exit(1)
+	}
+	if err := grmDb.AutoMigrate(&db.Tag{}, &db.Expense{}, &db.Activity{}); err != nil {
+		fmt.Printf("Error Auto-Migrating Tables:\n\t%s\n", err)
+		os.Exit(1)
+	}
 
 	repo := db.NewRepository(grmDb)
 

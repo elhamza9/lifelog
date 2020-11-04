@@ -10,7 +10,8 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
-	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
-	gorm.io/driver/sqlite v1.1.1
-	gorm.io/gorm v1.20.0
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	gorm.io/driver/postgres v1.0.5
+	gorm.io/driver/sqlite v1.1.3
+	gorm.io/gorm v1.20.5
 )
