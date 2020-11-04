@@ -9,3 +9,6 @@ todo.txt
 
 # server binary
 server
+
+# Docker compose env files
+*.env
