@@ -4,4 +4,4 @@ Lifelog is an application to manage:
 * *Activities*
 * *Expenses*
 
-It currently has an HTTP Rest API (developed with **Echo Framework**).
+It has currently an HTTP Rest API developed with **Echo Framework**.
