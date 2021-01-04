@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetAllTags handler returns a list of all tags
+// GetAllTags handler returns a list of all tags.
 func (h *Handler) GetAllTags(c echo.Context) error {
 	tags, err := h.lister.AllTags()
 	if err != nil {
@@ -29,7 +29,7 @@ func (h *Handler) GetAllTags(c echo.Context) error {
 	return c.JSON(http.StatusOK, tags)
 }
 
-// GetTagExpenses handler returns expenses of a given tag
+// GetTagExpenses handler returns expenses of a given tag.
 func (h *Handler) GetTagExpenses(c echo.Context) error {
 	// Get Tag ID from path
 	idStr := c.Param("id")
@@ -61,7 +61,7 @@ func (h *Handler) GetTagExpenses(c echo.Context) error {
 	return c.JSON(http.StatusOK, respExpenses)
 }
 
-// GetTagActivities handler returns activities of a given tag
+// GetTagActivities handler returns activities of a given tag.
 func (h *Handler) GetTagActivities(c echo.Context) error {
 	// Get Tag ID from path
 	idStr := c.Param("id")
@@ -93,8 +93,7 @@ func (h *Handler) GetTagActivities(c echo.Context) error {
 	return c.JSON(http.StatusOK, respActivities)
 }
 
-// AddTag handler calls adding service to create a tag
-// with given name and returns the created tag
+// AddTag handler adds a given tag and returns it.
 func (h *Handler) AddTag(c echo.Context) error {
 	// Json unmarshall
 	var jsTag JSONReqTag
@@ -122,8 +121,7 @@ func (h *Handler) AddTag(c echo.Context) error {
 	return c.JSON(http.StatusCreated, created)
 }
 
-// EditTag handler calls editing service to edit a tag
-// with given name and returns the edited tag
+// EditTag handler edits tag with given ID and returns it.
 func (h *Handler) EditTag(c echo.Context) error {
 	// Get Tag ID from path
 	idStr := c.Param("id")
@@ -170,7 +168,7 @@ func (h *Handler) EditTag(c echo.Context) error {
 	return c.JSON(http.StatusOK, edited)
 }
 
-// DeleteTag handler calls deleting service to delete a tag
+// DeleteTag handler deletes a tag with given ID.
 func (h *Handler) DeleteTag(c echo.Context) error {
 	// Get Tag ID from path
 	idStr := c.Param("id")

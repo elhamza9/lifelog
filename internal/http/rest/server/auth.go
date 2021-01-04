@@ -10,20 +10,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// loginRequest specifies the structure of json when authenticating
+// loginRequest specifies the structure of json in an authentication request.
 type loginRequest struct {
 	Password string `json:"password"`
 }
 
-// refreshRequest specifies the structure of json when refreshing Tokens
+// refreshRequest specifies the structure of json in a refresh-token request.
 type refreshRequest struct {
 	RefreshToken string `json:"refresh"`
 }
 
-// errSigningJwt represents the error returned when Token can not be signed
+// errSigningJwt represents the error returned when Token can not be signed.
 var errSigningJwt error = errors.New("Could not sign JWT Token")
 
-// jwtSignErrHandler accepts the error returned when signing a JWT Token
+// jwtSignErrHandler takes the error returned when signing a JWT Token
 // and returns:
 //	- Http Code to be returned to the client
 //	- Msg body to be returned to the client
@@ -35,7 +35,7 @@ func jwtSignErrHandler(err error) (code int, respMsg string, logMsg string) {
 	return code, respMsg, logMsg
 }
 
-// Login handler authenticates user and returns a JWT Token
+// Login handler authenticates user and returns a JWT Token if authentication is successful.
 func (h *Handler) Login(c echo.Context) error {
 	// Unmarshal JSON
 	var req loginRequest
@@ -78,8 +78,8 @@ func (h *Handler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, body)
 }
 
-// RefreshToken handler accepts a refresh token
-// and returns a new access/refresh token pair
+// RefreshToken handler requires a refresh token in JSON
+// and returns a new access/refresh token pair.
 func (h *Handler) RefreshToken(c echo.Context) error {
 	// Unmarshal JSON
 	var req refreshRequest

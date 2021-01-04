@@ -6,7 +6,7 @@ import (
 	"github.com/elhamza90/lifelog/internal/domain"
 )
 
-// JSONReqExpense is used to unmarshal a json expense
+// JSONReqExpense is used to unmarshal a json expense.
 type JSONReqExpense struct {
 	ID         domain.ExpenseID  `json:"id"`
 	Label      string            `json:"label"`
@@ -17,7 +17,7 @@ type JSONReqExpense struct {
 	TagIds     []domain.TagID    `json:"tagIds"`
 }
 
-// ToDomain constructs and returns a domain.Expense from a JSONReqExpense
+// ToDomain constructs and returns a domain.Expense from a JSONReqExpense.
 func (reqExp JSONReqExpense) ToDomain() domain.Expense {
 	// Construct Tags slice from ids ( don't fetch anything )
 	tags := []domain.Tag{}
@@ -35,7 +35,7 @@ func (reqExp JSONReqExpense) ToDomain() domain.Expense {
 	}
 }
 
-// JSONRespDetailExpense is used to marshal an expense to json
+// JSONRespDetailExpense is used to marshal an expense to json.
 type JSONRespDetailExpense struct {
 	ID            domain.ExpenseID  `json:"id"`
 	Label         string            `json:"label"`
@@ -47,17 +47,7 @@ type JSONRespDetailExpense struct {
 	Tags          []domain.Tag      `json:"tags"`
 }
 
-// JSONRespListExpense is used to marshal an expense to json
-type JSONRespListExpense struct {
-	ID         domain.ExpenseID  `json:"id"`
-	Label      string            `json:"label"`
-	Time       time.Time         `json:"time"`
-	Value      float32           `json:"value"`
-	Unit       string            `json:"unit"`
-	ActivityID domain.ActivityID `json:"activityId"`
-}
-
-// From constructs a JSONRespDetailExpense object from a domain.Expense object
+// From constructs a JSONRespDetailExpense object from a domain.Expense object.
 func (respExp *JSONRespDetailExpense) From(exp domain.Expense, act domain.Activity) {
 	(*respExp).ID = exp.ID
 	(*respExp).Label = exp.Label
@@ -69,7 +59,17 @@ func (respExp *JSONRespDetailExpense) From(exp domain.Expense, act domain.Activi
 	(*respExp).Tags = exp.Tags
 }
 
-// From constructs a JSONRespListExpense object from a domain.Expense object
+// JSONRespListExpense is used to marshal an expense in a list to json.
+type JSONRespListExpense struct {
+	ID         domain.ExpenseID  `json:"id"`
+	Label      string            `json:"label"`
+	Time       time.Time         `json:"time"`
+	Value      float32           `json:"value"`
+	Unit       string            `json:"unit"`
+	ActivityID domain.ActivityID `json:"activityId"`
+}
+
+// From constructs a JSONRespListExpense object from a domain.Expense object.
 func (respExp *JSONRespListExpense) From(exp domain.Expense) {
 	(*respExp).ID = exp.ID
 	(*respExp).Label = exp.Label

@@ -7,34 +7,32 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-// jwtAccessSecret returns a byte array containing
-// Jwt Signing Key for Access Tokens
+// jwtAccessSecret returns Jwt Signing Key for Access Tokens as a bytes slice.
 func jwtAccessSecret() []byte {
 	secret := os.Getenv("LFLG_JWT_ACCESS_SECRET")
 	return []byte(secret)
 }
 
-// jwtRefreshSecret returns a byte array containing
-// Jwt Signing Key for Refresh Tokens
+// jwtRefreshSecret returns Jwt Signing Key for Refresh Tokens as a bytes slice.
 func jwtRefreshSecret() []byte {
 	secret := os.Getenv("LFLG_JWT_REFRESH_SECRET")
 	return []byte(secret)
 }
 
 const (
-	// accessTokenExpDuration represents how much access token lives before it must be changed
+	// accessTokenExpDuration represents how much time access token lives before it must be changed.
 	accessTokenExpDuration time.Duration = time.Duration(time.Minute * 15)
-	// refreshTokenExpDuration represents how much refresh token lives before it must be changed
+	// refreshTokenExpDuration represents how much time refresh token lives before it must be changed.
 	refreshTokenExpDuration time.Duration = time.Duration(time.Hour * 6)
 )
 
-// accessTokenClaims used in Access Token
+// accessTokenClaims represents claims used in Access Token.
 type accessTokenClaims struct {
 	Name string `json:"name"`
 	jwt.StandardClaims
 }
 
-// generateAccessToken return signed access token
+// generateAccessToken generates & returns a signed access token.
 func generateAccessToken() (string, error) {
 	secret := jwtAccessSecret()
 	now := time.Now()
@@ -52,7 +50,7 @@ func generateAccessToken() (string, error) {
 	return signed, nil
 }
 
-// generateTokenPair returns signed refresh token
+// generateTokenPair generates & returns a signed refresh token.
 func generateRefreshToken() (string, error) {
 	secret := jwtRefreshSecret()
 	now := time.Now()

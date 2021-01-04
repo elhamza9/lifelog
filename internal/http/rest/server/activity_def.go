@@ -48,16 +48,6 @@ type JSONRespDetailActivity struct {
 	Tags     []domain.Tag          `json:"tags"`
 }
 
-// JSONRespListActivity is used to marshal an activity to json
-type JSONRespListActivity struct {
-	ID       domain.ActivityID `json:"id"`
-	Label    string            `json:"label"`
-	Desc     string            `json:"desc"`
-	Place    string            `json:"place"`
-	Time     time.Time         `json:"time"`
-	Duration time.Duration     `json:"duration"`
-}
-
 // From constructs a JSONRespDetailActivity object from a domain.Activity object
 func (respAct *JSONRespDetailActivity) From(act domain.Activity, expenses []domain.Expense) {
 	(*respAct).ID = act.ID
@@ -74,6 +64,16 @@ func (respAct *JSONRespDetailActivity) From(act domain.Activity, expenses []doma
 	}
 	(*respAct).Expenses = respExpenses
 	(*respAct).Tags = act.Tags
+}
+
+// JSONRespListActivity is used to marshal a list of activities to json
+type JSONRespListActivity struct {
+	ID       domain.ActivityID `json:"id"`
+	Label    string            `json:"label"`
+	Desc     string            `json:"desc"`
+	Place    string            `json:"place"`
+	Time     time.Time         `json:"time"`
+	Duration time.Duration     `json:"duration"`
 }
 
 // From constructs a JSONRespListActivity object from a domain.Activity object

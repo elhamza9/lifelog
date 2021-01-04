@@ -14,8 +14,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Handler contains services required by it's methods
-// (which are http handlers) to perform their jobs.
+// Handler contains services required by http handlers to perform their jobs.
+// ( communicate with DBs, ...etc )
 type Handler struct {
 	lister        listing.Service
 	adder         adding.Service
@@ -24,7 +24,7 @@ type Handler struct {
 	authenticator auth.Service
 }
 
-// NewHandler construct & returns a new handler with provided services.
+// NewHandler constructs & returns a new handler with provided services.
 func NewHandler(lister *listing.Service, adder *adding.Service, editor *editing.Service, deleter *deleting.Service, authenticator *auth.Service) *Handler {
 	return &Handler{
 		lister:        *lister,

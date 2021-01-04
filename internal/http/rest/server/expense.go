@@ -11,16 +11,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// defaultExpensesMinDate specifies default date filter when listing expenses
-// and no filter was provided
+// defaultExpensesMinDate returns default date filter when listing expenses
+// and no filter was provided (default is 3 months).
 func defaultExpensesDateFilter() time.Time {
 	return time.Now().AddDate(0, -3, 0)
 }
 
-// ExpensesByDate handler returns a list of all expenses done
-// from a specific date up to now.
-// It requires a query parameter "from" specifying the date as mm-dd-yyyy
-// If no parameter is found default is to return expenses of last 3 months
+// ExpensesByDate handler returns a list of all expenses from a specific date up to now.
+// It has an optional query parameter "from" specifying the date as mm-dd-yyyy
+// If "from" parameter is missing, a default value is used.
 func (h *Handler) ExpensesByDate(c echo.Context) error {
 	dateStr := c.QueryParam("from")
 	var date time.Time
@@ -49,7 +48,7 @@ func (h *Handler) ExpensesByDate(c echo.Context) error {
 	return c.JSON(http.StatusOK, respExpenses)
 }
 
-// ExpenseDetails handler returns details of expense with given ID
+// ExpenseDetails handler returns details of expense with given ID.
 // It required a path parameter :id
 func (h *Handler) ExpenseDetails(c echo.Context) error {
 	// Get ID from Path param
@@ -86,7 +85,7 @@ func (h *Handler) ExpenseDetails(c echo.Context) error {
 	return c.JSON(http.StatusOK, respExp)
 }
 
-// AddExpense handler adds an expense
+// AddExpense handler adds given expense and returns it.
 func (h *Handler) AddExpense(c echo.Context) error {
 	// Json unmarshall
 	var jsExp JSONReqExpense
@@ -132,7 +131,7 @@ func (h *Handler) AddExpense(c echo.Context) error {
 	return c.JSON(http.StatusCreated, respExp)
 }
 
-// EditExpense handler edits an expense with given ID
+// EditExpense handler edits an expense with given ID and returns it.
 // It required a path parameter :id
 func (h *Handler) EditExpense(c echo.Context) error {
 	// Get ID from Path param
@@ -196,7 +195,7 @@ func (h *Handler) EditExpense(c echo.Context) error {
 	return c.JSON(http.StatusOK, respExp)
 }
 
-// DeleteExpense handler deletes an expense with given ID
+// DeleteExpense handler deletes an expense with given ID.
 // It required a path parameter :id
 func (h *Handler) DeleteExpense(c echo.Context) error {
 	// Get ID from Path param

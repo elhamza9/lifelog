@@ -11,25 +11,25 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// dateFilterFormat specifies the format of date in a query filter
+// dateFilterFormat specifies the format of date in a query filter.
 const dateFilterFormat string = "01-02-2006"
 
 // errInvalidJSON represents an error that occured while binding
-// (unmarshaling) a json request to struct type
+// (unmarshaling) a json request to struct type.
 var errInvalidJSON error = errors.New("Invalid JSON")
 
-// httpErrorMsg extracts error message from echo.HTTPError struct
+// httpErrorMsg extracts & returns the error message from echo.HTTPError struct.
 func httpErrorMsg(err error) string {
 	he, _ := err.(*echo.HTTPError)
 	return he.Message.(string)
 }
 
-// errToHTTPCode returns the http code that should be sent for an error
+// errToHTTPCode returns the http code that should be sent for an error.
 // The grp parameter specifies which handler group called the function
 // because some errors will get treated differently depending on the handler
 // in which they were received.
-// Ex: a Tag not found will raise a StatusNotFound in a tag handler
-//     but will raise s StatusUnprocessableEntity in an expense handler
+// Ex: a Tag not found will raise a StatusNotFound in a tag handler,
+//     but will raise a StatusUnprocessableEntity in an expense handler.
 func errToHTTPCode(err error, grp string) int {
 	switch err {
 	// rest errors

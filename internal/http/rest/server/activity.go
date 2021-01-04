@@ -11,16 +11,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// defaultActivitiesMinDate specifies default date filter when listing activities
-// and no filter was provided
+// defaultActivitiesMinDate return default date filter when listing activities
+// and no filter was provided (default is last 3 months)
 func defaultActivitiesDateFilter() time.Time {
 	return time.Now().AddDate(0, -3, 0)
 }
 
-// ActivitiesByDate handler returns a list of all activities done
-// from a specific date up to now.
-// It requires a query parameter "from" specifying the date as mm-dd-yyyy
-// If no parameter is found default is to return activities of last 3 months
+// ActivitiesByDate handler returns a list of all activities from a specific date up to now.
+// It has an optional query parameter "from" specifying the date as mm-dd-yyyy
+// If "from" parameter is missing, a default value is used.
 func (h *Handler) ActivitiesByDate(c echo.Context) error {
 	dateStr := c.QueryParam("from")
 	logrus.Debugf("Extracted query param from: %s", dateStr)
@@ -55,8 +54,8 @@ func (h *Handler) ActivitiesByDate(c echo.Context) error {
 	return c.JSON(http.StatusOK, respActivities)
 }
 
-// ActivityDetails handler returns details of activity with given ID
-// It required a path parameter :id
+// ActivityDetails handler returns details of activity with given ID.
+// It requires a path parameter :id
 func (h *Handler) ActivityDetails(c echo.Context) error {
 	// Get ID from Path param
 	idStr := c.Param("id")
@@ -89,7 +88,7 @@ func (h *Handler) ActivityDetails(c echo.Context) error {
 	return c.JSON(http.StatusOK, actResp)
 }
 
-// AddActivity handler adds an activity
+// AddActivity handler adds given activity and returns it.
 func (h *Handler) AddActivity(c echo.Context) error {
 	// Json unmarshall
 	var jsAct JSONReqActivity
@@ -120,8 +119,8 @@ func (h *Handler) AddActivity(c echo.Context) error {
 	return c.JSON(http.StatusCreated, created)
 }
 
-// EditActivity handler edits an activity with given ID
-// It required a path parameter :id
+// EditActivity handler edits activity with given ID and returns it.
+// It requires a path parameter :id
 func (h *Handler) EditActivity(c echo.Context) error {
 	// Get ID from Path param
 	idStr := c.Param("id")
@@ -171,8 +170,8 @@ func (h *Handler) EditActivity(c echo.Context) error {
 	return c.JSON(http.StatusOK, edited)
 }
 
-// DeleteActivity handler deletes an activity with given ID
-// It required a path parameter :id
+// DeleteActivity handler deletes an activity with given ID.
+// It requires a path parameter :id
 func (h *Handler) DeleteActivity(c echo.Context) error {
 	// Get ID from Path param
 	idStr := c.Param("id")
